@@ -1,6 +1,6 @@
 # 08 — PIN & Biometric Authentication System
 
-[← Previous: Family Tree](./07-family-tree-access.md) | [Back to Index](./README.md) | [Next: Real Estate Firms →](./09-real-estate-firm-integration.md)
+[← Previous: Family Tree](./07-family-tree-access.md) | [Back to Index](./README.md) | [Next: Security Architecture →](./10-security-architecture.md)
 
 ---
 
@@ -213,4 +213,5 @@ async def is_token_blacklisted(jti: str) -> bool:
 
 ---
 
-[← Previous: Family Tree](./07-family-tree-access.md) | [Back to Index](./README.md) | [Next: Real Estate Firms →](./09-real-estate-firm-integration.md)
+[← Previous: Family Tree](./07-family-tree-access.md) | [Back to Index](./README.md) | [Next: Security Architecture →](./10-security-architecture.md)
+

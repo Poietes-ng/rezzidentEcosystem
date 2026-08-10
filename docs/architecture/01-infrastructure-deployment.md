@@ -1,6 +1,6 @@
 # 01 — Infrastructure & Deployment Decisions
 
-[← Back to Index](./README.md) | [Next: VPS Provider Comparison →](./02-vps-provider-comparison.md)
+[← Back to Index](./README.md) | [Next: Multi tenancy Architecture→](./03-multi-tenant-architecture.md)
 
 ---
 
@@ -13,7 +13,7 @@ These decisions have been finalized based on the project's requirements, scale (
 | Database       | PostgreSQL in Docker                             | Full control, no network latency, backup with `pg_dump` cron                     |
 | Cache/Sessions | Redis in Docker (Phase 1)                        | Rate limiting, JWT blacklist, subscription cache, session store                  |
 | Object Storage | MinIO (documents/receipts) + Cloudinary (images) | MinIO for cost control on bulk files, Cloudinary for image CDN + transformations |
-| MinIO Instance | New instance for Paradise Estate                 | Clean separation from `media.rezzident.co`/ `rezzident` bucket                      |
+| MinIO Instance | New instance for Paradise Estate                 | Clean separation from `media.rezzident.co`/ `rezzident` bucket                   |
 | Multi-tenancy  | Schema-per-tenant                                | Moderate isolation for 20-200 estates, recommended for B2B SaaS                  |
 | Frontend       | TanStack Start (start immediately)               | SSR, type-safe routing, feature-based architecture                               |
 | Mobile         | React Native (Expo) — parallel with web          | Shared API client, simultaneous development                                      |
@@ -131,4 +131,4 @@ The full Docker Compose file is already created at `docker-compose.yml` in the p
 
 ---
 
-[← Back to Index](./README.md) | [Next: VPS Provider Comparison →](./02-vps-provider-comparison.md)
+[← Back to Index](./README.md) | [Next: Multi tenancy Architecture→](./03-multi-tenant-architecture.md)

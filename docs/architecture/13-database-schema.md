@@ -1,6 +1,6 @@
 # 13 — Database Schema Design
 
-[← Previous: Mobile](./12-react-native-mobile.md) | [Back to Index](./README.md) | [Next: Implementation Priority →](./14-implementation-priority.md)
+[← Previous: Mobile](./12-react-native-mobile.md) | 
 
 ---
 
@@ -301,4 +301,4 @@ The existing tables (`bills`, `payments`, `visitor_codes`, `visitors`, `notifica
 
 ---
 
-[← Previous: Mobile](./12-react-native-mobile.md) | [Back to Index](./README.md) | [Next: Implementation Priority →](./14-implementation-priority.md)
+[← Previous: Mobile](./12-react-native-mobile.md) | [Back to Index](./README.md) | 
