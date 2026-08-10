@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezzident Architecture Docs</title>
+
+    <!-- GitHub Markdown CSS for styling the parsed markdown -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+
+    <style>
+        :root {
+            --sidebar-width: 320px;
+            --bg-color: #f9fafb;
+            --border-color: #e5e7eb;
+            --text-color: #111827;
+            --link-color: #2563eb;
+            --hover-bg: #f3f4f6;
+            --active-bg: #e0e7ff;
+            --active-text: #4338ca;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #ffffff;
+            color: var(--text-color);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-color);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-color);
+            z-index: 10;
+        }
+
+        .sidebar-header h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 8px 20px;
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-item:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+        }
+
+        .nav-item.active {
+            background-color: var(--active-bg);
+            color: var(--active-text);
+            font-weight: 600;
+            border-right: 3px solid var(--active-text);
+        }
+
+        .section-title {
+            padding: 16px 20px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+        }
+
+        /* Main Content */
+        #main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .content-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Loading indicator */
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        #error-msg {
+            display: none;
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f87171;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: 250px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            #main-content {
+                height: calc(100vh - 250px);
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside id="sidebar">
+        <div class="sidebar-header">
+            <h1>Rezzident Docs</h1>
+        </div>
+        <nav class="sidebar-nav" id="nav-container">
+            <!-- Navigation links will be injected here via JS -->
+        </nav>
+    </aside>
+
+    <main id="main-content">
+        <div class="content-wrapper">
+            <div id="loader">Loading document...</div>
+            <div id="error-msg"></div>
+            <article id="markdown-container" class="markdown-body"></article>
+        </div>
+    </main>
+
+    <!-- Marked.js for parsing markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        // List of all markdown files to display in the sidebar
+        const docFiles = [
+            { path: 'architecture/README.md', title: 'Architecture Index' },
+            { path: 'architecture/01-infrastructure-deployment.md', title: '01. Infrastructure & Deployment' },
+            { path: 'architecture/03-multi-tenant-architecture.md', title: '02. Multi-Tenant Architecture' },
+            { path: 'architecture/04-estate-id-generation.md', title: '03. Estate ID Generation' },
+            { path: 'architecture/05-registration-onboarding.md', title: '04. Registration & Onboarding' },
+            { path: 'architecture/06-resident-verification.md', title: '05. Resident Verification' },
+            { path: 'architecture/07-family-tree-access.md', title: '06. Family Tree & Access' },
+            { path: 'architecture/08-pin-biometric-auth.md', title: '07. PIN & Biometric Auth' },
+            { path: 'architecture/10-security-architecture.md', title: '08. Security Architecture' },
+            { path: 'architecture/11-tanstack-start-frontend.md', title: '09. TanStack Start Frontend' },
+            { path: 'architecture/12-react-native-mobile.md', title: '10. React Native Mobile' },
+            { path: 'architecture/13-database-schema.md', title: '11. Database Schema' },
+        ];
+
+        const navContainer = document.getElementById('nav-container');
+        const markdownContainer = document.getElementById('markdown-container');
+        const loader = document.getElementById('loader');
+        const errorMsg = document.getElementById('error-msg');
+
+        // Configure Marked.js to open links in a way that handles relative MD links
+        const renderer = new marked.Renderer();
+        renderer.link = function ({ href, title, text }) {
+            // Intercept relative .md links to load them via hash routing
+            if (href && href.endsWith('.md') && !href.startsWith('http')) {
+                // Handle relative paths (e.g. ./09-real-estate.md)
+                let targetPath = href;
+                if (targetPath.startsWith('./')) targetPath = targetPath.substring(2);
+
+                // If it's just a filename without a folder, assume it's in the current folder (architecture)
+                if (!targetPath.includes('/')) targetPath = `architecture/${targetPath}`;
+
+                return `<a href="#${targetPath}">${text}</a>`;
+            }
+            // Standard links
+            return `<a href="${href}" ${title ? `title="${title}"` : ''} target="_blank">${text}</a>`;
+        };
+
+        marked.use({ renderer });
+
+        // Generate Sidebar
+        function renderSidebar() {
+            navContainer.innerHTML = '<div class="section-title">Architecture</div>';
+
+            docFiles.forEach(doc => {
+                const link = document.createElement('a');
+                link.href = `#${doc.path}`;
+                link.className = 'nav-item';
+                link.dataset.path = doc.path;
+                link.textContent = doc.title;
+                navContainer.appendChild(link);
+            });
+        }
+
+        // Fetch and render markdown
+        async function loadMarkdown(filePath) {
+            // Update active state in sidebar
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.path === filePath);
+            });
+
+            markdownContainer.innerHTML = '';
+            errorMsg.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                // Fetch the markdown file relative to this index.html
+                const response = await fetch(filePath);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${filePath} (${response.status} ${response.statusText})`);
+                }
+
+                const mdContent = await response.text();
+
+                // Parse markdown to HTML
+                markdownContainer.innerHTML = marked.parse(mdContent);
+
+                // Scroll to top
+                document.getElementById('main-content').scrollTop = 0;
+
+            } catch (error) {
+                console.error('Error loading markdown:', error);
+                errorMsg.textContent = `Error loading document: ${error.message}`;
+                errorMsg.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Router
+        function handleHashChange() {
+            const hash = window.location.hash.substring(1); // Remove the #
+
+            if (hash) {
+                loadMarkdown(hash);
+            } else {
+                // Default to the first file
+                window.location.hash = docFiles[0].path;
+            }
+        }
+
+        // Init
+        renderSidebar();
+        window.addEventListener('hashchange', handleHashChange);
+
+        // Initial load
+        handleHashChange();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,4851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rezzident Ecosystem — Master ERD Database Flow & System Workflows</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070a12;
+      --bg-card: rgba(15, 23, 42, 0.88);
+      --bg-card-hover: rgba(24, 36, 64, 0.95);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-color-hover: rgba(56, 189, 248, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      /* Domain Color Palette */
+      --color-public: #38bdf8;      /* Cyan - Public Core */
+      --color-identity: #818cf8;    /* Indigo - Identity & Residence */
+      --color-social: #a78bfa;      /* Purple - Verification & Social */
+      --color-visitor: #34d399;     /* Emerald - Gate Access */
+      --color-finance: #f59e0b;     /* Amber - Financial Dues */
+      --color-governance: #ec4899;  /* Pink - Governance & Ops */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Grid Background Pattern */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header Bar */
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(7, 10, 18, 0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+      font-weight: 800;
+      color: white;
+      font-size: 16px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tab Switcher */
+    .tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 7px 14px 7px 32px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      width: 220px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-public);
+      width: 280px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* App Container */
+    #app-container {
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 64px);
+      margin-top: 64px;
+    }
+
+    /* Graph Canvas View */
+    #graph-view {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    #graph-view.panning {
+      cursor: grabbing !important;
+    }
+
+    svg#graph-svg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* ERD Card Node Styling */
+    .node-group {
+      cursor: grab;
+      transition: opacity 0.25s ease;
+    }
+
+    .node-card {
+      fill: var(--bg-card);
+      stroke-width: 1.5;
+      rx: 8;
+      ry: 8;
+      filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.7));
+      transition: stroke 0.2s, stroke-width 0.2s, filter 0.2s;
+    }
+
+    .node-group:hover .node-card {
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.4));
+    }
+
+    .node-header-bg {
+      rx: 8;
+      ry: 8;
+      opacity: 0.15;
+    }
+
+    .node-header-title {
+      font-weight: 700;
+      font-size: 13px;
+      fill: #ffffff;
+      pointer-events: none;
+    }
+
+    .node-header-table {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      fill: #94a3b8;
+      pointer-events: none;
+    }
+
+    .col-row-text {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      pointer-events: none;
+    }
+
+    .col-name {
+      fill: #e2e8f0;
+      font-weight: 500;
+    }
+
+    .col-type {
+      fill: #64748b;
+      font-size: 10px;
+    }
+
+    .pk-tag {
+      fill: #f59e0b;
+      font-weight: 700;
+    }
+
+    .fk-tag {
+      fill: #818cf8;
+      font-weight: 700;
+    }
+
+    /* Connection Lines */
+    .link-path {
+      fill: none;
+      stroke-width: 1.8;
+      opacity: 0.25;
+      transition: opacity 0.25s, stroke-width 0.25s;
+    }
+
+    .link-path.active {
+      opacity: 0.95;
+      stroke-width: 3;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -32;
+      }
+    }
+
+    .link-pulse {
+      fill: none;
+      stroke-width: 2.5;
+      stroke-dasharray: 6, 10;
+      animation: dash 1s linear infinite;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    /* Legend */
+    .legend-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .legend-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .legend-items {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Floating Zoom Controls */
+    .zoom-toolbar {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 6px 10px;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .zoom-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .zoom-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .zoom-scale-text {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--color-public);
+      min-width: 50px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    /* Inspector Drawer */
+    #inspector-drawer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      bottom: 20px;
+      width: 380px;
+      background: rgba(11, 17, 31, 0.95);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      z-index: 60;
+      transform: translateX(420px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -10px 0 40px rgba(0,0,0,0.7);
+      overflow: hidden;
+    }
+
+    #inspector-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .drawer-subtitle {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--color-public);
+    }
+
+    .close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-content {
+      padding: 18px 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 11px;
+    }
+
+    .field-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .field-type {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--color-public);
+    }
+
+    /* Views */
+    #flowcharts-view, #matrix-view {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: 30px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .flowcard {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .steps-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    .step-box {
+      min-width: 210px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .matrix-table {
+      width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .matrix-table th, .matrix-table td {
+      padding: 12px 16px;
+      font-size: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .matrix-table th {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">R</div>
+      <div class="brand-title">Rezzident Database ERD & Flowcharts</div>
+      <span class="brand-badge">Multi-Tenant V2 Corrected</span>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('graph')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+        Database ERD Diagram
+      </button>
+      <button class="tab-btn" onclick="switchTab('flowcharts')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        System Workflows
+      </button>
+      <button class="tab-btn" onclick="switchTab('matrix')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        Table Matrix
+      </button>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Search model, table, or field..." oninput="handleSearch(this.value)">
+      </div>
+    </div>
+  </header>
+
+  <!-- App Container -->
+  <div id="app-container">
+
+    <!-- View 1: Interactive ERD Graph -->
+    <div id="graph-view">
+      <svg id="graph-svg">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.4)" />
+          </marker>
+          <marker id="arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <g id="viewport">
+          <g id="links-layer"></g>
+          <g id="pulses-layer"></g>
+          <g id="nodes-layer"></g>
+        </g>
+      </svg>
+
+      <!-- Legend -->
+      <div class="legend-panel">
+        <div class="legend-title">Database Domains</div>
+        <div class="legend-items">
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-public);"></div> Public Core</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-identity);"></div> Identity & Residence</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-social);"></div> Verification & Social</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-visitor);"></div> Gate Access</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-finance);"></div> Financial Dues</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--color-governance);"></div> Governance & Ops</div>
+        </div>
+      </div>
+
+      <!-- Zoom Toolbar -->
+      <div class="zoom-toolbar">
+        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">🔍 +</button>
+        <span class="zoom-scale-text" id="scale-text">100%</span>
+        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">🔍 -</button>
+        <button class="zoom-btn" onclick="fitView()" title="Fit Screen">🎯 Fit Screen</button>
+        <button class="zoom-btn" onclick="resetZoom()" title="Reset Origin">⟲ Reset</button>
+      </div>
+    </div>
+
+    <!-- View 2: Workflows -->
+    <div id="flowcharts-view">
+      <div style="max-width: 1100px; margin: 0 auto;">
+        
+        <!-- Workflow 1 -->
+        <div class="flowcard">
+          <h3 style="color: var(--color-public); font-size: 18px; margin-bottom: 8px;">🏗️ 1. Estate Registration & Flexible Address Structure Flow</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">
+            Registration flow matching Figma specs: Estate setup, management type selection, 48+ preloaded/custom structure configuration, 2 designated stakeholders, and Paystack settlement account.
+          </p>
+          <div class="steps-container">
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">1. Basic Info & Type</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Estate Name, Address, GPS, Type (Community / Firm)</div>
+            </div>
+            <span style="color: var(--color-public);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">2. Structure Template</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Select from 48+ preloaded patterns or custom structure</div>
+            </div>
+            <span style="color: var(--color-public);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">3. 2 Stakeholders</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Assign 2 contacts (Elected leaders or Firm admins)</div>
+            </div>
+            <span style="color: var(--color-public);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">4. Bank Settlement</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Bank details & Paystack Subaccount auto-creation</div>
+            </div>
+            <span style="color: var(--color-public);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">5. Onboarding Verification</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Stakeholder OTP verify → Instant admin panel access</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow 2 -->
+        <div class="flowcard">
+          <h3 style="color: var(--color-identity); font-size: 18px; margin-bottom: 8px;">🛡️ 2. Resident Auth & Peer Vouching System</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">
+            Registration paths, facial bio capture, PIN setup, and peer vouching upgrade from Tier 1 (restricted) to Tier 2 (full access).
+          </p>
+          <div class="steps-container">
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">1. Registration</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Phone # + Facial Capture URL + NIN setup</div>
+            </div>
+            <span style="color: var(--color-identity);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">2. OTP Verification</div>
+              <div style="font-size: 11px; color: var(--text-muted);">SMS verification via OTP model</div>
+            </div>
+            <span style="color: var(--color-identity);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">3. Tier Assessment</div>
+              <div style="font-size: 11px; color: var(--text-muted);">CSV Match → Tier 2 | Self Registered → Tier 1</div>
+            </div>
+            <span style="color: var(--color-identity);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">4. Peer Vouching</div>
+              <div style="font-size: 11px; color: var(--text-muted);">2 verified neighbors vouch → Tier 2 Upgrade</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow 3 -->
+        <div class="flowcard">
+          <h3 style="color: var(--color-visitor); font-size: 18px; margin-bottom: 8px;">🚪 3. Visitor Passcode & Gate Security Flow</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">
+            Single-entry, multi-entry, or duration visitor code generation with real-time gate security check-in/out logging.
+          </p>
+          <div class="steps-container">
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">1. Schedule Visitor</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Resident creates VisitorCode in app</div>
+            </div>
+            <span style="color: var(--color-visitor);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">2. Gate Scan</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Security guard scans/types code</div>
+            </div>
+            <span style="color: var(--color-visitor);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">3. Log Check-In</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Record created in Visitor history table</div>
+            </div>
+            <span style="color: var(--color-visitor);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">4. Arrival Alert</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Instant push notification sent to resident</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow 4 -->
+        <div class="flowcard">
+          <h3 style="color: var(--color-finance); font-size: 18px; margin-bottom: 8px;">💳 4. Bill Payment & Paystack Split Ledger Flow</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">
+            Automated payment splitting: Gross payment divided between Paystack fee, Platform revenue, and Estate settlement subaccount with real-time audit ledger.
+          </p>
+          <div class="steps-container">
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">1. Bill Generated</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Bill created & ResidentBill assigned</div>
+            </div>
+            <span style="color: var(--color-finance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">2. Resident Pays</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Payment initialized via Paystack SDK</div>
+            </div>
+            <span style="color: var(--color-finance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">3. Paystack Split</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Split transaction executed on gateway</div>
+            </div>
+            <span style="color: var(--color-finance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">4. PaymentLedger Record</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Exact kobo breakdown logged for reconciliation</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workflow 5 -->
+        <div class="flowcard">
+          <h3 style="color: var(--color-governance); font-size: 18px; margin-bottom: 8px;">🚨 5. Panic Alert & Emergency Escalation Flow</h3>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">
+            Instant emergency trigger with real-time GPS coordinates, security broadcast, and resolution logging.
+          </p>
+          <div class="steps-container">
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">1. Panic Triggered</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Resident presses Panic Button in app</div>
+            </div>
+            <span style="color: var(--color-governance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">2. Record & Broadcast</div>
+              <div style="font-size: 11px; color: var(--text-muted);">PanicAlert created with GPS coordinates</div>
+            </div>
+            <span style="color: var(--color-governance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">3. Security Alert</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Instant push to security guards & estate admins</div>
+            </div>
+            <span style="color: var(--color-governance);">➔</span>
+            <div class="step-box">
+              <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 4px;">4. Resolution</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Guard arrives, marks alert resolved with notes</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- View 3: Table Matrix -->
+    <div id="matrix-view">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Class Model</th>
+            <th>PostgreSQL Table</th>
+            <th>Schema</th>
+            <th>Domain</th>
+            <th>Columns Count</th>
+            <th>Foreign Keys</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Inspector Drawer -->
+    <div id="inspector-drawer">
+      <div class="drawer-header">
+        <div>
+          <div class="drawer-title" id="drawer-model-name">Table Details</div>
+          <div class="drawer-subtitle" id="drawer-model-table">table_name</div>
+        </div>
+        <button class="close-btn" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drawer-content">
+        <div>
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Schema & Domain</div>
+          <div id="drawer-model-meta" style="font-size: 12px; color: var(--text-muted);"></div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Column Definitions</div>
+          <div id="drawer-fields-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Foreign Key Connections</div>
+          <div id="drawer-rel-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const MODELS = [
+    {
+        "id": "ActivityLog",
+        "table": "activity_logs",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": null
+            },
+            {
+                "name": "activity_type",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "action",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "target_type",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "target_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "ip_address",
+                "type": "VARCHAR(45)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "user_agent",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "metadata",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1960,
+        "height": 320,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "Bill",
+        "table": "bills",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "title",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "amount",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "due_date",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "bill_type",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_expected",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_paid",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            },
+            {
+                "relName": "resident_bills",
+                "toModel": "ResidentBill"
+            }
+        ],
+        "x": 1580,
+        "height": 320,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "ChatMessage",
+        "table": "chat_messages",
+        "schema": "Tenant Schema",
+        "domain": "Verification & Social",
+        "color": "#a78bfa",
+        "colIdx": 2,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "channel",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "message",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "message_type",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "media_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reply_to_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "ChatMessage.id"
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            },
+            {
+                "fromField": "reply_to_id",
+                "toModel": "ChatMessage",
+                "toField": "id"
+            }
+        ],
+        "relationships": [],
+        "x": 820,
+        "height": 254,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "Estate",
+        "table": "estates",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "estate_code",
+                "type": "VARCHAR(10)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "schema_name",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "address",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "city",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "state",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "local_government",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "country",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "gps_latitude",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "subscription_id",
+                "toModel": "Subscription",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "subscription",
+                "toModel": "Subscription"
+            },
+            {
+                "relName": "stakeholders",
+                "toModel": "Stakeholder"
+            },
+            {
+                "relName": "house_entities",
+                "toModel": "HouseEntity"
+            }
+        ],
+        "x": 60,
+        "height": 320,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "Stakeholder",
+        "table": "stakeholders",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Estate.id"
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "nin",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "role_title",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_primary",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "has_panel_access",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "panel_password_hash",
+                "type": "VARCHAR(255)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "estate_id",
+                "toModel": "Estate",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "estate",
+                "toModel": "Estate"
+            }
+        ],
+        "x": 1960,
+        "height": 320,
+        "width": 280,
+        "y": 440
+    },
+    {
+        "id": "HouseEntity",
+        "table": "house_entities",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Estate.id"
+            },
+            {
+                "name": "address_components",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "formatted_address",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_occupied",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "occupant_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "occupant_phone",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "estate_id",
+                "toModel": "Estate",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "estate",
+                "toModel": "Estate"
+            }
+        ],
+        "x": 1960,
+        "height": 276,
+        "width": 280,
+        "y": 800
+    },
+    {
+        "id": "EstateStructureTemplate",
+        "table": "estate_structure_templates",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "template_id",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "name",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "category",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "levels",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "address_format",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "usage_count",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 1960,
+        "height": 298,
+        "width": 280,
+        "y": 1116
+    },
+    {
+        "id": "Expense",
+        "table": "expenses",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "title",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_amount",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "category",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "payment_status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "approved_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "receipt_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "created_by",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "items",
+                "toModel": "ExpenseItem"
+            },
+            {
+                "relName": "approvals",
+                "toModel": "ExpenseApproval"
+            }
+        ],
+        "x": 1580,
+        "height": 320,
+        "width": 280,
+        "y": 440
+    },
+    {
+        "id": "ExpenseItem",
+        "table": "expense_items",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "expense_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Expense.id"
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "quantity",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "unit_price",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_price",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "expense_id",
+                "toModel": "Expense",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "expense",
+                "toModel": "Expense"
+            }
+        ],
+        "x": 1580,
+        "height": 232,
+        "width": 280,
+        "y": 800
+    },
+    {
+        "id": "ExpenseApproval",
+        "table": "expense_approvals",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "expense_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Expense.id"
+            },
+            {
+                "name": "approver_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "comment",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "approved_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "expense_id",
+                "toModel": "Expense",
+                "toField": "id"
+            },
+            {
+                "fromField": "approver_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "expense",
+                "toModel": "Expense"
+            }
+        ],
+        "x": 1580,
+        "height": 232,
+        "width": 280,
+        "y": 1072
+    },
+    {
+        "id": "Firm",
+        "table": "firms",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "firm_code",
+                "type": "VARCHAR(10)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "company_name",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "cac_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "address",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "logo_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "website",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "primary_contact_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "primary_contact_phone",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "primary_contact_email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [
+            {
+                "relName": "admins",
+                "toModel": "FirmAdmin"
+            }
+        ],
+        "x": 60,
+        "height": 320,
+        "width": 280,
+        "y": 440
+    },
+    {
+        "id": "FirmAdmin",
+        "table": "firm_admins",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "firm_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Firm.id"
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "password_hash",
+                "type": "VARCHAR(255)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "designated_estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_primary_contact",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "firm_id",
+                "toModel": "Firm",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "firm",
+                "toModel": "Firm"
+            }
+        ],
+        "x": 60,
+        "height": 298,
+        "width": 280,
+        "y": 800
+    },
+    {
+        "id": "Invoice",
+        "table": "invoices",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "invoice_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "title",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_amount",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "due_date",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "sent_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paid_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "items",
+                "toModel": "InvoiceItem"
+            },
+            {
+                "relName": "payments",
+                "toModel": "InvoicePayment"
+            }
+        ],
+        "x": 1580,
+        "height": 320,
+        "width": 280,
+        "y": 1344
+    },
+    {
+        "id": "InvoiceItem",
+        "table": "invoice_items",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "invoice_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Invoice.id"
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "quantity",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "unit_price",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "total_price",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "invoice_id",
+                "toModel": "Invoice",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "invoice",
+                "toModel": "Invoice"
+            }
+        ],
+        "x": 1580,
+        "height": 232,
+        "width": 280,
+        "y": 1704
+    },
+    {
+        "id": "InvoicePayment",
+        "table": "invoice_payments",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "invoice_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Invoice.id"
+            },
+            {
+                "name": "amount",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reference",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paid_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "invoice_id",
+                "toModel": "Invoice",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "invoice",
+                "toModel": "Invoice"
+            }
+        ],
+        "x": 1580,
+        "height": 210,
+        "width": 280,
+        "y": 1976
+    },
+    {
+        "id": "MemberPermission",
+        "table": "member_permissions",
+        "schema": "Tenant Schema",
+        "domain": "Identity & Residence",
+        "color": "#818cf8",
+        "colIdx": 1,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "granted_by",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "can_pay_bills",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "can_create_visitor_code",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "can_view_bills",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "can_community_chat",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "can_report_issues",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "can_view_expenses",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            },
+            {
+                "fromField": "granted_by",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 440,
+        "height": 298,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "Notification",
+        "table": "notifications",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "title",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "message",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "notification_type",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_read",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "action_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "resource_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1960,
+        "height": 276,
+        "width": 280,
+        "y": 1454
+    },
+    {
+        "id": "OTP",
+        "table": "otps",
+        "schema": "Tenant Schema",
+        "domain": "Identity & Residence",
+        "color": "#818cf8",
+        "colIdx": 1,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "otp_hash",
+                "type": "VARCHAR(255)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "purpose",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "attempts",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "max_attempts",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "expires_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_used",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 440,
+        "height": 276,
+        "width": 280,
+        "y": 418
+    },
+    {
+        "id": "PanicAlert",
+        "table": "panic_alerts",
+        "schema": "Tenant Schema",
+        "domain": "Gate Access & Security",
+        "color": "#34d399",
+        "colIdx": 3,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "reason",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "gps_latitude",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "gps_longitude",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "acknowledged_by",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "acknowledged_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1200,
+        "height": 320,
+        "width": 280,
+        "y": 80
+    },
+    {
+        "id": "Payment",
+        "table": "payments",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "bill_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Bill.id"
+            },
+            {
+                "name": "amount",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reference",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paystack_reference",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "channel",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paid_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            },
+            {
+                "fromField": "bill_id",
+                "toModel": "Bill",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1580,
+        "height": 298,
+        "width": 280,
+        "y": 2226
+    },
+    {
+        "id": "PaymentLedger",
+        "table": "payment_ledger",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "bill_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paystack_reference",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paystack_transaction_id",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "gross_amount_kobo",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paystack_fee_kobo",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "platform_fee_kobo",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "estate_settlement_kobo",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 1580,
+        "height": 320,
+        "width": 280,
+        "y": 2564
+    },
+    {
+        "id": "PlatformAuditLog",
+        "table": "platform_audit_log",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "actor_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "PlatformUser.id"
+            },
+            {
+                "name": "actor_type",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "action",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "resource_type",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "resource_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "details",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "ip_address",
+                "type": "VARCHAR(45)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "actor_id",
+                "toModel": "PlatformUser",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "actor",
+                "toModel": "PlatformUser"
+            }
+        ],
+        "x": 60,
+        "height": 320,
+        "width": 280,
+        "y": 1138
+    },
+    {
+        "id": "PlatformUser",
+        "table": "platform_users",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "password_hash",
+                "type": "VARCHAR(255)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "last_login",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "role",
+                "type": "VARCHAR(30)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "permissions",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "login_count",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [
+            {
+                "relName": "audit_logs",
+                "toModel": "PlatformAuditLog"
+            }
+        ],
+        "x": 60,
+        "height": 320,
+        "width": 280,
+        "y": 1498
+    },
+    {
+        "id": "Resident",
+        "table": "residents",
+        "schema": "Tenant Schema",
+        "domain": "Identity & Residence",
+        "color": "#818cf8",
+        "colIdx": 1,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "nin",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "house_entity_data",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_registered",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "registered_user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 440,
+        "height": 298,
+        "width": 280,
+        "y": 734
+    },
+    {
+        "id": "ResidentBill",
+        "table": "resident_bills",
+        "schema": "Tenant Schema",
+        "domain": "Financial Dues & Ledger",
+        "color": "#f59e0b",
+        "colIdx": 4,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "bill_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Bill.id"
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "amount_due",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "amount_paid",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "paid_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "payment_reference",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "bill_id",
+                "toModel": "Bill",
+                "toField": "id"
+            },
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "bill",
+                "toModel": "Bill"
+            },
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1580,
+        "height": 298,
+        "width": 280,
+        "y": 2924
+    },
+    {
+        "id": "Staff",
+        "table": "staff",
+        "schema": "Tenant Schema",
+        "domain": "Identity & Residence",
+        "color": "#818cf8",
+        "colIdx": 1,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "role",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "photo_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_active",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 440,
+        "height": 254,
+        "width": 280,
+        "y": 1072
+    },
+    {
+        "id": "StatusHistory",
+        "table": "status_history",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "entity_type",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "entity_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "old_status",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "new_status",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "changed_by",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reason",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "metadata",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 1960,
+        "height": 276,
+        "width": 280,
+        "y": 1770
+    },
+    {
+        "id": "Subscription",
+        "table": "subscriptions",
+        "schema": "Public Schema",
+        "domain": "Public Core",
+        "color": "#38bdf8",
+        "colIdx": 0,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "entity_type",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "entity_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "plan",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "funding_source",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "current_cycle_bill_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "current_cycle_start",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "current_cycle_due_date",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "trial_ends_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 60,
+        "height": 320,
+        "width": 280,
+        "y": 1858
+    },
+    {
+        "id": "SupportTicket",
+        "table": "support_tickets",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "subject",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "message",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "priority",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "category",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "assigned_to",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "resolved_at",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1960,
+        "height": 298,
+        "width": 280,
+        "y": 2086
+    },
+    {
+        "id": "SystemHealthCheck",
+        "table": "system_health_checks",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "overall_status",
+                "type": "VARCHAR(30)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "overall_label",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "services",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "uptime_seconds",
+                "type": "FLOAT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "has_incident",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "incident_services",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [],
+        "relationships": [],
+        "x": 1960,
+        "height": 254,
+        "width": 280,
+        "y": 2424
+    },
+    {
+        "id": "User",
+        "table": "users",
+        "schema": "Tenant Schema",
+        "domain": "Identity & Residence",
+        "color": "#818cf8",
+        "colIdx": 1,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "resident_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Resident.id"
+            },
+            {
+                "name": "estate_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "email",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "gender",
+                "type": "VARCHAR(10)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "password_hash",
+                "type": "VARCHAR(255)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "profile_image",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "resident_id",
+                "toModel": "Resident",
+                "toField": "id"
+            },
+            {
+                "fromField": "primary_holder_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "resident",
+                "toModel": "Resident"
+            },
+            {
+                "relName": "visitors",
+                "toModel": "Visitor"
+            },
+            {
+                "relName": "visitor_codes",
+                "toModel": "VisitorCode"
+            },
+            {
+                "relName": "bills",
+                "toModel": "Bill"
+            },
+            {
+                "relName": "payments",
+                "toModel": "Payment"
+            },
+            {
+                "relName": "notifications",
+                "toModel": "Notification"
+            },
+            {
+                "relName": "support_tickets",
+                "toModel": "SupportTicket"
+            },
+            {
+                "relName": "resident_bills",
+                "toModel": "ResidentBill"
+            },
+            {
+                "relName": "activity_logs",
+                "toModel": "ActivityLog"
+            },
+            {
+                "relName": "member_permissions",
+                "toModel": "MemberPermission"
+            }
+        ],
+        "x": 440,
+        "height": 320,
+        "width": 280,
+        "y": 1366
+    },
+    {
+        "id": "VerificationRequest",
+        "table": "verification_requests",
+        "schema": "Tenant Schema",
+        "domain": "Verification & Social",
+        "color": "#a78bfa",
+        "colIdx": 2,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "requested_tier",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "method",
+                "type": "VARCHAR(30)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "ENUM",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "evidence",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vouch_code",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vouch_link_url",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "min_vouches_required",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vouches_received",
+                "type": "INTEGER",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [],
+        "x": 820,
+        "height": 320,
+        "width": 280,
+        "y": 374
+    },
+    {
+        "id": "VerificationVouch",
+        "table": "verification_vouches",
+        "schema": "Tenant Schema",
+        "domain": "Verification & Social",
+        "color": "#a78bfa",
+        "colIdx": 2,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "verification_request_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "VerificationRequest.id"
+            },
+            {
+                "name": "voucher_user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "voucher_house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "voucher_full_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "voucher_phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "is_valid",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vouched_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vouch_method",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "verification_request_id",
+                "toModel": "VerificationRequest",
+                "toField": "id"
+            },
+            {
+                "fromField": "voucher_user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [],
+        "x": 820,
+        "height": 298,
+        "width": 280,
+        "y": 734
+    },
+    {
+        "id": "VisitorCode",
+        "table": "visitor_codes",
+        "schema": "Tenant Schema",
+        "domain": "Gate Access & Security",
+        "color": "#34d399",
+        "colIdx": 3,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "visitor_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "visitor_image",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "code",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "time_of_visit",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "estimated_departure",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reason_for_visit",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "actual_arrival",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            },
+            {
+                "relName": "visits",
+                "toModel": "Visitor"
+            }
+        ],
+        "x": 1200,
+        "height": 320,
+        "width": 280,
+        "y": 440
+    },
+    {
+        "id": "Visitor",
+        "table": "visitors",
+        "schema": "Tenant Schema",
+        "domain": "Gate Access & Security",
+        "color": "#34d399",
+        "colIdx": 3,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "visitor_code_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "VisitorCode.id"
+            },
+            {
+                "name": "visitor_name",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "phone_number",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "visitor_image",
+                "type": "VARCHAR(500)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "purpose",
+                "type": "VARCHAR(100)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "reason_for_visit",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "house_number",
+                "type": "VARCHAR(50)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "time_of_visit",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            },
+            {
+                "fromField": "visitor_code_id",
+                "toModel": "VisitorCode",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "user",
+                "toModel": "User"
+            },
+            {
+                "relName": "visitor_code",
+                "toModel": "VisitorCode"
+            }
+        ],
+        "x": 1200,
+        "height": 320,
+        "width": 280,
+        "y": 800
+    },
+    {
+        "id": "Vote",
+        "table": "votes",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "created_by",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "title",
+                "type": "VARCHAR(200)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "description",
+                "type": "TEXT",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "vote_type",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "status",
+                "type": "VARCHAR(20)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "starts_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "ends_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "options",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "allow_multiple_choices",
+                "type": "BOOLEAN",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "created_by",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "creator",
+                "toModel": "User"
+            },
+            {
+                "relName": "ballots",
+                "toModel": "VoteBallot"
+            }
+        ],
+        "x": 1960,
+        "height": 320,
+        "width": 280,
+        "y": 2718
+    },
+    {
+        "id": "VoteBallot",
+        "table": "vote_ballots",
+        "schema": "Tenant Schema",
+        "domain": "Governance & Operations",
+        "color": "#ec4899",
+        "colIdx": 5,
+        "columns": [
+            {
+                "name": "id",
+                "type": "VARCHAR(36)",
+                "isPk": true,
+                "isFk": false
+            },
+            {
+                "name": "created_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "updated_at",
+                "type": "TIMESTAMP",
+                "isPk": false,
+                "isFk": false
+            },
+            {
+                "name": "vote_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "Vote.id"
+            },
+            {
+                "name": "user_id",
+                "type": "VARCHAR",
+                "isPk": false,
+                "isFk": true,
+                "fkTarget": "User.id"
+            },
+            {
+                "name": "selected_options",
+                "type": "JSONB",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            },
+            {
+                "name": "ip_address",
+                "type": "VARCHAR(45)",
+                "isPk": false,
+                "isFk": false,
+                "fkTarget": null
+            }
+        ],
+        "foreignKeys": [
+            {
+                "fromField": "vote_id",
+                "toModel": "Vote",
+                "toField": "id"
+            },
+            {
+                "fromField": "user_id",
+                "toModel": "User",
+                "toField": "id"
+            }
+        ],
+        "relationships": [
+            {
+                "relName": "vote",
+                "toModel": "Vote"
+            },
+            {
+                "relName": "user",
+                "toModel": "User"
+            }
+        ],
+        "x": 1960,
+        "height": 210,
+        "width": 280,
+        "y": 3078
+    }
+];
+
+    let scale = 0.85;
+    let translateX = 100;
+    let translateY = 80;
+    let isPanning = false;
+    let startX = 0;
+    let startY = 0;
+    let activeModelId = null;
+
+    const SVG_CARD_WIDTH = 240;
+    const SVG_ROW_HEIGHT = 22;
+    const SVG_HEADER_HEIGHT = 50;
+
+    function initGraph() {
+      const nodesGroup = document.getElementById('nodes-layer');
+      const linksGroup = document.getElementById('links-layer');
+      const pulsesGroup = document.getElementById('pulses-layer');
+
+      nodesGroup.innerHTML = '';
+      linksGroup.innerHTML = '';
+      pulsesGroup.innerHTML = '';
+
+      // Calculate initial layout coordinates by column index
+      const colCounters = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      const colX = {
+        0: 60,
+        1: 380,
+        2: 700,
+        3: 1020,
+        4: 1340,
+        5: 1660
+      };
+
+      MODELS.forEach((m) => {
+        const row = colCounters[m.colIdx] || 0;
+        m.x = colX[m.colIdx] || 60;
+        m.y = 60 + row * 260;
+
+        // Calculate card height based on visible columns (up to 8 displayed)
+        const visibleCols = Math.min(m.columns.length, 8);
+        m.height = SVG_HEADER_HEIGHT + visibleCols * SVG_ROW_HEIGHT + 24;
+
+        colCounters[m.colIdx] = row + Math.ceil(m.height / 250);
+      });
+
+      // Render Links
+      const links = [];
+      MODELS.forEach((m) => {
+        m.columns.forEach((col) => {
+          if (col.isFk && col.fkTarget) {
+            const targetModelId = col.fkTarget.split('.')[0];
+            const targetModel = MODELS.find(item => item.id === targetModelId);
+            if (targetModel) {
+              links.push({
+                source: m,
+                target: targetModel,
+                field: col.name
+              });
+            }
+          }
+        });
+      });
+
+      links.forEach((l, idx) => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('id', `link-${l.source.id}-${l.target.id}-${idx}`);
+        path.setAttribute('class', 'link-path');
+        path.setAttribute('stroke', l.source.color || '#38bdf8');
+        path.setAttribute('marker-end', 'url(#arrow)');
+
+        const d = calculateCurve(l.source, l.target);
+        path.setAttribute('d', d);
+        linksGroup.appendChild(path);
+      });
+
+      // Render Nodes
+      MODELS.forEach((m) => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'node-group');
+        g.setAttribute('id', `node-${m.id}`);
+        g.setAttribute('transform', `translate(${m.x}, ${m.y})`);
+        g.onclick = (e) => {
+          e.stopPropagation();
+          selectNode(m);
+        };
+
+        // Outer Card Box
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('class', 'node-card');
+        rect.setAttribute('width', SVG_CARD_WIDTH);
+        rect.setAttribute('height', m.height);
+        rect.setAttribute('stroke', m.color);
+        g.appendChild(rect);
+
+        // Header Rect
+        const hRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        hRect.setAttribute('class', 'node-header-bg');
+        hRect.setAttribute('width', SVG_CARD_WIDTH);
+        hRect.setAttribute('height', SVG_HEADER_HEIGHT);
+        hRect.setAttribute('fill', m.color);
+        g.appendChild(hRect);
+
+        // Header Title
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        title.setAttribute('class', 'node-header-title');
+        title.setAttribute('x', 14);
+        title.setAttribute('y', 24);
+        title.textContent = m.id;
+        g.appendChild(title);
+
+        // Table Subtitle
+        const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sub.setAttribute('class', 'node-header-table');
+        sub.setAttribute('x', 14);
+        sub.setAttribute('y', 40);
+        sub.textContent = m.table;
+        g.appendChild(sub);
+
+        // Rows
+        const visibleCols = m.columns.slice(0, 8);
+        visibleCols.forEach((col, cIdx) => {
+          const yPos = SVG_HEADER_HEIGHT + 18 + cIdx * SVG_ROW_HEIGHT;
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('class', 'col-row-text');
+          text.setAttribute('x', 14);
+          text.setAttribute('y', yPos);
+
+          let prefix = '';
+          if (col.isPk) prefix = '🔑 ';
+          else if (col.isFk) prefix = '🔗 ';
+
+          const colNameSpan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          colNameSpan.setAttribute('class', 'col-name');
+          if (col.isPk) colNameSpan.setAttribute('class', 'col-name pk-tag');
+          if (col.isFk) colNameSpan.setAttribute('class', 'col-name fk-tag');
+          colNameSpan.textContent = prefix + col.name;
+
+          const colTypeSpan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+          colTypeSpan.setAttribute('class', 'col-type');
+          colTypeSpan.setAttribute('dx', 10);
+          colTypeSpan.textContent = col.type;
+
+          text.appendChild(colNameSpan);
+          text.appendChild(colTypeSpan);
+          g.appendChild(text);
+        });
+
+        if (m.columns.length > 8) {
+          const yPos = SVG_HEADER_HEIGHT + 18 + 8 * SVG_ROW_HEIGHT;
+          const moreText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          moreText.setAttribute('class', 'col-type');
+          moreText.setAttribute('x', 14);
+          moreText.setAttribute('y', yPos);
+          moreText.textContent = `+ ${m.columns.length - 8} more fields...`;
+          g.appendChild(moreText);
+        }
+
+        nodesGroup.appendChild(g);
+      });
+
+      updateTransform();
+      populateMatrix();
+    }
+
+    function calculateCurve(src, tgt) {
+      const srcX = src.x + SVG_CARD_WIDTH;
+      const srcY = src.y + SVG_HEADER_HEIGHT / 2;
+      const tgtX = tgt.x;
+      const tgtY = tgt.y + SVG_HEADER_HEIGHT / 2;
+
+      const dx = Math.abs(tgtX - srcX) * 0.5;
+      return `M ${srcX} ${srcY} C ${srcX + dx} ${srcY}, ${tgtX - dx} ${tgtY}, ${tgtX} ${tgtY}`;
+    }
+
+    function updateTransform() {
+      const vp = document.getElementById('viewport');
+      vp.setAttribute('transform', `translate(${translateX}, ${translateY}) scale(${scale})`);
+      document.getElementById('scale-text').textContent = `${Math.round(scale * 100)}%`;
+    }
+
+    // Pan & Zoom Event Listeners
+    const graphView = document.getElementById('graph-view');
+
+    graphView.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#inspector-drawer') || e.target.closest('.zoom-toolbar') || e.target.closest('.legend-panel')) return;
+      isPanning = true;
+      startX = e.clientX - translateX;
+      startY = e.clientY - translateY;
+      graphView.classList.add('panning');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isPanning) return;
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      isPanning = false;
+      graphView.classList.remove('panning');
+    });
+
+    graphView.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      scale = Math.min(Math.max(0.3, scale * zoomFactor), 2.5);
+      updateTransform();
+    }, { passive: false });
+
+    function zoomIn() {
+      scale = Math.min(2.5, scale * 1.2);
+      updateTransform();
+    }
+
+    function zoomOut() {
+      scale = Math.max(0.3, scale / 1.2);
+      updateTransform();
+    }
+
+    function resetZoom() {
+      scale = 0.85;
+      translateX = 100;
+      translateY = 80;
+      updateTransform();
+    }
+
+    function fitView() {
+      scale = 0.55;
+      translateX = 50;
+      translateY = 50;
+      updateTransform();
+    }
+
+    function selectNode(m) {
+      activeModelId = m.id;
+
+      // Highlight connections
+      document.querySelectorAll('.link-path').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.node-group').forEach(n => n.style.opacity = '0.35');
+
+      const targetGroup = document.getElementById(`node-${m.id}`);
+      if (targetGroup) targetGroup.style.opacity = '1';
+
+      MODELS.forEach(other => {
+        other.columns.forEach(col => {
+          if (col.isFk && col.fkTarget) {
+            const targetId = col.fkTarget.split('.')[0];
+            if (other.id === m.id || targetId === m.id) {
+              const otherGroup = document.getElementById(`node-${other.id}`);
+              if (otherGroup) otherGroup.style.opacity = '1';
+
+              document.querySelectorAll(`[id*="${other.id}"][id*="${targetId}"]`).forEach(p => {
+                p.classList.add('active');
+              });
+            }
+          }
+        });
+      });
+
+      openDrawer(m);
+    }
+
+    function openDrawer(m) {
+      const drawer = document.getElementById('inspector-drawer');
+      document.getElementById('drawer-model-name').textContent = m.id;
+      document.getElementById('drawer-model-table').textContent = `Table: ${m.table}`;
+      document.getElementById('drawer-model-meta').textContent = `${m.schema} • ${m.domain}`;
+
+      const fieldsList = document.getElementById('drawer-fields-list');
+      fieldsList.innerHTML = '';
+      m.columns.forEach(c => {
+        const row = document.createElement('div');
+        row.className = 'field-row';
+        let prefix = c.isPk ? '🔑 ' : c.isFk ? '🔗 ' : '';
+        row.innerHTML = `<span class="field-name">${prefix}${c.name}</span><span class="field-type">${c.type}</span>`;
+        fieldsList.appendChild(row);
+      });
+
+      const relList = document.getElementById('drawer-rel-list');
+      relList.innerHTML = '';
+      let hasFk = false;
+      m.columns.forEach(c => {
+        if (c.isFk && c.fkTarget) {
+          hasFk = true;
+          const row = document.createElement('div');
+          row.className = 'field-row';
+          row.innerHTML = `<span class="field-name">${c.name}</span><span class="field-type" style="color: #818cf8;">➔ ${c.fkTarget}</span>`;
+          relList.appendChild(row);
+        }
+      });
+      if (!hasFk) {
+        relList.innerHTML = '<div style="font-size: 11px; color: var(--text-muted);">No outgoing foreign keys</div>';
+      }
+
+      drawer.classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('inspector-drawer').classList.remove('open');
+      document.querySelectorAll('.node-group').forEach(n => n.style.opacity = '1');
+      document.querySelectorAll('.link-path').forEach(p => p.classList.remove('active'));
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('graph-view').style.display = 'none';
+      document.getElementById('flowcharts-view').style.display = 'none';
+      document.getElementById('matrix-view').style.display = 'none';
+
+      if (tabName === 'graph') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('graph-view').style.display = 'block';
+      } else if (tabName === 'flowcharts') {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('flowcharts-view').style.display = 'block';
+      } else if (tabName === 'matrix') {
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
+        document.getElementById('matrix-view').style.display = 'block';
+      }
+    }
+
+    function populateMatrix() {
+      const tbody = document.getElementById('matrix-body');
+      tbody.innerHTML = '';
+      MODELS.forEach(m => {
+        const tr = document.createElement('tr');
+        const fkCount = m.columns.filter(c => c.isFk).length;
+        tr.innerHTML = `
+          <td style="font-weight: 700; color: ${m.color}">${m.id}</td>
+          <td style="font-family: 'JetBrains Mono', monospace;">${m.table}</td>
+          <td>${m.schema}</td>
+          <td>${m.domain}</td>
+          <td>${m.columns.length} fields</td>
+          <td>${fkCount} FKs</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleSearch(query) {
+      if (!query) {
+        document.querySelectorAll('.node-group').forEach(n => n.style.opacity = '1');
+        return;
+      }
+      const q = query.toLowerCase();
+      MODELS.forEach(m => {
+        const match = m.id.toLowerCase().includes(q) || 
+                      m.table.toLowerCase().includes(q) || 
+                      m.columns.some(c => c.name.toLowerCase().includes(q));
+        const group = document.getElementById(`node-${m.id}`);
+        if (group) {
+          group.style.opacity = match ? '1' : '0.15';
+        }
+      });
+    }
+
+    window.onload = initGraph;
+  </script>
+</body>
+</html>

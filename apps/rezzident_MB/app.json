@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Rezzident",
+    "slug": "rezzident",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/icon.png",
+    "scheme": "rezzident",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./src/assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#388e3c"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rezzident.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to quickly unlock your Rezzident account"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/adaptive-icon.png",
+        "backgroundColor": "#388e3c"
+      },
+      "package": "com.rezzident.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-local-authentication"
+    ]
+  }
+}
