@@ -42,7 +42,11 @@ Rezzident heavily uses Markdown (`.md`) for architecture decisions, guidelines, 
 
 > **💡 Note:** The [`docs/architecture`](./docs/architecture/01-infrastructure-deployment.md) directory contains all core decisions, architectural guidelines, and execution plans for this project. These are **living documents** and will likely change over time as features evolve and plans adapt based on project requirements and feedback.
 
-Depending on your role, here are the recommended tools to read and write documentation seamlessly:
+### 🌐 Live Documentation Viewer
+If you prefer to read the documentation without setting up a Markdown editor, you can access the live, auto-updating web viewer here:
+**[https://rezzident-ecosystem-ocx8.vercel.app](https://rezzident-ecosystem-ocx8.vercel.app)**
+
+Depending on your role, here are the recommended tools to read and write documentation seamlessly locally:
 
 ### For Developers
 - **[Visual Studio Code (VS Code)](https://code.visualstudio.com/)**: The standard IDE. We recommend installing the **Markdown All in One** and **Prettier** extensions for auto-formatting and table-of-contents generation.
