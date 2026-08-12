@@ -77,6 +77,23 @@ services:
       --timeout 120
       --access-logfile -
       --error-logfile -
+    
+worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rezzident_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    command: arq api.worker.WorkerSettings
+    volumes:
+      - ./logs:/app/logs
 
 volumes:
   postgres_data:
