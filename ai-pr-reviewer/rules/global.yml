@@ -1,0 +1,9 @@
+security:
+  no_hardcoded_secrets: true
+  no_sql_string_concatenation: true
+  validate_all_user_input: true
+
+general:
+  no_commented_out_code: true
+  no_debug_print_statements: true
+  functions_should_have_single_responsibility: true

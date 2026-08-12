@@ -1,0 +1,6 @@
+react:
+  no_use_effect_for_data_fetching: true
+  use_tanstack_query_for_server_state: true
+  component_max_lines: 250
+  no_inline_styles: true
+  accessible_labels_on_inputs: true

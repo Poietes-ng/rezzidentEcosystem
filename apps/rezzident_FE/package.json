@@ -1,5 +1,5 @@
 {
-  "name": "poiotes",
+  "name": "rezzident",
   "private": true,
   "type": "module",
   "imports": {
@@ -17,6 +17,9 @@
     "check": "prettier --check ."
   },
   "dependencies": {
+    "@rezzident/design-tokens": "workspace:*",
+    "@rezzident/shared-types": "workspace:*",
+    "@rezzident/utils": "workspace:*",
     "@radix-ui/react-select": "^2.3.7",
     "@radix-ui/react-slot": "^1.3.0",
     "@radix-ui/react-switch": "^1.3.7",

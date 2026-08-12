@@ -1,0 +1,14 @@
+docker:
+  use_specific_base_image_tags: true
+  no_root_user_in_production: true
+  multi_stage_builds_preferred: true
+  copy_only_needed_files: true
+
+ci:
+  pin_action_versions: true
+  no_secrets_in_workflow_files: true
+  use_environment_variables_for_config: true
+
+infrastructure:
+  no_hardcoded_ips_or_ports: true
+  use_health_checks: true

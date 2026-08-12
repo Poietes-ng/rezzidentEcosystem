@@ -1,0 +1,12 @@
+{
+  "name": "@rezzident/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "@rezzident/shared-types": "workspace:*",
+    "@tanstack/react-query": "^5.62.0"
+  }
+}

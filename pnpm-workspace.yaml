@@ -1,0 +1,7 @@
+packages:
+  - "apps/rezzident_FE"
+  - "apps/rezzident_MB"
+  - "packages/*"
+
+onlyBuiltDependencies:
+  - unrs-resolver

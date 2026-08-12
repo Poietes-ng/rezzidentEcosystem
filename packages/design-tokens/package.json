@@ -1,0 +1,12 @@
+{
+  "name": "@rezzident/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    "./colors": "./colors.ts",
+    "./spacing": "./spacing.ts"
+  }
+}

@@ -1,0 +1,13 @@
+fastapi:
+  async_routes: true
+  use_dependency_injection: true
+  typed_function_signatures: true
+  pydantic_for_request_response_models: true
+
+sqlalchemy:
+  use_sqlalchemy_2_style: true
+  no_n_plus_1_queries: true
+  use_alembic_for_migrations: true
+
+testing:
+  new_endpoints_require_tests: true

@@ -1,0 +1,13 @@
+migrations:
+  no_drop_column_without_data_migration: true
+  add_index_for_foreign_keys: true
+  reversible_migrations_preferred: true
+
+schema:
+  use_explicit_column_types: true
+  timestamp_columns_on_all_tables: true
+  no_nullable_foreign_keys: true
+
+queries:
+  no_select_star_in_production_code: true
+  parameterized_queries_only: true
