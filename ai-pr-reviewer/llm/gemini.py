@@ -29,7 +29,7 @@ def call_gemini(prompt: str, api_key: str | None = None, timeout: int = 90) -> s
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
-                    "temperature": 0.1,       
+                    "temperature": 0.1,
                     "responseMimeType": "application/json",
                 },
             },
@@ -57,4 +57,3 @@ def call_gemini(prompt: str, api_key: str | None = None, timeout: int = 90) -> s
 
     # Should not reach here, but just in case
     raise RuntimeError(f"Gemini call failed after {MAX_RETRIES + 1} attempts: {last_error}")
-

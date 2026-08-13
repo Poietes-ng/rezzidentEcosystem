@@ -1,0 +1,29 @@
+# ──────────────────────────────────────────────────────────
+# CODEOWNERS — Defines required reviewers per directory.
+# Combined with branch protection ("Require review from
+# Code Owners"), this blocks PRs from merging without
+# the correct team's approval.
+# ──────────────────────────────────────────────────────────
+
+# ── Apps ──
+/apps/rezzident_BE/                @backend-team
+/apps/rezzident_FE/                @frontend-team
+/apps/rezzident_MB/                @mobile-team
+
+# ── Shared packages (cross-team review) ──
+/packages/shared-types/            @backend-team @frontend-team
+/packages/api-client/              @frontend-team @mobile-team
+/packages/design-tokens/           @frontend-team @mobile-team
+/packages/utils/                   @frontend-team @mobile-team
+
+# ── Infrastructure & DevOps ──
+/infrastructure/                   @backend-team
+
+# ── Root config (monorepo wiring) ──
+/turbo.json                        @frontend-team
+/pnpm-workspace.yaml               @frontend-team
+/package.json                      @frontend-team
+
+# ── Documentation ──
+/docs/                             @frontend-team @backend-team
+/kickoff/                          @frontend-team @backend-team

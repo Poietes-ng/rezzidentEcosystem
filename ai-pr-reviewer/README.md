@@ -6,7 +6,9 @@ GitHub Actions + Gemini's free API tier. Works with private repos.
 ## Setup (5 minutes)
 
 1. **Copy this whole `ai-pr-reviewer/` folder into the root of your repository.**
-   (The `.github/workflows/ai-review.yml` file must live at that exact path.)
+   (The `.github/workflows/ai-review.yml` file must live at that exact path —
+   if your repo already has a `.github/` folder, merge the `workflows/`
+   subfolder in rather than overwriting it.)
 
 2. **Get a free Gemini API key**: https://aistudio.google.com/app/apikey
 
@@ -24,11 +26,18 @@ GitHub Actions + Gemini's free API tier. Works with private repos.
 
 Edit the YAML files in `rules/`:
 - `global.yml` — rules that apply to every file
+- `rezzident.yml` — conventions specific to this codebase (multi-tenant
+  schema routing, the `success_response()` contract, pooled Redis usage,
+  `shared/components/ui` reuse, migration safety) — loaded unconditionally,
+  same as `global.yml`, since it spans both backend and frontend files
 - `backend.yml` — Python/FastAPI-specific rules
 - `frontend.yml` — React-specific rules
+- `devops.yml` — Docker/CI rules
+- `database.yml` — migration/schema rules
 
-Add a new stack (e.g. `database.yml`) and wire it into
-`llm/prompts.py::detect_stack()` and `build_prompt()`.
+Add a new stack (e.g. `mobile.yml`) and wire it into
+`llm/prompts.py::detect_stack()` and `build_prompt()` the same way
+`rezzident.yml` was wired in.
 
 Edit `prompts/system.md` to change the reviewer's persona, tone, or scope
 (e.g. add "Ignore TODO comments" or "Flag missing docstrings").
@@ -51,8 +60,11 @@ ai-pr-reviewer/
 │   └── system.md              # reviewer persona/instructions
 ├── rules/
 │   ├── global.yml
+│   ├── rezzident.yml          # this codebase's own conventions
 │   ├── backend.yml
-│   └── frontend.yml
+│   ├── frontend.yml
+│   ├── devops.yml
+│   └── database.yml
 ├── ghclient/                  # GitHub API interactions
 │   ├── diff.py                 # fetch changed files/diff
 │   └── comments.py             # post review back to PR
@@ -75,6 +87,10 @@ ai-pr-reviewer/
 - **Turn into a GitHub App** instead of a per-repo Action, so it installs
   across your whole org with one click instead of copying this folder
   into every repo.
+- **Shared-packages rules**: once `packages/api-client`, `packages/shared-types`,
+  etc. are live (see `SETUP.md`), add a `shared-packages` section to
+  `rezzident.yml` covering breaking type changes and missing corresponding
+  `shared-types` interfaces for new `api-client` methods.
 
 ## Known limitations
 

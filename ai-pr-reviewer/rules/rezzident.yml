@@ -1,0 +1,63 @@
+# Rezzident-specific conventions.
+# These are patterns unique to THIS codebase (not generic FastAPI/React best
+# practice — that's already covered by backend.yml / frontend.yml). Wiring
+# instructions are at the bottom of this file.
+
+multi_tenancy:
+  # api/middleware/tenant.py sets a ContextVar (current_tenant_schema) from
+  # the JWT "schema" claim. Any query building or manual schema references
+  # that bypass this are a tenant-isolation bug, not a style issue.
+  never_hardcode_schema_name: true
+  never_bypass_tenant_middleware_context: true
+  new_public_routes_must_be_added_to_PUBLIC_PATHS_explicitly: true # api/middleware/tenant.py
+  flag_raw_sql_or_engine_calls_that_skip_schema_translate_map: true
+
+response_contract:
+  # main.py defines a single response envelope via success_response() and
+  # exception handlers (HTTPException, RequestValidationError, IntegrityError,
+  # generic Exception). Routes returning ad-hoc dict/JSONResponse bodies
+  # instead of success_response() break the FE/MB's shared api-client parsing.
+  routes_must_use_success_response_helper: true
+  no_raw_dict_or_JSONResponse_returns_from_routes: true
+  never_leak_stack_traces_outside_development_env: true # see general_exception handler
+
+redis_usage:
+  # api/db/redis.py owns the single connection pool (app.state.redis via
+  # init_redis()/get_redis()). Anything that does aioredis.from_url(...)
+  # directly inside a route or service is creating a second, unpooled
+  # connection and duplicating fastapi-guard's own Redis usage.
+  must_use_get_redis_dependency: true
+  no_new_redis_client_instantiation_outside_api_db_redis: true
+  jwt_blacklist_keys_must_use_existing_jti_prefix_helpers: true
+
+background_work:
+  # See INFRASTRUCTURE.md — arq is the intended task queue (Redis-backed,
+  # async-native, no separate broker). Flag anything that does slow I/O
+  # (outbound email via fastapi-mail, SMS via Termii, Paystack webhook
+  # side-effects) synchronously inside a request handler once arq is wired in.
+  no_blocking_email_or_sms_calls_inside_request_handlers: true
+  webhook_routes_must_verify_signature_before_any_db_write: true # api/v1/routes/webhooks.py
+
+migrations:
+  # scripts/migrate_all_tenants.py applies Alembic migrations across every
+  # tenant schema, not just "public". A migration that only updates the
+  # public schema's model without a plan for existing tenant schemas is
+  # a production incident waiting to happen.
+  schema_changes_must_consider_migrate_all_tenants_script: true
+  no_destructive_migration_without_backfill_plan: true
+
+frontend_shared_ui:
+  # From the component-reuse convention already established in this repo:
+  # generic primitives belong in shared/components/ui and must be reused,
+  # not re-implemented per feature.
+  no_local_reimplementation_of_button_input_select_alertbox_etc: true
+  shared_ui_components_live_only_in_shared_components_ui: true
+  screen_specific_components_must_stay_in_their_feature_folder: true
+  flag_new_color_or_spacing_literals_not_sourced_from_design_tokens: true # packages/design-tokens
+
+frontend_routing:
+  # apps/rezzident_FE uses TanStack Start file-based routing under src/routes.
+  # apps/rezzident_MB uses Expo Router. Flag any hand-rolled routing/history
+  # logic that bypasses either framework's router.
+  no_manual_window_location_navigation_in_web_app: true
+  no_manual_navigation_state_bypassing_expo_router_in_mobile_app: true

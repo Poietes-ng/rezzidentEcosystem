@@ -6,7 +6,9 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "exports": {
+    ".": "./index.ts",
     "./colors": "./colors.ts",
-    "./spacing": "./spacing.ts"
+    "./spacing": "./spacing.ts",
+    "./typography": "./typography.ts"
   }
 }

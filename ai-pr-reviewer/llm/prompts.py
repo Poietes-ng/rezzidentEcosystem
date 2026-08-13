@@ -28,6 +28,10 @@ def load_text(dir_path: str, name: str) -> str:
 
 def detect_stack(filename: str) -> str:
     """Very simple heuristic router — expand this as your stack grows."""
+    # Multi-tenant migration runner — always worth a closer look, same
+    # bucket as other database-risk files.
+    if filename.endswith("scripts/migrate_all_tenants.py"):
+        return "database"
     # Database: SQL files and Alembic migration scripts
     if filename.endswith(".sql") or filename.startswith("alembic/versions/"):
         return "database"
@@ -43,6 +47,7 @@ def detect_stack(filename: str) -> str:
 def build_prompt(changed_files: list[dict]) -> str:
     system = load_text(PROMPTS_DIR, "system")
     global_rules = load_yaml("global")
+    rezzident_rules = load_yaml("rezzident")
     backend_rules = load_yaml("backend")
     frontend_rules = load_yaml("frontend")
     devops_rules = load_yaml("devops")
@@ -51,7 +56,12 @@ def build_prompt(changed_files: list[dict]) -> str:
     # Figure out which rule sets are actually relevant to this PR
     stacks_touched = {detect_stack(f["filename"]) for f in changed_files}
 
+    # Global + Rezzident-specific conventions apply to every PR regardless
+    # of which stack it touches (the tenant-isolation and shared-UI rules
+    # in particular span backend AND frontend files).
     rules_section = f"## Global rules\n{yaml.dump(global_rules)}\n"
+    rules_section += f"\n## Rezzident-specific conventions\n{yaml.dump(rezzident_rules)}\n"
+
     if "backend" in stacks_touched:
         rules_section += f"\n## Backend rules\n{yaml.dump(backend_rules)}\n"
     if "frontend" in stacks_touched:

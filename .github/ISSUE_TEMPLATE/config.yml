@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Design workflow guide
+    url: https://github.com/rezzident/rezzidentEcosystem/blob/main/DESIGN_DEV_WORKFLOW.md
+    about: Read this before opening a design or engineering issue.
+  - name: Bug report
+    url: https://github.com/rezzident/rezzidentEcosystem/issues/new?template=bug-report.md&labels=bug
+    about: Something in production or staging is broken.
