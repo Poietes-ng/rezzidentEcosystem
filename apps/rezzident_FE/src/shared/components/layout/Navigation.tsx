@@ -30,7 +30,7 @@ export function Navigation() {
           </Link>
           <Link to="/app/splash">
             <Button variant="default" className="h-[40px] min-h-[40px] px-4 py-2 text-sm rounded-[8px]">
-              Join Estate
+              Create Account
             </Button>
           </Link>
         </div>

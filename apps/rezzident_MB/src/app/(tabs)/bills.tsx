@@ -1,16 +1,17 @@
-import { View, Text, SafeAreaView } from 'react-native';
+import { View, Text } from 'react-native';
+import { ScreenWrapper } from '@/components/layout';
 
 export default function BillsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fafafa' }}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-        <Text style={{ fontSize: 20, fontWeight: '700', color: '#212121', marginBottom: 8 }}>
+    <ScreenWrapper>
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-dmsans text-heading-2 font-semibold text-actionDark">
           Bills
         </Text>
-        <Text style={{ fontSize: 14, color: '#9e9e9e', textAlign: 'center' }}>
-          Bills scaffold — view and pay estate levies
+        <Text className="mt-xs font-dmsans text-body-base text-warmGray">
+          View and pay estate levies
         </Text>
       </View>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }

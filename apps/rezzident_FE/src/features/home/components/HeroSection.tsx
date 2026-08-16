@@ -26,7 +26,7 @@ export function HeroSection() {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 w-full animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <Link to="/app/splash" className="w-full sm:w-auto">
             <Button variant="default" className="w-full sm:w-auto h-[56px] px-8 text-lg">
-              Join Estate
+              Create Account
             </Button>
           </Link>
           <Link to="/registration-criteria" className="w-full sm:w-auto">

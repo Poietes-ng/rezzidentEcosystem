@@ -1,3 +1,3 @@
 export { colors } from "./colors";
-export { spacing, webSpacing } from "./spacing";
-export { fontFamilies, fontWeights } from "./typography";
+export { spacing, webSpacing, borderRadius } from "./spacing";
+export { fontFamilies, nativeFontFamilies, fontWeights, fontSize } from "./typography";

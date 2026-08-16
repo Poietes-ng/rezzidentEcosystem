@@ -1,4 +1,14 @@
-version: "3.9"
+# ──────────────────────────────────────────────────────────────
+# Rezzident Ecosystem — Development Infrastructure
+#
+# Usage (from repo root):
+#   docker compose -f infrastructure/docker-compose.yml up -d
+#   docker compose -f infrastructure/docker-compose.yml down
+#
+# Or via package.json scripts:
+#   pnpm infra:up
+#   pnpm infra:down
+# ──────────────────────────────────────────────────────────────
 
 services:
   # ── PostgreSQL ──
@@ -20,7 +30,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Redis ──
+  # ── Redis (JWT blacklist, sessions, cache, background jobs) ──
   redis:
     image: redis:7-alpine
     container_name: rezzident_redis
@@ -35,7 +45,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── MinIO (Object Storage) ──
+  # ── MinIO (Object Storage — profile images, documents) ──
   minio:
     image: minio/minio:latest
     container_name: rezzident_minio
@@ -45,30 +55,30 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
     volumes:
       - minio_data:/data
 
   # ── FastAPI Application ──
   api:
     build:
-      context: .
+      context: ../apps/rezzident_BE
       dockerfile: Dockerfile
     container_name: rezzident_api
     restart: unless-stopped
     ports:
       - "7001:7001"
     env_file:
-      - .env
+      - ../apps/rezzident_BE/.env
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     volumes:
-      - ./media:/app/media
-      - ./logs:/app/logs
+      - ../apps/rezzident_BE/media:/app/media
+      - ../apps/rezzident_BE/logs:/app/logs
     command: >
       gunicorn main:app
       --bind 0.0.0.0:7001
@@ -77,15 +87,16 @@ services:
       --timeout 120
       --access-logfile -
       --error-logfile -
-    
-worker:
+
+  # ── ARQ Background Worker (OTP SMS, emails, webhooks) ──
+  worker:
     build:
-      context: .
+      context: ../apps/rezzident_BE
       dockerfile: Dockerfile
     container_name: rezzident_worker
     restart: unless-stopped
     env_file:
-      - .env
+      - ../apps/rezzident_BE/.env
     depends_on:
       redis:
         condition: service_healthy
@@ -93,7 +104,7 @@ worker:
         condition: service_healthy
     command: arq api.worker.WorkerSettings
     volumes:
-      - ./logs:/app/logs
+      - ../apps/rezzident_BE/logs:/app/logs
 
 volumes:
   postgres_data:

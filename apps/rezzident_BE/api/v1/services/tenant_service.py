@@ -48,8 +48,8 @@ class TenantService:
         """Register a new estate — creates DB record + schema.
 
         Steps:
-        1. Generate unique estate code (PAR-7X3KM)
-        2. Generate schema name (est_par7x3km)
+        1. Generate unique estate code (BVD-7X3KM)
+        2. Generate schema name (est_bvd7x3km)
         3. Create PostgreSQL schema
         4. Create estate record in public schema
 

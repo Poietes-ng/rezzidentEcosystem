@@ -1,0 +1,8 @@
+{
+  "android": {
+    "package": "com.eeomo.rezzidentecosystem"
+  },
+  "ios": {
+    "bundleIdentifier": "com.eeomo.rezzidentecosystem"
+  }
+}

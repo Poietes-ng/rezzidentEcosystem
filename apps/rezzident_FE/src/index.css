@@ -77,9 +77,10 @@
     --blur-md: 12px;
     --default-transition-duration: .15s;
     --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-    --default-font-family: var(--font-sans);
-    --default-font-feature-settings: var(--font-sans--font-feature-settings);
-    --default-font-variation-settings: var(--font-sans--font-variation-settings);
+    --font-dmsans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --default-font-family: var(--font-dmsans);
+    --default-font-feature-settings: normal;
+    --default-font-variation-settings: normal;
     --default-mono-font-family: var(--font-mono);
     --default-mono-font-feature-settings: var(--font-mono--font-feature-settings);
     --default-mono-font-variation-settings: var(--font-mono--font-variation-settings);
