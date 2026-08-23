@@ -33,7 +33,7 @@ slowapi==0.1.9
 fastapi-guard==7.4.1
 
 # ── Storage ──
-minio==7.2.12
+minio==7.2.20
 
 # ── Utilities ──
 python-dateutil==2.9.0
