@@ -7,6 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "test:packages": "vitest run --config packages/vitest.config.ts",
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=rezzident-fe",
     "dev:mobile": "turbo run dev --filter=rezzident-mb",
@@ -14,18 +15,41 @@
     "build:web": "turbo run build --filter=rezzident-fe",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:fe": "pnpm --filter rezzident-fe test",
+    "test:mb": "pnpm --filter rezzident-mb test",
+    "test:be": "cd apps/rezzident_BE && ./venv/bin/python -m pytest tests/ -v",
+    "test:all": "pnpm test:fe; pnpm test:mb; pnpm test:be; pnpm --filter @rezzident/utils test",
     "check": "turbo run check",
     "format": "turbo run format",
     "clean": "turbo run clean && rm -rf node_modules",
     "infra:up": "docker compose -f infrastructure/docker-compose.yml up -d",
     "infra:down": "docker compose -f infrastructure/docker-compose.yml down",
-    "test:be": "cd apps/rezzident_BE && python -m pytest tests/ -v",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/react": "~19.2.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "turbo": "^2.3.3",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.11"
+  },
+  "lint-staged": {
+    "apps/rezzident_FE/**/*.{ts,tsx}": [
+      "prettier --write --config apps/rezzident_FE/prettier.config.js",
+      "eslint --fix --config apps/rezzident_FE/eslint.config.js"
+    ],
+    "apps/rezzident_MB/**/*.{ts,tsx}": [
+      "prettier --write --config apps/rezzident_MB/prettier.config.js",
+      "eslint --fix --config apps/rezzident_MB/eslint.config.js"
+    ],
+    "packages/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

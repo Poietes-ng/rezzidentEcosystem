@@ -1,4 +1,4 @@
-from uuid_extensions import uuid7
+from uuid6 import uuid7
 from api.db.database import Base
 from sqlalchemy import Column, String, DateTime, Boolean, func
 
