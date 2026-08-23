@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
-    "@react-native-community/netinfo": "^11.4.1",
+    "@react-native-community/netinfo": "^12.0.1",
     "@rezzident/api-client": "workspace:*",
     "@rezzident/design-tokens": "workspace:*",
     "@rezzident/shared-types": "workspace:*",
