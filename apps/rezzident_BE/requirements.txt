@@ -36,7 +36,7 @@ fastapi-guard==7.4.1
 minio==7.2.12
 
 # ── Utilities ──
-python-dateutil==2.9.0
+python-dateutil==2.9.0.post0
 
 # ── Email ──
 fastapi-mail==1.4.2
