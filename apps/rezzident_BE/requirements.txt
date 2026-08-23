@@ -30,7 +30,7 @@ redis==5.2.1
 
 # ── Rate Limiting & Attack Detection ──
 slowapi==0.1.9
-fastapi-guard==7.4.1
+fastapi-guard==7.6.0
 
 # ── Storage ──
 minio==7.2.12
