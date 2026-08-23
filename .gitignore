@@ -70,3 +70,5 @@ REACT_CORE_CONCEPT.md
 docker-compose.override.yml
 kickoff/
 Board_structure.md
+reports/
+*.zip

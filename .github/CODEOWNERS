@@ -11,19 +11,19 @@
 /apps/rezzident_MB/                @Israel-dot-com @Shakur-Galla
 
 # ── Shared packages (cross-team review) ──
-/packages/shared-types/            @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Chiboka
-/packages/api-client/              @valentine234-ui @alaminjibril @Chiboka @Israel-dot-com @Shakur-Galla
+/packages/shared-types/            @CodewithSegNet @poietesltd @alaminjibril @Israel-dot-com
+/packages/api-client/              @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
 /packages/design-tokens/           @valentine234-ui @alaminjibril @Chiboka @Israel-dot-com @Shakur-Galla
-/packages/utils/                   @valentine234-ui @alaminjibril @Chiboka @Israel-dot-com @Shakur-Galla
+/packages/utils/                   @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
 
 # ── Infrastructure & DevOps ──
-/infrastructure/                   @CodewithSegNet @poietesltd
+/infrastructure/                   @CodewithSegNet @poietesltd @Israel-dot-com
 
 # ── Root config (monorepo wiring) ──
-/turbo.json                        @CodewithSegNet @valentine234-ui
-/pnpm-workspace.yaml               @CodewithSegNet @valentine234-ui
-/package.json                      @CodewithSegNet @valentine234-ui
+/turbo.json                        @CodewithSegNet  @poietesltd
+/pnpm-workspace.yaml               @CodewithSegNet  @poietesltd
+/package.json                      @CodewithSegNet  @poietesltd
 
 # ── Documentation ──
-/docs/                             @CodewithSegNet @valentine234-ui @Israel-dot-com
+/docs/                             @CodewithSegNet @poietesltd
 /kickoff/                          @CodewithSegNet @poietesltd
