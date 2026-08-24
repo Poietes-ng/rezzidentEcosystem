@@ -10,7 +10,7 @@ import os
 import time
 import requests
 
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
+CLAUDE_MODEL = "claude-sonnet-5"
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION = "2023-06-01"
 
@@ -53,7 +53,6 @@ def call_claude(prompt: str, api_key: str | None = None, timeout: int = 120) -> 
                 json={
                     "model": CLAUDE_MODEL,
                     "max_tokens": 4096,
-                    "temperature": 0.1,
                     "messages": [
                         {"role": "user", "content": prompt},
                     ],
@@ -78,9 +77,14 @@ def call_claude(prompt: str, api_key: str | None = None, timeout: int = 120) -> 
                 continue
             else:
                 print(f"Claude returned {resp.status_code} after {MAX_RETRIES + 1} attempts. Giving up.")
-                resp.raise_for_status()
+                raise RuntimeError(f"Claude returned {resp.status_code}: {resp.text}")
 
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            # Surface the response body — it contains the actual reason
+            # (invalid_request_error details, auth failure, etc.) that
+            # requests' default HTTPError message omits.
+            raise RuntimeError(f"Claude returned {resp.status_code}: {resp.text}")
+
         data = resp.json()
 
         try:
