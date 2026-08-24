@@ -53,10 +53,6 @@ def call_claude(prompt: str, api_key: str | None = None, timeout: int = 120) -> 
                 json={
                     "model": CLAUDE_MODEL,
                     "max_tokens": 4096,
-                    # NOTE: Claude Sonnet 5 rejects non-default temperature/top_p/top_k
-                    # with an HTTP 400 (adaptive thinking replaces manual sampling
-                    # control). Don't add temperature back here — steer style via the
-                    # prompt instead. See Anthropic's Sonnet 5 migration guide.
                     "messages": [
                         {"role": "user", "content": prompt},
                     ],
@@ -81,9 +77,14 @@ def call_claude(prompt: str, api_key: str | None = None, timeout: int = 120) -> 
                 continue
             else:
                 print(f"Claude returned {resp.status_code} after {MAX_RETRIES + 1} attempts. Giving up.")
-                resp.raise_for_status()
+                raise RuntimeError(f"Claude returned {resp.status_code}: {resp.text}")
 
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            # Surface the response body — it contains the actual reason
+            # (invalid_request_error details, auth failure, etc.) that
+            # requests' default HTTPError message omits.
+            raise RuntimeError(f"Claude returned {resp.status_code}: {resp.text}")
+
         data = resp.json()
 
         try:
