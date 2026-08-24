@@ -53,7 +53,10 @@ def call_claude(prompt: str, api_key: str | None = None, timeout: int = 120) -> 
                 json={
                     "model": CLAUDE_MODEL,
                     "max_tokens": 4096,
-                    "temperature": 0.1,
+                    # NOTE: Claude Sonnet 5 rejects non-default temperature/top_p/top_k
+                    # with an HTTP 400 (adaptive thinking replaces manual sampling
+                    # control). Don't add temperature back here — steer style via the
+                    # prompt instead. See Anthropic's Sonnet 5 migration guide.
                     "messages": [
                         {"role": "user", "content": prompt},
                     ],

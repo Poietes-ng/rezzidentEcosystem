@@ -1,13 +1,17 @@
 """
-Thin wrapper around the Gemini REST API (free tier: gemini-2.5-flash).
+Thin wrapper around the Gemini REST API (gemini-3.6-flash).
 Uses plain requests so we don't need the heavier google-generativeai SDK.
+
+NOTE: gemini-2.5-flash was retired for new users; migrated to gemini-3.6-flash.
+Gemini 3.x models also deprecated temperature, top_p, and top_k — don't add
+them back to generationConfig. Steer output via the prompt instead.
 """
 
 import os
 import time
 import requests
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent"
@@ -29,7 +33,6 @@ def call_gemini(prompt: str, api_key: str | None = None, timeout: int = 90) -> s
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {
-                    "temperature": 0.1,
                     "responseMimeType": "application/json",
                 },
             },
