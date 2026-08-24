@@ -39,32 +39,46 @@ def _call_llm(prompt: str) -> str:
     The fallback ensures reviews still happen even if one provider
     is down or the API key is missing/expired.
     """
+    last_error: Exception | None = None
+    tried_providers: list[str] = []
+
     # ── Primary: Claude ──
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if anthropic_key:
+        tried_providers.append("Claude")
         try:
             logger.info("Calling Claude (primary)...")
             return call_claude(prompt, api_key=anthropic_key)
         except Exception as e:
             logger.warning("Claude failed: %s. Falling back to Gemini...", e)
+            last_error = e
 
     # ── Fallback 1: Gemini ──
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_key:
+        tried_providers.append("Gemini")
         try:
             logger.info("Calling Gemini (fallback 1)...")
             return call_gemini(prompt, api_key=gemini_key)
         except Exception as e:
             logger.warning("Gemini failed: %s. Falling back to NVIDIA...", e)
+            last_error = e
 
     # ── Fallback 2: NVIDIA ──
     nvidia_key = os.environ.get("NVIDIA_API_KEY", "")
     if nvidia_key:
+        tried_providers.append("NVIDIA")
         try:
             logger.info("Calling NVIDIA (fallback 2)...")
             return call_nvidia(prompt, api_key=nvidia_key)
         except Exception as e:
-            raise RuntimeError(f"All LLM providers (Claude, Gemini, NVIDIA) failed. Last error: {e}") from e
+            last_error = e
+
+    if last_error is not None:
+        raise RuntimeError(
+            f"All configured LLM providers failed ({', '.join(tried_providers)}). "
+            f"Last error: {last_error}"
+        ) from last_error
 
     raise RuntimeError(
         "No LLM API key available. Set ANTHROPIC_API_KEY, GEMINI_API_KEY, or use NVIDIA fallback."
