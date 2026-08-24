@@ -12,7 +12,7 @@ import requests
 
 CLAUDE_MODEL = "claude-sonnet-5"
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
-ANTHROPIC_VERSION = "2024-06-20"
+ANTHROPIC_VERSION = "2023-06-01"
 
 # Retry config
 MAX_RETRIES = 3

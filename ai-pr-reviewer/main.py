@@ -14,6 +14,7 @@ Required env vars:
   PR_NUMBER         - The pull request number (see workflow file)
 """
 
+import logging
 import os
 import sys
 
@@ -24,6 +25,12 @@ from llm.claude import call_claude
 from llm.gemini import call_gemini
 from llm.nvidia import call_nvidia
 from llm.parser import parse_review_response
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 def _call_llm(prompt: str) -> str:
@@ -36,25 +43,25 @@ def _call_llm(prompt: str) -> str:
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if anthropic_key:
         try:
-            print("Calling Claude (primary)...")
+            logger.info("Calling Claude (primary)...")
             return call_claude(prompt, api_key=anthropic_key)
         except Exception as e:
-            print(f"Claude failed: {e}. Falling back to Gemini...")
+            logger.warning("Claude failed: %s. Falling back to Gemini...", e)
 
     # ── Fallback 1: Gemini ──
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_key:
         try:
-            print("Calling Gemini (fallback 1)...")
+            logger.info("Calling Gemini (fallback 1)...")
             return call_gemini(prompt, api_key=gemini_key)
         except Exception as e:
-            print(f"Gemini failed: {e}. Falling back to NVIDIA...")
+            logger.warning("Gemini failed: %s. Falling back to NVIDIA...", e)
 
     # ── Fallback 2: NVIDIA ──
     nvidia_key = os.environ.get("NVIDIA_API_KEY", "")
     if nvidia_key:
         try:
-            print("Calling NVIDIA (fallback 2)...")
+            logger.info("Calling NVIDIA (fallback 2)...")
             return call_nvidia(prompt, api_key=nvidia_key)
         except Exception as e:
             raise RuntimeError(f"All LLM providers (Claude, Gemini, NVIDIA) failed. Last error: {e}") from e
@@ -73,7 +80,7 @@ def main():
     changed_files = get_changed_files(pr)
 
     if not changed_files:
-        print("No reviewable files changed. Skipping.")
+        logger.info("No reviewable files changed. Skipping.")
         return
 
     prompt = build_prompt(changed_files)
@@ -81,13 +88,13 @@ def main():
     review = parse_review_response(raw_response)
 
     post_review(pr, review)
-    print(f"Posted review with {len(review['issues'])} issue(s).")
+    logger.info("Posted review with %d issue(s).", len(review["issues"]))
 
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"AI review failed: {e}", file=sys.stderr)
+        logger.error("AI review failed: %s", e)
         # Don't fail the whole CI pipeline just because the reviewer errored
         sys.exit(0)
