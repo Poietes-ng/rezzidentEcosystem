@@ -5,18 +5,22 @@ Fallback LLM implementation using NVIDIA's API via the OpenAI client.
 import os
 from openai import OpenAI
 
-def call_nvidia(prompt: str, timeout: int = 120) -> str:
+def call_nvidia(prompt: str, api_key: str | None = None, timeout: int = 120) -> str:
     """Send a prompt to NVIDIA OpenAI API and return the text response.
 
     Args:
         prompt: The full prompt (system instructions + diff + rules).
+        api_key: NVIDIA API key (falls back to NVIDIA_API_KEY env var).
         timeout: HTTP timeout in seconds.
 
     Returns:
         The text content from the response.
     """
-    api_key = os.environ.get("NVIDIA_API_KEY", "")
-    
+    api_key = api_key or os.environ.get("NVIDIA_API_KEY", "")
+
+    if not api_key:
+        raise RuntimeError("NVIDIA_API_KEY not set — cannot call NVIDIA.")
+
     client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
         api_key=api_key,

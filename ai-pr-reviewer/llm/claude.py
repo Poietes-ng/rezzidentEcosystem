@@ -10,9 +10,9 @@ import os
 import time
 import requests
 
-CLAUDE_MODEL = "claude-3-5-sonnet-20241022"
+CLAUDE_MODEL = "claude-sonnet-5"
 CLAUDE_URL = "https://api.anthropic.com/v1/messages"
-ANTHROPIC_VERSION = "2023-06-01"
+ANTHROPIC_VERSION = "2024-06-20"
 
 # Retry config
 MAX_RETRIES = 3
