@@ -1,4 +1,5 @@
-from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import scoped_session, declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.pool import QueuePool
 from api.utils.settings import settings, BASE_DIR
@@ -10,6 +11,10 @@ DB_USER = settings.DB_USER
 DB_PASSWORD = settings.DB_PASSWORD
 DB_NAME = settings.DB_NAME
 DB_TYPE = settings.DB_TYPE
+DB_POOL_SIZE = settings.DB_POOL_SIZE
+DB_MAX_OVERFLOW = settings.DB_MAX_OVERFLOW
+DB_POOL_RECYCLE = settings.DB_POOL_RECYCLE
+DB_POOL_PRE_PING = settings.DB_POOL_PRE_PING
 
 
 def get_db_engine(test_mode: bool = False):
@@ -42,17 +47,17 @@ def get_db_engine(test_mode: bool = False):
     # max_overflow: Additional connections allowed beyond pool_size
     return create_engine(
         DATABASE_URL,
-        pool_pre_ping=True,
-        pool_recycle=300,
-        pool_size=10,
-        max_overflow=20,
+        pool_pre_ping=DB_POOL_PRE_PING,
+        pool_recycle=DB_POOL_RECYCLE,
+        pool_size=DB_POOL_SIZE,
+        max_overflow=DB_MAX_OVERFLOW,
         poolclass=QueuePool,
     )
 
 
 engine = get_db_engine()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 db_session = scoped_session(SessionLocal)
 
