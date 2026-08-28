@@ -25,7 +25,7 @@ from api.utils.auth_dependencies import (
     require_financial_access,
     require_security_access,
 )
-from api.v1.models.users import User, UserRole
+from api.v1.models.users import User
 from api.v1.services.dashboard_service import dashboard_service
 
 
@@ -46,36 +46,11 @@ def get_dashboard_summary(
     current_user: User = Depends(get_current_user),
 ):
     """Smart dashboard: returns the appropriate dashboard based on user role."""
-    if current_user.role == UserRole.RESIDENT:
-        data = dashboard_service.get_resident_dashboard(db, current_user)
-        return success_response(
-            status_code=status.HTTP_200_OK,
-            message="Resident dashboard fetched successfully",
-            data=data.model_dump(),
-        )
-
-    if current_user.role == UserRole.SECURITY:
-        data = dashboard_service.get_security_dashboard(db, current_user)
-        return success_response(
-            status_code=status.HTTP_200_OK,
-            message="Security dashboard fetched successfully",
-            data=data.model_dump(),
-        )
-
-    if current_user.role == UserRole.TREASURER:
-        data = dashboard_service.get_treasurer_dashboard(db, current_user)
-        return success_response(
-            status_code=status.HTTP_200_OK,
-            message="Treasurer dashboard fetched successfully",
-            data=data.model_dump(),
-        )
-
-    # Default: admin dashboard for all admin roles
-    data = dashboard_service.get_admin_dashboard(db, current_user)
+    result = dashboard_service.get_smart_dashboard(db, current_user)
     return success_response(
         status_code=status.HTTP_200_OK,
-        message="Admin dashboard fetched successfully",
-        data=data.model_dump(),
+        message=result["message"],
+        data=result["data"],
     )
 
 
@@ -223,22 +198,14 @@ def get_transaction_volume(
     summary="Staff Reports — All Staff Members",
 )
 def get_staff_reports(
-    db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
     """Reports accessible to all admin/staff roles."""
+    data = dashboard_service.get_staff_reports(current_user)
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Staff reports retrieved",
-        data={
-            "user_role": current_user.role.value,
-            "reports": [
-                {"name": "Monthly Activity", "status": "available"},
-                {"name": "Resident Summary", "status": "available"},
-                {"name": "Financial Overview", "status": "available"},
-                {"name": "Visitor Analytics", "status": "available"},
-            ],
-        },
+        data=data,
     )
 
 
