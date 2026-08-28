@@ -4,7 +4,7 @@ import { HomeIndicator } from "../../shared/components/layout/HomeIndicator";
 
 import { ErrorStateComponent } from "../../shared/components/ui/ErrorStateComponent";
 
-export const Route = createFileRoute("/_app")({
+export const Route = createFileRoute("/app")({
   component: AppLayout,
   notFoundComponent: () => (
     <ErrorStateComponent

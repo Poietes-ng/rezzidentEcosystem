@@ -13,7 +13,10 @@ export function StepProgress({
   className,
   showLabel = true,
 }: StepProgressProps) {
-  const percentage = Math.round((currentStep / totalSteps) * 100);
+  const percentage = Math.min(
+    100,
+    Math.max(0, Math.round((currentStep / totalSteps) * 100))
+  );
 
   return (
     <div className={cn("flex w-full flex-col gap-3", className)}>
