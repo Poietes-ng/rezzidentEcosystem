@@ -92,7 +92,6 @@ _GUARD_CONFIG = SecurityConfig(
 
     # Paths to never rate-limit (health checks, docs)
     exclude_paths=[
-        "/",
         "/docs",
         "/redoc",
         "/openapi.json",
@@ -125,8 +124,8 @@ async def lifespan(app: FastAPI):
 
     # ── Auto-update interactive flowchart HTML (dev only) ──
     try:
-        from scripts.generate_model_flowchart import parse_all_models, update_html
-        models = parse_all_models()
+        from scripts.generate_model_flowchart import parse_database_schema, update_html
+        models = parse_database_schema()
         update_html(models)
         app_logger.info("✅ Automatically updated models_interactive_flowchart.html")
     except Exception as e:
