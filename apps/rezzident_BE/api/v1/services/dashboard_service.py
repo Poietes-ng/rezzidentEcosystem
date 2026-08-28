@@ -752,5 +752,54 @@ class DashboardService:
         }
 
 
+    def get_smart_dashboard(
+        self, db: Session, current_user: User
+    ) -> Dict[str, Any]:
+        """Route to the correct dashboard based on user role.
+
+        Returns a tuple of (message, data_dict) so the route stays thin.
+        """
+        role_map = {
+            UserRole.RESIDENT: (
+                "Resident dashboard fetched successfully",
+                lambda: self.get_resident_dashboard(db, current_user),
+            ),
+            UserRole.SECURITY: (
+                "Security dashboard fetched successfully",
+                lambda: self.get_security_dashboard(db, current_user),
+            ),
+            UserRole.TREASURER: (
+                "Treasurer dashboard fetched successfully",
+                lambda: self.get_treasurer_dashboard(db, current_user),
+            ),
+        }
+
+        if current_user.role in role_map:
+            message, fetcher = role_map[current_user.role]
+            data = fetcher()
+        else:
+            # Default: admin dashboard for all admin roles
+            message = "Admin dashboard fetched successfully"
+            data = self.get_admin_dashboard(db, current_user)
+
+        return {"message": message, "data": data.model_dump()}
+
+    def get_staff_reports(self, current_user: User) -> Dict[str, Any]:
+        """Available reports for staff/admin users.
+
+        Returns structured report metadata. In the future this
+        should query a Reports table instead of being hardcoded.
+        """
+        return {
+            "user_role": current_user.role.value,
+            "reports": [
+                {"name": "Monthly Activity", "status": "available"},
+                {"name": "Resident Summary", "status": "available"},
+                {"name": "Financial Overview", "status": "available"},
+                {"name": "Visitor Analytics", "status": "available"},
+            ],
+        }
+
+
 # Singleton
 dashboard_service = DashboardService()
