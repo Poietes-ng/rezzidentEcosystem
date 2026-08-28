@@ -122,10 +122,10 @@ export function JoinEstateFlow() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col bg-white font-dmsans">
+    <div className="flex h-full w-full flex-col bg-white font-dmsans overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col px-6 pt-12 pb-4">
-        <button onClick={handleBack} className="mb-6 flex items-center justify-start text-actionDark w-fit">
+      <div className="flex flex-col px-6 pt-4 pb-3 shrink-0 bg-white z-10">
+        <button onClick={handleBack} className="mb-4 flex items-center justify-start text-actionDark w-fit transition-opacity hover:opacity-75 focus-visible:outline-none">
           <span className="material-symbols-outlined text-[24px]">chevron_left</span>
         </button>
 
@@ -178,9 +178,9 @@ export function JoinEstateFlow() {
             </Button>
 
             <div className="text-center mb-8">
-              <a href="#" className="text-[13px] font-bold text-actionDark underline underline-offset-4 decoration-gray-300">
+              <Link to="/app/vouch" className="text-[13px] font-bold text-actionDark underline underline-offset-4 decoration-gray-300">
                 I don't have my estate ID
-              </a>
+              </Link>
             </div>
 
             <div className="mt-auto flex flex-col gap-4">
