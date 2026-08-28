@@ -142,13 +142,13 @@ export function OtpVerificationStep({
 
             {/* Error / Expired Messages */}
             {otpStatus === "invalid" && (
-              <p className="mt-6 font-dmsans text-[13px] font-normal text-[#D94848] animate-in fade-in">
+              <p className="mt-6 font-dmsans text-[13px] font-normal text-errorRed animate-in fade-in">
                 Incorrect code. Please try again.
               </p>
             )}
 
             {otpStatus === "expired" && (
-              <p className="mt-6 font-dmsans text-[13px] font-normal text-[#D94848] animate-in fade-in">
+              <p className="mt-6 font-dmsans text-[13px] font-normal text-errorRed animate-in fade-in">
                 OTP expired. Resend OTP.
               </p>
             )}
@@ -162,10 +162,10 @@ export function OtpVerificationStep({
           type="button"
           onClick={() => handleVerify()}
           className={cn(
-            "h-[54px] w-full rounded-[14px] text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
             isOtpComplete
               ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-[#D4D0C8] hover:bg-[#D4D0C8] active:bg-[#D4D0C8]"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge"
           )}
         >
           Verify

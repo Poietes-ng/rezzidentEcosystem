@@ -78,7 +78,7 @@ export function VouchCodeStep({
           </p>
 
           {/* Yellow Dashed Card for Code */}
-          <div className="mt-3 flex items-center justify-between rounded-[16px] border-2 border-dashed border-[#FFE022] bg-[#FAFAF5] p-4">
+          <div className="mt-3 flex items-center justify-between rounded-2xl border-2 border-dashed border-actionYellow bg-offWhite p-4">
             <div className="flex flex-col">
               <span className="font-dmsans text-[11px] font-medium text-gray-400">
                 Code
@@ -90,7 +90,7 @@ export function VouchCodeStep({
             <button
               type="button"
               onClick={handleCopyCode}
-              className="flex items-center gap-1.5 rounded-[10px] border border-[#FFE022] bg-[#FFFDF0] px-3.5 py-1.5 font-dmsans text-[13px] font-medium text-actionDark shadow-2xs transition-colors hover:bg-[#FFFDE7] active:bg-[#FFF8BA]"
+              className="flex items-center gap-1.5 rounded-lg border border-actionYellow bg-amber-50/60 px-3.5 py-1.5 font-dmsans text-[13px] font-medium text-actionDark shadow-2xs transition-colors hover:bg-amber-100/60 active:bg-actionYellow/30"
             >
               <span>{copiedCode ? "Copied" : "Copy"}</span>
               {!copiedCode && (
@@ -117,14 +117,14 @@ export function VouchCodeStep({
           </h2>
 
           {/* Yellow Dashed Card for Link */}
-          <div className="mt-3 flex items-center justify-between rounded-[16px] border-2 border-dashed border-[#FFE022] bg-[#FAFAF5] p-4">
+          <div className="mt-3 flex items-center justify-between rounded-2xl border-2 border-dashed border-actionYellow bg-offWhite p-4">
             <span className="font-dmsans text-[14px] text-actionDark truncate max-w-[200px] sm:max-w-[240px]">
               {vouchLink}
             </span>
             <button
               type="button"
               onClick={handleShareLink}
-              className="flex shrink-0 items-center gap-1.5 rounded-[10px] border border-[#FFE022] bg-[#FFFDF0] px-3.5 py-1.5 font-dmsans text-[13px] font-medium text-actionDark shadow-2xs transition-colors hover:bg-[#FFFDE7] active:bg-[#FFF8BA]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-actionYellow bg-amber-50/60 px-3.5 py-1.5 font-dmsans text-[13px] font-medium text-actionDark shadow-2xs transition-colors hover:bg-amber-100/60 active:bg-actionYellow/30"
             >
               <span>{copiedLink ? "Link Copied" : "Share"}</span>
               {!copiedLink && (

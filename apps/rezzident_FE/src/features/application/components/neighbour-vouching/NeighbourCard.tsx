@@ -21,11 +21,11 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
             <img
               src={neighbour.avatarUrl}
               alt={neighbour.name}
-              className="h-[44px] w-[44px] rounded-lg object-cover shadow-xs"
+              className="h-11 w-11 rounded-lg object-cover shadow-xs"
             />
           ) : (
-            <div className="flex h-[44px] w-[44px] items-center justify-center rounded-lg bg-[#FAFAF5]  text-gray-400">
-              <span className="text-[16px] font-medium text-[#E09822]">—</span>
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-offWhite text-gray-400">
+              <span className="text-[16px] font-medium text-warningGold">—</span>
             </div>
           )}
 
@@ -43,7 +43,7 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
         {/* Right: Status Badge */}
         <div>
           {isVouched ? (
-            <div className="flex items-center gap-1 text-[14px] font-medium text-[#2DB84E]">
+            <div className="flex items-center gap-1 text-[14px] font-medium text-successGreen">
               <svg
                 className="h-4 w-4"
                 viewBox="0 0 20 20"
@@ -59,7 +59,7 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
               <span>Vouched</span>
             </div>
           ) : (
-            <span className="inline-flex items-center rounded-full border border-[#F5A623] bg-[#FAF0D6] px-3 py-1 font-dmsans text-[13px] font-medium text-[#D97706]">
+            <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-3 py-1 font-dmsans text-[13px] font-medium text-amber-700">
               Pending
             </span>
           )}

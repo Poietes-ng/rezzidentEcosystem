@@ -83,13 +83,13 @@ export function PersonalDetailsStep({
               className={cn(
                 "h-[44px] text-[15px] border-b placeholder:text-gray-400",
                 nameError
-                  ? "border-b-[#D94848] text-[#1A1A1A] focus-visible:border-b-[#D94848]"
-                  : "border-b-[#E5E5E5] focus-visible:border-b-[#FFE022]"
+                  ? "border-b-errorRed text-actionDark focus-visible:border-b-errorRed"
+                  : "border-b-gray-200 focus-visible:border-b-actionYellow"
               )}
               autoFocus
             />
             {nameError && (
-              <p className="mt-1.5 font-dmsans text-[12px] font-normal text-[#D94848] animate-in fade-in">
+              <p className="mt-1.5 font-dmsans text-[12px] font-normal text-errorRed animate-in fade-in">
                 {nameError}
               </p>
             )}
@@ -107,8 +107,8 @@ export function PersonalDetailsStep({
               className={cn(
                 "flex items-center border-b transition-colors",
                 phoneError
-                  ? "border-b-[#D94848] focus-within:border-b-[#D94848]"
-                  : "border-b-[#E5E5E5] focus-within:border-b-[#FFE022]"
+                  ? "border-b-errorRed focus-within:border-b-errorRed"
+                  : "border-b-gray-200 focus-within:border-b-actionYellow"
               )}
             >
               <span className="font-dmsans text-[15px] font-bold text-actionDark pr-2.5">
@@ -122,11 +122,11 @@ export function PersonalDetailsStep({
                 placeholder="Enter phone number"
                 value={phoneNumber}
                 onChange={(e) => handlePhoneChange(e.target.value)}
-                className="h-[44px] flex-1 bg-transparent font-dmsans text-[15px] text-[#1A1A1A] outline-none placeholder:text-gray-400"
+                className="h-[44px] flex-1 bg-transparent font-dmsans text-[15px] text-actionDark outline-none placeholder:text-gray-400"
               />
             </div>
             {phoneError ? (
-              <p className="mt-1.5 font-dmsans text-[12px] font-normal text-[#D94848] animate-in fade-in">
+              <p className="mt-1.5 font-dmsans text-[12px] font-normal text-errorRed animate-in fade-in">
                 {phoneError}
               </p>
             ) : (
@@ -144,10 +144,10 @@ export function PersonalDetailsStep({
           type="button"
           onClick={() => handleSubmit()}
           className={cn(
-            "h-[54px] w-full rounded-[14px] text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
             isFormComplete
               ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-[#D4D0C8] hover:bg-[#D4D0C8] active:bg-[#D4D0C8]"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge"
           )}
         >
           Continue

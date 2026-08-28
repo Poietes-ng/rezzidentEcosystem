@@ -23,7 +23,7 @@ export const ServerDowntimeError = React.forwardRef<HTMLDivElement, ServerDownti
         ref={ref}
         role="alert"
         className={cn(
-          "flex items-start gap-3.5 rounded-[16px] bg-[#C84141] p-4 text-white shadow-sm font-dmsans",
+          "flex items-start gap-3.5 rounded-2xl bg-errorRed p-4 text-white shadow-sm font-dmsans",
           className
         )}
         {...props}

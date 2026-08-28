@@ -7,10 +7,10 @@ export interface SuccessStepProps {
 
 export function SuccessStep({ onSetupPin }: SuccessStepProps) {
   return (
-    <div className="flex min-h-full w-full flex-col justify-between px-6 pb-8 pt-12 font-dmsans">
-      <div className="flex flex-1 flex-col items-center justify-center text-center">
+    <div className="flex min-h-full w-full flex-1 flex-col items-center justify-center px-6 py-12 font-dmsans">
+      <div className="flex w-full max-w-[340px] flex-col items-center text-center">
         {/* ── Success Checkmark Icon Badge ── */}
-        <div className="relative mb-8 flex items-center justify-center">
+        <div className="relative mb-6 flex items-center justify-center">
           <img
             src="/assets/Success_Circle.svg"
             alt="Success"
@@ -19,23 +19,23 @@ export function SuccessStep({ onSetupPin }: SuccessStepProps) {
         </div>
 
         {/* ── Heading & Subtitle ── */}
-        <h1 className="font-dmsans text-[28px] font-bold text-actionDark sm:text-[32px]">
+        <h1 className="font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[30px]">
           Hurray you're verified!
         </h1>
-        <p className="mt-3 max-w-[280px] font-dmsans text-[14px] leading-relaxed text-gray-500">
-          Your neighbours have verified your residency. You can now set up your PIN for quick and secure access.
+        <p className="mt-3 text-[14px] leading-relaxed text-gray-500">
+          Your neighbours have confirmed your identity. Set up your PIN to complete your account and access the app.
         </p>
-      </div>
 
-      {/* ── Bottom CTA ── */}
-      <div className="pt-6">
-        <Button
-          type="button"
-          onClick={onSetupPin}
-          className="h-[54px] w-full rounded-[14px] bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90"
-        >
-          Set Up PIN
-        </Button>
+        {/* ── Centered CTA Button ── */}
+        <div className="mt-8 w-full">
+          <Button
+            type="button"
+            onClick={onSetupPin}
+            className="h-[54px] w-full rounded-xl bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90 cursor-pointer"
+          >
+            Set Up PIN
+          </Button>
+        </div>
       </div>
     </div>
   );

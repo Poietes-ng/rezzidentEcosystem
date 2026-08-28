@@ -22,7 +22,7 @@ export function ViewfinderFrame({
     <div className={cn("flex flex-col items-center justify-center", className)}>
       <div className="relative aspect-square w-[260px] max-w-[80vw] select-none transition-all duration-300">
         {/* Inner Content Area (Camera Stream or Snapshot) */}
-        <div className="absolute inset-[3px] overflow-hidden rounded-[34px] bg-[#FAFAF5]">
+        <div className="absolute inset-[3px] overflow-hidden rounded-[34px] bg-offWhite">
           {/* Live Camera Stream Video */}
           {videoRef && (
             <video
@@ -50,7 +50,7 @@ export function ViewfinderFrame({
 
           {/* Scanning beam animation when isCapturing */}
           {isCapturing && (
-            <div className="absolute inset-x-0 h-1 bg-[#FFE022] shadow-[0_0_12px_#FFE022] animate-pulse transition-all duration-700" />
+            <div className="absolute inset-x-0 h-1 bg-actionYellow shadow-[0_0_12px_#FFE022] animate-pulse transition-all duration-700" />
           )}
         </div>
 
@@ -117,11 +117,11 @@ export function ViewfinderFrame({
 
       {/* Caption or Error message below frame */}
       {hasError ? (
-        <p className="mt-5 text-center font-dmsans text-[14px] text-[#DC2626]">
+        <p className="mt-5 text-center font-dmsans text-[14px] text-errorRed">
           Verification failed. Please try again.
         </p>
       ) : (
-        <p className="mt-5 text-center font-dmsans text-[14px] text-[#71717A]">
+        <p className="mt-5 text-center font-dmsans text-[14px] text-gray-500">
           Position your face within the frame
         </p>
       )}

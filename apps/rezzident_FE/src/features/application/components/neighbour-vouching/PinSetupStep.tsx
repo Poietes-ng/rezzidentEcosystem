@@ -121,7 +121,7 @@ export function PinSetupStep({
 
           {/* Error Message Placed Below Face ID row */}
           {hasMismatch && (
-            <p className="font-dmsans text-[13px] font-normal text-[#D94848] text-center animate-in fade-in">
+            <p className="font-dmsans text-[13px] font-normal text-errorRed text-center animate-in fade-in">
               PINs do not match. Please try again.
             </p>
           )}
@@ -134,10 +134,10 @@ export function PinSetupStep({
           type="button"
           onClick={() => handleSubmit()}
           className={cn(
-            "h-[54px] w-full rounded-[14px] text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
             isMatch
               ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-[#D4D0C8] hover:bg-[#D4D0C8] active:bg-[#D4D0C8]"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge"
           )}
         >
           Complete Setup

@@ -26,38 +26,57 @@ export function FacialVerificationStep({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const isMountedRef = useRef(true);
+
+  const stopActiveStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
 
   const startCamera = () => {
+    stopActiveStream();
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
         .getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
+          if (!isMountedRef.current) {
+            stream.getTracks().forEach((track) => track.stop());
+            return;
+          }
           streamRef.current = stream;
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
             videoRef.current.onloadedmetadata = () => {
-              setCameraReady(true);
+              if (isMountedRef.current) setCameraReady(true);
             };
           }
-          setTimeout(() => setCameraReady(true), 500);
+          setTimeout(() => {
+            if (isMountedRef.current) setCameraReady(true);
+          }, 500);
         })
         .catch(() => {
           // Camera access denied/unavailable in environment - graceful fallback
-          setTimeout(() => setCameraReady(true), 600);
+          setTimeout(() => {
+            if (isMountedRef.current) setCameraReady(true);
+          }, 600);
         });
     } else {
-      setTimeout(() => setCameraReady(true), 600);
+      setTimeout(() => {
+        if (isMountedRef.current) setCameraReady(true);
+      }, 600);
     }
   };
 
   // Attempt to open front camera if available, fallback gracefully if not
   useEffect(() => {
+    isMountedRef.current = true;
     startCamera();
 
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
+      isMountedRef.current = false;
+      stopActiveStream();
     };
   }, []);
 
@@ -80,6 +99,7 @@ export function FacialVerificationStep({
 
     // Simulate verification processing then show error or advance
     setTimeout(() => {
+      if (!isMountedRef.current) return;
       setCaptured(true);
       setIsCapturing(false);
       
@@ -90,11 +110,11 @@ export function FacialVerificationStep({
       }
 
       // Normal flow advances
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
+      stopActiveStream();
       setTimeout(() => {
-        onCaptureComplete();
+        if (isMountedRef.current) {
+          onCaptureComplete();
+        }
       }, 500);
     }, 800);
   };
