@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = config("DB_PASSWORD", default="password")
     DB_NAME: str = config("DB_NAME", default="rezzident_db")
     DB_TYPE: str = config("DB_TYPE", default="postgresql")
+    DB_POOL_SIZE: int = config("DB_POOL_SIZE", default=5, cast=int)
+    DB_MAX_OVERFLOW: int = config("DB_MAX_OVERFLOW", default=10, cast=int)
+    DB_POOL_RECYCLE: int = config("DB_POOL_RECYCLE", default=300, cast=int)
+    DB_POOL_PRE_PING: bool = config("DB_POOL_PRE_PING", default=True, cast=bool)
     DB_URL: str = config(
         "DB_URL",
         default="postgresql://postgres:password@localhost:5432/rezzident_db",
