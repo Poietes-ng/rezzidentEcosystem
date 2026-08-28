@@ -9,12 +9,13 @@ Mirrors estate_management_BE jwt_handler.py with V2 additions:
 
 Reference: docs/architecture/08-pin-biometric-auth.md
 """
-
+import jwt
 import uuid
+from jwt.exceptions import PyJWTError, InvalidTokenError, ExpiredSignatureError 
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 
-from jose import JWTError, jwt
+ 
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -164,10 +165,16 @@ def verify_token(token: str) -> Dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except InvalidTokenError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            status_code=401,
+            detail="Token Has Expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -187,7 +194,11 @@ def decode_access_token(token: str) -> Optional[Dict]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except ExpiredSignatureError:
+        return None
+    except InvalidTokenError:
+        return None
+    except PyJWTError:
         return None
 
 
@@ -214,7 +225,7 @@ def verify_refresh_token(token: str) -> Dict:
             )
 
         return payload
-    except JWTError:
+    except PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
@@ -276,7 +287,7 @@ async def get_current_user(
                 detail="Invalid authentication credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except JWTError:
+    except PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
