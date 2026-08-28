@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "../../../../shared/components/ui/button";
+import { Button } from "#/shared/components/ui/button";
 import { ViewfinderFrame } from "./ViewfinderFrame";
-import { cn } from "../../../../shared/utils/cn";
+import { cn } from "#/shared/utils/cn";
 
 export interface FacialVerificationStepProps {
   currentStep: number;
@@ -9,7 +9,6 @@ export interface FacialVerificationStepProps {
   onCaptureComplete: () => void;
   initialError?: boolean;
   serverDowntime?: boolean;
-  onToggleServerDowntime?: () => void;
 }
 
 export function FacialVerificationStep({
@@ -18,7 +17,6 @@ export function FacialVerificationStep({
   onCaptureComplete,
   initialError = false,
   serverDowntime = false,
-  onToggleServerDowntime,
 }: FacialVerificationStepProps) {
   const [isCapturing, setIsCapturing] = useState(false);
   const [captured, setCaptured] = useState(false);
@@ -152,34 +150,6 @@ export function FacialVerificationStep({
         >
           {hasError ? "Retake Photo" : isCapturing ? "Processing..." : "Take Photo"}
         </Button>
-      </div>
-
-      {/* ── UI Prototype Error State Simulator Controls (for previewing design states) ── */}
-      <div className="mt-6 flex items-center justify-center gap-2 pt-2 border-t border-gray-100/60">
-        <button
-          type="button"
-          onClick={() => setHasError((prev) => !prev)}
-          className={cn(
-            "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
-            hasError ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          )}
-        >
-          {hasError ? "Hide Failed Error" : "Test Failed Error"}
-        </button>
-        {onToggleServerDowntime && (
-          <button
-            type="button"
-            onClick={onToggleServerDowntime}
-            className={cn(
-              "rounded-full px-3 py-1 text-[11px] font-medium transition-colors",
-              serverDowntime
-                ? "bg-red-100 text-red-700"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            )}
-          >
-            {serverDowntime ? "Hide Downtime Banner" : "Test Server Downtime"}
-          </button>
-        )}
       </div>
     </div>
   );

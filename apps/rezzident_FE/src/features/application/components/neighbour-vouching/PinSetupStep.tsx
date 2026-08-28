@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button } from "../../../../shared/components/ui/button";
-import { PinInput } from "../../../../shared/components/ui/pin-input";
-import { Switch } from "../../../../shared/components/ui/switch";
-import { cn } from "../../../../shared/utils/cn";
+import { Button } from "#/shared/components/ui/button";
+import { PinInput } from "#/shared/components/ui/pin-input";
+import { Switch } from "#/shared/components/ui/switch";
+import { cn } from "#/shared/utils/cn";
 
 export interface PinSetupStepProps {
   currentStep: number;

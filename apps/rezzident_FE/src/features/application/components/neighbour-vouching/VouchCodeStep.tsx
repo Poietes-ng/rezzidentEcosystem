@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "../../../../shared/components/ui/button";
+import { Button } from "#/shared/components/ui/button";
 
 export interface VouchCodeStepProps {
   currentStep: number;

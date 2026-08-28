@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "../../../../shared/components/ui/button";
-import { PinInput } from "../../../../shared/components/ui/pin-input";
-import { cn } from "../../../../shared/utils/cn";
+import { Button } from "#/shared/components/ui/button";
+import { PinInput } from "#/shared/components/ui/pin-input";
+import { cn } from "#/shared/utils/cn";
+
+export const MOCK_VALID_OTP = "1234";
+export const MOCK_EXPIRED_OTP_CODES = ["0000", "9999", "8888"] as const;
 
 export interface OtpVerificationStepProps {
   currentStep: number;
@@ -27,10 +30,8 @@ export function OtpVerificationStep({
 
   const countdownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mock valid OTP
-  const MOCK_VALID_OTP = "1234";
-  // Mock expired OTP trigger (e.g. 0000 or 9999 or 8888 for testing expired state)
-  const isExpiredCode = otp === "0000" || otp === "9999" || otp === "8888";
+  // Check expired OTP code
+  const isExpiredCode = (MOCK_EXPIRED_OTP_CODES as readonly string[]).includes(otp);
 
   // Format phone number e.g. +234 801 234 XXXX
   const cleanPhone = phoneNumber.replace(/\D/g, "");

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
-import { StepProgress } from "../../../../shared/components/ui/step-progress";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { StepProgress } from "#/shared/components/ui/step-progress";
 import { IntroStep } from "./IntroStep";
 import { PersonalDetailsStep } from "./PersonalDetailsStep";
 import { OtpVerificationStep } from "./OtpVerificationStep";
@@ -11,7 +11,7 @@ import { VouchingStatusStep } from "./VouchingStatusStep";
 import { SuccessStep } from "./SuccessStep";
 import { PinSetupStep } from "./PinSetupStep";
 import { CompletedStep } from "./CompletedStep";
-import { ServerDowntimeError } from "../../../../shared/components/ui/server-downtime-error";
+import { ServerDowntimeError } from "#/shared/components/ui/server-downtime-error";
 import type { NeighbourVouch, VouchingFlowStep, VouchingState } from "./types";
 
 // High quality, reliable avatars matching the screenshots
@@ -58,7 +58,7 @@ const VOUCHING_STEP_MAP: Record<VouchingFlowStep, number | null> = {
 
 const TOTAL_STEPS = 5;
 
-const slideVariants = {
+const slideVariants: Variants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 30 : -30,
     opacity: 0,
@@ -66,12 +66,12 @@ const slideVariants = {
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.25, ease: [0, 0, 0.2, 1] },
+    transition: { duration: 0.25, ease: "easeOut" },
   },
   exit: (direction: number) => ({
     x: direction > 0 ? -30 : 30,
     opacity: 0,
-    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+    transition: { duration: 0.2, ease: "easeIn" },
   }),
 };
 
@@ -255,17 +255,17 @@ export function NeighbourVouchingFlow() {
           <motion.div
             key={state.currentStep}
             custom={direction}
-            variants={slideVariants as any}
+            variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            className="flex min-h-full w-full flex-col"
+            className="flex min-h-full flex-1 flex-col"
           >
-            {/* 1. INTRO SCREEN */}
+            {/* 1. INTRO STEP */}
             {state.currentStep === "INTRO" && (
               <IntroStep
                 onStart={() => goToStep("DETAILS", 1)}
-                onBack={() => navigate({ to: "/app/join" })}
+                onBack={handleBack}
               />
             )}
 
@@ -304,7 +304,6 @@ export function NeighbourVouchingFlow() {
                 currentStep={3}
                 totalSteps={TOTAL_STEPS}
                 serverDowntime={serverDowntime}
-                onToggleServerDowntime={() => setServerDowntime((prev) => !prev)}
                 onCaptureComplete={() => {
                   setState((prev) => ({ ...prev, facialVerificationCompleted: true }));
                   goToStep("VOUCH_CODE", 1);

@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "../../../../shared/utils/cn";
+import { cn } from "#/shared/utils/cn";
 import type { NeighbourVouch } from "./types";
 
 export interface NeighbourCardProps {

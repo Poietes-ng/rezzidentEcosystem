@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Button } from "../../../../shared/components/ui/button";
-import { Input } from "../../../../shared/components/ui/input";
-import { cn } from "../../../../shared/utils/cn";
+import { Button } from "#/shared/components/ui/button";
+import { Input } from "#/shared/components/ui/input";
+import { cn } from "#/shared/utils/cn";
 
 export interface PersonalDetailsStepProps {
   currentStep: number;

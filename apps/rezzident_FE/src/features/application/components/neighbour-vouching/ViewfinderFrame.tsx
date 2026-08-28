@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "../../../../shared/utils/cn";
+import { cn } from "#/shared/utils/cn";
 
 export interface ViewfinderFrameProps {
   className?: string;
