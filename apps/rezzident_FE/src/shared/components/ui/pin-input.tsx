@@ -117,14 +117,14 @@ export function PinInput({
                   <div
                     className={cn(
                       "size-[8px] rounded-full",
-                      error ? "bg-[#D94848]" : "bg-[#1A1A1A]"
+                      error ? "bg-errorRed" : "bg-actionDark"
                     )}
                   />
                 ) : (
                   <span
                     className={cn(
                       "font-dmsans text-[22px] font-bold",
-                      error ? "text-[#D94848]" : "text-[#1A1A1A]"
+                      error ? "text-errorRed" : "text-actionDark"
                     )}
                   >
                     {char}
@@ -134,7 +134,7 @@ export function PinInput({
                 <span
                   className={cn(
                     "text-[20px] font-normal leading-none select-none",
-                    error ? "text-[#D94848]" : "text-[#B0ABA0]"
+                    error ? "text-errorRed" : "text-mutedOlive"
                   )}
                 >
                   —
@@ -147,10 +147,10 @@ export function PinInput({
               className={cn(
                 "pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full transition-colors",
                 error
-                  ? "bg-[#D94848]"
+                  ? "bg-errorRed"
                   : isFocused
-                  ? "bg-[#FFE022] h-[2px]"
-                  : "bg-[#E5E5E5]"
+                  ? "bg-actionYellow h-[2px]"
+                  : "bg-gray-200"
               )}
             />
           </div>

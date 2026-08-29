@@ -115,14 +115,14 @@ export function PersonalDetailsStep({
                 +234
               </span>
               <div className="h-[18px] w-[1px] bg-gray-300 mr-2.5" />
-              <input
+              <Input
                 id="phoneNumber"
                 type="tel"
                 inputMode="numeric"
                 placeholder="Enter phone number"
                 value={phoneNumber}
                 onChange={(e) => handlePhoneChange(e.target.value)}
-                className="h-[44px] flex-1 bg-transparent font-dmsans text-[15px] text-actionDark outline-none placeholder:text-gray-400"
+                className="h-[44px] flex-1 border-none bg-transparent px-0 font-dmsans text-[15px] text-actionDark outline-none placeholder:text-gray-400 focus-visible:border-none focus-visible:ring-0"
               />
             </div>
             {phoneError ? (

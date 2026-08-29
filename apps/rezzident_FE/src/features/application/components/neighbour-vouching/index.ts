@@ -10,4 +10,5 @@ export * from "./PinSetupStep";
 export * from "./CompletedStep";
 export * from "./ViewfinderFrame";
 export * from "./NeighbourCard";
+export * from "./useNeighbourVouchingFlow";
 export type * from "./types";
