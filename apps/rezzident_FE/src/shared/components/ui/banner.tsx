@@ -14,7 +14,7 @@ const bannerVariants: Record<BannerVariant, string> = {
   success: "bg-green-50 text-green-900 border-green-200",
   warning: "bg-amber-50 text-amber-900 border-amber-200",
   error: "bg-red-50 text-red-900 border-red-200",
-  neutral: "bg-[#FAFAF5] text-actionDark border-gray-200",
+  neutral: "bg-offWhite text-actionDark border-gray-200",
 };
 
 export const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
@@ -23,7 +23,7 @@ export const Banner = React.forwardRef<HTMLDivElement, BannerProps>(
       <div
         ref={ref}
         className={cn(
-          "flex items-start gap-3 rounded-[12px] border p-4 text-sm font-dmsans",
+          "flex items-start gap-3 rounded-xl border p-4 text-sm font-dmsans",
           bannerVariants[variant],
           className
         )}

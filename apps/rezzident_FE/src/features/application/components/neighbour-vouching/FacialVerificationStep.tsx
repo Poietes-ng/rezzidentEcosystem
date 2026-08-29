@@ -162,10 +162,10 @@ export function FacialVerificationStep({
           onClick={hasError ? handleRetakePhoto : handleTakePhoto}
           disabled={!hasError && !isButtonActive}
           className={cn(
-            "h-[54px] w-full rounded-[14px] text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
             hasError || isButtonActive
               ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-[#D4D0C8] hover:bg-[#D4D0C8] active:bg-[#D4D0C8] cursor-not-allowed"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge cursor-not-allowed"
           )}
         >
           {hasError ? "Retake Photo" : isCapturing ? "Processing..." : "Take Photo"}

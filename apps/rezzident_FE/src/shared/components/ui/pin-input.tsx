@@ -31,19 +31,16 @@ export function PinInput({
     // Extract only digits/alphanumerics
     const cleanValue = inputValue.replace(/\D/g, "");
     if (!cleanValue) {
-      const newValue = value.split("");
-      newValue[index] = "";
-      onChange?.(newValue.join(""));
+      const next = value.slice(0, index);
+      onChange?.(next);
       return;
     }
 
     const char = cleanValue.slice(-1);
-    const newValue = value.split("");
-    while (newValue.length < length) newValue.push("");
-    newValue[index] = char;
-    const finalValue = newValue.slice(0, length).join("");
-
-    onChange?.(finalValue);
+    const chars = value.split("");
+    chars[index] = char;
+    const next = chars.join("").slice(0, length);
+    onChange?.(next);
 
     if (char && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
@@ -64,16 +61,22 @@ export function PinInput({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (disabled) return;
     if (e.key === "Backspace") {
-      if (!value[index] && index > 0) {
+      e.preventDefault();
+      if (value[index]) {
+        // If current slot has a digit, clear from this index
+        const next = value.slice(0, index);
+        onChange?.(next);
+      } else if (index > 0) {
+        // If current slot is empty, clear previous slot and focus it
+        const next = value.slice(0, index - 1);
+        onChange?.(next);
         inputRefs.current[index - 1]?.focus();
-      } else {
-        const newValue = value.split("");
-        newValue[index] = "";
-        onChange?.(newValue.join(""));
       }
     } else if (e.key === "ArrowLeft" && index > 0) {
+      e.preventDefault();
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === "ArrowRight" && index < length - 1) {
+      e.preventDefault();
       inputRefs.current[index + 1]?.focus();
     }
   };
