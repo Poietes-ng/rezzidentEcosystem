@@ -6,6 +6,23 @@ Users select from these or request a custom structure.
 Each template defines hierarchical address levels.
 Level types: text, numeric, alphanumeric, select (with predefined options)
 
+Provenance fields (new):
+    structure        — plain-word label of the level sequence, e.g.
+                        "Phase, Street, House Number" (matches the naming
+                        convention used in the reference naming-structure
+                        catalog, for easy cross-checking).
+    example_address   — a real or plausible full address string showing
+                        what this template produces once the estate's own
+                        name is prepended. Illustrative only, not a format
+                        string (see `address_format` for that).
+    verified          — True if this exact pattern is modeled on a
+                        documented, real-world estate's actual address
+                        scheme. False if it's a common/generic pattern
+                        not tied to one independently confirmed estate.
+    source            — plain description of where the pattern comes from:
+                        a named real estate for verified=True entries, or
+                        a short rationale for verified=False entries.
+
 Usage:
     python -m api.v1.seeds.estate_structure_seeds
     # Or call seed_estate_structures(db) from within the app
@@ -28,6 +45,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 1, "label": "House Number", "type": "alphanumeric", "required": True}
         ],
         "address_format": "House {House Number}",
+        "structure": "House Number",
+        "example_address": "Chevy View Estate, House 14",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "street_house",
@@ -39,6 +60,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Street}",
+        "structure": "Street, House Number",
+        "example_address": "Chevy View Estate, Freedom Street, House 10",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "plot_number",
@@ -49,6 +74,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 1, "label": "Plot Number", "type": "alphanumeric", "required": True}
         ],
         "address_format": "Plot {Plot Number}",
+        "structure": "Plot Number",
+        "example_address": "Chevy View Estate, Plot 4",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "area_plot",
@@ -60,6 +89,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Plot", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Area}, Plot {Plot}",
+        "structure": "Area, Plot Number",
+        "example_address": "Amuwo Odofin Layout, Plot 22",
+        "verified": False,
+        "source": "Generic — common where estates sit inside a broader government/private layout referred to as an 'Area'",
     },
 
     # ────────────────────────────────────────────────
@@ -75,6 +108,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Flat Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, Flat {Flat Number}",
+        "structure": "Block, Flat Number",
+        "example_address": "Golden Park Estate, Block C, Flat 4",
+        "verified": False,
+        "source": "Generic — common low-rise apartment-block pattern without a Floor tier",
     },
     {
         "template_id": "block_floor_flat",
@@ -87,6 +124,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, Floor {Floor}, Flat {Flat}",
+        "structure": "Block, Floor, Flat Number",
+        "example_address": "1004 Estate, Block 3, Floor 5, Flat 12",
+        "verified": True,
+        "source": "1004 Estate, Victoria Island — documented high-rise block/floor/flat scheme",
     },
     {
         "template_id": "block_unit",
@@ -98,6 +139,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, Unit {Unit}",
+        "structure": "Block, Unit Number",
+        "example_address": "Golden Park Estate, Block C, Unit 4",
+        "verified": False,
+        "source": "Generic — terrace/duplex clusters organized by block where each unit is its own building",
     },
     {
         "template_id": "tower_floor_unit",
@@ -110,6 +155,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Tower {Tower}, Floor {Floor}, Unit {Unit}",
+        "structure": "Tower, Floor, Unit Number",
+        "example_address": "Eko Atlantic Towers, Tower 2, Floor 12, Unit 4",
+        "verified": False,
+        "source": "Generic — mega high-rise condo pattern, not tied to one confirmed development",
     },
     {
         "template_id": "wing_floor_flat",
@@ -122,6 +171,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Wing {Wing}, Floor {Floor}, Flat {Flat}",
+        "structure": "Wing, Floor, Flat Number",
+        "example_address": "Parkview Towers, Wing B, Floor 4, Flat 6",
+        "verified": False,
+        "source": "Generic — Wing-labeled variant of the block/floor/flat pattern",
     },
 
     # ────────────────────────────────────────────────
@@ -137,6 +190,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Street Name}",
+        "structure": "Street Name, House Number",
+        "example_address": "Chevy View Estate, Freedom Street, House 10",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "close_house",
@@ -148,6 +205,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Close}",
+        "structure": "Close, House Number",
+        "example_address": "Admiralty Estate, Admiralty Close, House 14",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "crescent_house",
@@ -159,6 +220,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Crescent}",
+        "structure": "Crescent, House Number",
+        "example_address": "Parkview Estate, Ocean Crescent, House 9",
+        "verified": False,
+        "source": "Generic — 'Crescent' is a common street type in upscale Lagos/Ikoyi estates",
     },
     {
         "template_id": "avenue_house",
@@ -170,6 +235,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Avenue}",
+        "structure": "Avenue, House Number",
+        "example_address": "Festac Town, 1st Avenue, House 14",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "road_house",
@@ -181,6 +250,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Road}",
+        "structure": "Road, House Number",
+        "example_address": "Festac Town, 21 Road, House 14",
+        "verified": True,
+        "source": "Festac Town, Lagos — internal roads referenced this way in real listings",
     },
 
     # ────────────────────────────────────────────────
@@ -196,6 +269,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Phase {Phase}, House {House Number}",
+        "structure": "Phase, House Number",
+        "example_address": "Chevy View Estate, Phase 1, House 14",
+        "verified": False,
+        "source": "Generic — simplest phase-organized pattern, no street/block tier",
     },
     {
         "template_id": "phase_street_house",
@@ -208,6 +285,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Phase {Phase}, {House Number} {Street}",
+        "structure": "Phase, Street, House Number",
+        "example_address": "Chevy View Estate, Phase 1, Elm Street, House 12",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "phase_block_flat",
@@ -220,6 +301,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Phase {Phase}, Block {Block}, Flat {Flat}",
+        "structure": "Phase, Block, Flat Number",
+        "example_address": "Dolphin Estate, Phase 2, Block D, Flat 8",
+        "verified": True,
+        "source": "Matches Dolphin Estate's documented phase/block scheme",
     },
     {
         "template_id": "phase_block_floor_unit",
@@ -233,6 +318,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 4, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Phase {Phase}, Block {Block}, Floor {Floor}, Unit {Unit}",
+        "structure": "Phase, Block, Floor, Unit Number",
+        "example_address": "Dolphin Estate, Phase 2, Block D, Floor 3, Unit 8",
+        "verified": False,
+        "source": "Extends Dolphin Estate's documented phase/block scheme with a Floor tier, for taller multi-story phased buildings",
     },
 
     # ────────────────────────────────────────────────
@@ -248,6 +337,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Zone {Zone}, House {House Number}",
+        "structure": "Zone, House Number",
+        "example_address": "Efab Estate, Zone A, House 5",
+        "verified": False,
+        "source": "Generic — estates that self-label internal sections 'Zone A/B/C' instead of numbered Phases",
     },
     {
         "template_id": "zone_street_house",
@@ -260,6 +353,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Zone {Zone}, {House Number} {Street}",
+        "structure": "Zone, Street, House Number",
+        "example_address": "Efab Estate, Zone A, Freedom Street, House 5",
+        "verified": False,
+        "source": "Generic — estates that self-label internal sections 'Zone A/B/C' instead of numbered Phases",
     },
     {
         "template_id": "zone_block_flat",
@@ -272,6 +369,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Zone {Zone}, Block {Block}, Flat {Flat}",
+        "structure": "Zone, Block, Flat Number",
+        "example_address": "Efab Estate, Zone B, Block 3, Flat 12",
+        "verified": False,
+        "source": "Generic — Zone-labeled variant of the phase/block/flat pattern",
     },
     {
         "template_id": "zone_block_floor_flat",
@@ -285,6 +386,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 4, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Zone {Zone}, Block {Block}, Floor {Floor}, Flat {Flat}",
+        "structure": "Zone, Block, Floor, Flat Number",
+        "example_address": "Efab Estate, Zone B, Block 3, Floor 5, Flat 12",
+        "verified": False,
+        "source": "Generic — Zone-labeled variant of the block/floor/flat pattern for larger multi-zone apartment estates",
     },
 
     # ────────────────────────────────────────────────
@@ -301,6 +406,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Area}, Plot {Plot}, House {House Number}",
+        "structure": "Area, Plot Number, House Number",
+        "example_address": "Amuwo Odofin Layout, Plot 22, House 4",
+        "verified": False,
+        "source": "Generic — common where estates sit inside a broader government/private layout",
     },
     {
         "template_id": "area_plot_flat",
@@ -313,6 +422,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Area}, Plot {Plot}, Flat {Flat Number}",
+        "structure": "Area, Plot Number, Flat Number",
+        "example_address": "Amuwo Odofin Layout, Plot 22, Flat 4",
+        "verified": False,
+        "source": "Generic — common where estates sit inside a broader government/private layout",
     },
     {
         "template_id": "area_street_house",
@@ -325,6 +438,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Area}, {House Number} {Street}",
+        "structure": "Area, Street, House Number",
+        "example_address": "Amuwo Odofin Layout, Freedom Street, House 4",
+        "verified": False,
+        "source": "Generic — common where estates sit inside a broader government/private layout",
     },
 
     # ────────────────────────────────────────────────
@@ -340,6 +457,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Court}, Unit {Unit}",
+        "structure": "Court, Unit Number",
+        "example_address": "Cedar Court Estate, Cedar Court, Unit 4",
+        "verified": False,
+        "source": "Generic — 'Court' naming used by some serviced-apartment/townhouse developments",
     },
     {
         "template_id": "terrace_house",
@@ -351,6 +472,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Terrace}, House {House Number}",
+        "structure": "Terrace, House Number",
+        "example_address": "Golden Park Estate, Rose Terrace, House 6",
+        "verified": False,
+        "source": "Generic — terrace-row housing developments",
     },
     {
         "template_id": "villa_number",
@@ -361,6 +486,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 1, "label": "Villa Number", "type": "alphanumeric", "required": True}
         ],
         "address_format": "Villa {Villa Number}",
+        "structure": "Villa Number",
+        "example_address": "Chevy View Estate, Villa 4",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "cluster_villa",
@@ -372,6 +501,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Villa Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Cluster {Cluster}, Villa {Villa Number}",
+        "structure": "Cluster, Villa Number",
+        "example_address": "Chevy View Estate, Cluster B, Villa 4",
+        "verified": False,
+        "source": "Generic — villa developments grouped into named/numbered clusters",
     },
 
     # ────────────────────────────────────────────────
@@ -388,6 +521,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Duplex Number} {Street}, Unit {Unit}",
+        "structure": "Street, Duplex Number, Unit",
+        "example_address": "Chevy View Estate, Freedom Street, Duplex 3, Unit B",
+        "verified": False,
+        "source": "Generic — semi-detached duplex units sharing a street address, split by unit",
     },
     {
         "template_id": "block_row_house",
@@ -400,6 +537,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, Row {Row}, House {House}",
+        "structure": "Block, Row, House Number",
+        "example_address": "Golden Park Estate, Block C, Row 2, House 6",
+        "verified": False,
+        "source": "Generic — terrace-row housing organized by block and row",
     },
 
     # ────────────────────────────────────────────────
@@ -416,6 +557,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Suite", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Building}, Floor {Floor}, Suite {Suite}",
+        "structure": "Building, Floor, Suite Number",
+        "example_address": "Cedar Court Estate, Cedar Building, Floor 4, Suite 12",
+        "verified": False,
+        "source": "Generic — used by serviced-apartment/office-residential hybrid buildings",
     },
     {
         "template_id": "shop_number",
@@ -426,6 +571,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 1, "label": "Shop/Unit Number", "type": "alphanumeric", "required": True}
         ],
         "address_format": "Shop {Shop/Unit Number}",
+        "structure": "Shop/Unit Number",
+        "example_address": "Cedar Court Estate, Shop 4",
+        "verified": False,
+        "source": "Generic — simple commercial shop numbering",
     },
 
     # ────────────────────────────────────────────────
@@ -441,6 +590,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Plot Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Layout}, Plot {Plot Number}",
+        "structure": "Layout, Plot Number",
+        "example_address": "Amuwo Odofin Layout, Plot 22",
+        "verified": False,
+        "source": "Generic — common government/private layout plot-numbering pattern",
     },
     {
         "template_id": "layout_block_plot",
@@ -453,6 +606,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Plot", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Layout}, Block {Block}, Plot {Plot}",
+        "structure": "Layout, Block, Plot Number",
+        "example_address": "Amuwo Odofin Layout, Block C, Plot 22",
+        "verified": False,
+        "source": "Generic — common government/private layout block/plot-numbering pattern",
     },
     {
         "template_id": "estate_close_house",
@@ -464,6 +621,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Close/Crescent}",
+        "structure": "Close/Crescent, House Number",
+        "example_address": "Admiralty Estate, Admiralty Close, House 14",
+        "verified": True,
+        "source": "Confirmed in-app option (Close variant)",
     },
     {
         "template_id": "phase_close_house",
@@ -476,6 +637,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Phase {Phase}, {House Number} {Close}",
+        "structure": "Phase, Close, House Number",
+        "example_address": "Chevy View Estate, Phase 1, Palm Close, House 12",
+        "verified": True,
+        "source": "Confirmed in-app option",
     },
     {
         "template_id": "precinct_block_unit",
@@ -488,6 +653,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Precinct {Precinct}, Block {Block}, Unit {Unit}",
+        "structure": "Precinct, Block, Unit Number",
+        "example_address": "Northgate Gardens, Precinct 2, Block D, Unit 8",
+        "verified": False,
+        "source": "Generic — Precinct-labeled variant of the phase/block pattern for very large estates",
     },
     {
         "template_id": "sector_street_house",
@@ -500,11 +669,15 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Sector {Sector}, {House Number} {Street}",
+        "structure": "Sector, Street, House Number",
+        "example_address": "Efab Estate, Sector A, Freedom Street, House 5",
+        "verified": False,
+        "source": "Generic — Sector-labeled variant of the zone/phase pattern",
     },
     {
         "template_id": "zone_phase_block_unit",
         "name": "Zone → Phase → Block → Unit",
-        "description": "5-level deep large estate",
+        "description": "4-level deep large estate",
         "category": "estate",
         "levels": [
             {"level": 1, "label": "Zone", "type": "alphanumeric", "required": True},
@@ -513,6 +686,15 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 4, "label": "Unit", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Zone {Zone}, Phase {Phase}, Block {Block}, Unit {Unit}",
+        "structure": "Zone, Phase, Block, Unit Number",
+        "example_address": "Efab Estate, Zone B, Phase 1, Block D, Unit 3",
+        "verified": False,
+        "source": "Generic — Zone+Phase combined variant of the phase/block/unit pattern for very large estates",
+        # NOTE: previously mislabeled "5-level deep" in its description while only
+        # defining 4 levels (Zone, Phase, Block, Unit). Description corrected to
+        # match the actual level count. If a genuine 5-tier version is needed
+        # (e.g. adding a Floor tier before Unit for a high-rise variant), add a
+        # separate template rather than silently expanding this one.
     },
 
     # ────────────────────────────────────────────────
@@ -528,6 +710,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "House Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Number} {Lane}",
+        "structure": "Lane, House Number",
+        "example_address": "Chevy View Estate, Rose Lane, House 6",
+        "verified": False,
+        "source": "Generic — Lane-type internal street naming",
     },
     {
         "template_id": "compound_room",
@@ -539,6 +725,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Room Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Compound}, Room {Room Number}",
+        "structure": "Compound, Room Number",
+        "example_address": "Baba Ade Compound, Room 4",
+        "verified": False,
+        "source": "Generic — common 'face-me-I-face-you' compound housing pattern in urban Nigeria",
     },
     {
         "template_id": "gate_block_flat",
@@ -551,6 +741,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Flat", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Gate {Gate}, Block {Block}, Flat {Flat}",
+        "structure": "Gate, Block, Flat Number",
+        "example_address": "Golden Park Estate, Gate 2, Block C, Flat 4",
+        "verified": False,
+        "source": "Generic — large multi-entrance estates that organize internally by entry gate",
     },
     {
         "template_id": "quarter_block_house",
@@ -563,6 +757,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "House", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{Quarter}, Block {Block}, House {House}",
+        "structure": "Quarter, Block, House Number",
+        "example_address": "Sabon Gari Quarter, Block C, House 6",
+        "verified": False,
+        "source": "Generic — 'Quarter' naming widely used in Northern Nigerian residential areas",
     },
     {
         "template_id": "estate_type_number",
@@ -575,6 +773,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 2, "label": "Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Type} {Number}",
+        "structure": "House Type, Number",
+        "example_address": "Chevy View Estate, Duplex 5",
+        "verified": False,
+        "source": "Generic — house-type-first numbering used in mixed-housing-type developments",
     },
     {
         "template_id": "block_type_number",
@@ -588,6 +790,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
             {"level": 3, "label": "Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, {House Type} {Number}",
+        "structure": "Block, House Type, Number",
+        "example_address": "Golden Park Estate, Block C, Duplex 5",
+        "verified": False,
+        "source": "Generic — block-organized estate with mixed house types per block",
     },
 ]
 
@@ -611,6 +817,10 @@ def seed_estate_structures(db_session):
             existing.category = tpl.get("category")
             existing.levels = tpl["levels"]
             existing.address_format = tpl.get("address_format")
+            existing.structure = tpl.get("structure")
+            existing.example_address = tpl.get("example_address")
+            existing.verified = tpl.get("verified", False)
+            existing.source = tpl.get("source")
         else:
             # Insert
             record = EstateStructureTemplate(
@@ -620,6 +830,10 @@ def seed_estate_structures(db_session):
                 category=tpl.get("category"),
                 levels=tpl["levels"],
                 address_format=tpl.get("address_format"),
+                structure=tpl.get("structure"),
+                example_address=tpl.get("example_address"),
+                verified=tpl.get("verified", False),
+                source=tpl.get("source"),
             )
             db_session.add(record)
 
