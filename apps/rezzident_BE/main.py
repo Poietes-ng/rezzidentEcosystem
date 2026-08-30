@@ -19,6 +19,9 @@ import sys
 import uvicorn
 import os
 import time
+import secrets
+import re
+from pathlib import Path
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -29,6 +32,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from collections import defaultdict
+
+
+def ensure_secret_key():
+    """Auto-generate SECRET_KEY in .env on startup if it's the placeholder."""
+    env_path = Path(__file__).resolve().parent / ".env"
+    if env_path.exists():
+        content = env_path.read_text()
+        if "CHANGE_ME_generate_64_byte_hex_key" in content:
+            new_key = secrets.token_hex(64)
+            # Replace placeholder with new key
+            new_content = re.sub(
+                r"SECRET_KEY=CHANGE_ME_generate_64_byte_hex_key",
+                f"SECRET_KEY={new_key}",
+                content
+            )
+            env_path.write_text(new_content)
+            # Inject into current env so pydantic-settings picks it up
+            os.environ["SECRET_KEY"] = new_key
+            print("✅ Auto-generated new SECRET_KEY in .env")
+
+# Run before settings are imported
+ensure_secret_key()
+
 
 # fastapi-guard — top-level imports (v7.x API)
 from guard import SecurityMiddleware, SecurityConfig
@@ -61,17 +87,18 @@ from api.middleware.tenant import TenantMiddleware
 
 _GUARD_CONFIG = SecurityConfig(
     # Rate limiting
-    rate_limit=100,                # requests per window per IP
-    rate_limit_window=60,          # window size in seconds
+    rate_limit=settings.GUARD_RATE_LIMIT,
+    rate_limit_window=settings.GUARD_RATE_LIMIT_WINDOW,
 
     # Auto-ban settings
-    auto_ban_threshold=25,         # suspicious requests before ban
-    auto_ban_duration=3600,        # ban duration: 1 hour
+    auto_ban_threshold=settings.GUARD_AUTO_BAN_THRESHOLD,
+    auto_ban_duration=settings.GUARD_AUTO_BAN_DURATION,
 
-    # Redis backend — distributed state across Uvicorn workers
-    enable_redis=True,
+    # Redis backend — required in production, optional in development.
+    # In dev mode without Redis, guard falls back to in-memory storage.
+    enable_redis=settings.PYTHON_ENV != "development",
     redis_url=settings.REDIS_URL,
-    redis_prefix="guard:",         # namespace guard keys separately from JWT blacklist
+    redis_prefix=settings.GUARD_REDIS_PREFIX,
 
     # Block known scanner / attack tool user-agents
     blocked_user_agents=[
@@ -142,9 +169,10 @@ app = FastAPI(
     lifespan=lifespan,
     title="Rezzident API",
     description="Estate Management SaaS Platform — API v1",
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    version="1.0.0",
+    docs_url="/docs" if settings.PYTHON_ENV != "production" else None,
+    redoc_url="/redoc" if settings.PYTHON_ENV != "production" else None,
+    openapi_url="/openapi.json" if settings.PYTHON_ENV != "production" else None,
 )
 
 
