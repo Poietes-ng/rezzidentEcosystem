@@ -10,7 +10,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
-from decouple import config as decouple_config
+from api.utils.settings import settings
 from api.v1.models import *  # noqa: F401, F403 — registers all models with Base
 from api.db.database import Base
 
@@ -21,11 +21,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Get database URL from environment
-database_url = decouple_config("DB_URL")
-
-# Set the SQLAlchemy URL dynamically
-config.set_main_option("sqlalchemy.url", database_url)
+# Set the SQLAlchemy URL from the unified settings (single source of truth)
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
 # Target metadata for autogenerate support
 target_metadata = Base.metadata
