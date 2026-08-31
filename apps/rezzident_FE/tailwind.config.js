@@ -1,30 +1,11 @@
+import { colors } from "@rezzident/design-tokens";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "!./node_modules/**"],
   theme: {
     extend: {
-      colors: {
-        chatArea: "#F2F0E8",
-        actionYellow: "#FFE022",
-        actionYellowHover: "#F0D010",
-        actionYellowPressed: "#D4B800",
-        actionDark: "#1A1A1A",
-        actionDarkHover: "#2A2A2A",
-        actionDarkPressed: "#000000",
-        offWhite: "#FAFAF5",
-        receiverBubble: "#F2F1ED",
-        deletedBubble: "#F5F4F0",
-        menuHover: "#FAFAF5",
-        inputBg: "#FFF9CC",
-        successGreen: "#2DB84E",
-        errorRed: "#C92727",
-        warningGold: "#D4A030",
-        slateGray: "#9A9488",
-        warmGray: "#8A8578",
-        mutedOlive: "#C0BAB0",
-        stoneEdge: "#D4D0C8",
-        lightCream: "#FFFFFC",
-      },
+      colors,
       fontFamily: {
         'dmsans': ['"DM Sans"', 'sans-serif'],
         'cabinet': ['"Cabinet Grotesk"', 'sans-serif'],
