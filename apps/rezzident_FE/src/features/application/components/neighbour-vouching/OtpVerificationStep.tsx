@@ -99,13 +99,13 @@ export function OtpVerificationStep({
       {/* ── Top Content ── */}
       <div>
         {/* ── Section Title ── */}
-        <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+        <span className="block font-dmsans text-[14px] font-semibold uppercase tracking-wider text-warmGray">
           Step {currentStep} of {totalSteps}
         </span>
-        <h1 className="mt-1 font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[32px]">
+        <h1 className="mt-1 font-dmsans text-[32px] font-bold leading-tight text-actionDark sm:text-[32px]">
           Verify your number
         </h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-2 text-[16px] leading-relaxed text-warmGray">
           We sent a 4-digit code to {formattedPhone}
         </p>
 
@@ -124,16 +124,16 @@ export function OtpVerificationStep({
           {/* Resend / Countdown Link */}
           <div className="mt-10 text-center">
             {countdown > 0 ? (
-              <p className="font-dmsans text-[14px] text-gray-500">
-                Resend code in <span className="font-bold text-actionDark">{formatCountdown(countdown)}</span>
+              <p className="font-dmsans text-[15px] text-warmGray">
+                Resend code in <span className="font-medium text-actionDark">{formatCountdown(countdown)}</span>
               </p>
             ) : (
-              <p className="font-dmsans text-[14px] text-gray-500">
+              <p className="font-dmsans text-[15px] text-actionDark">
                 Didn't receive a code?{" "}
                 <button
                   type="button"
                   onClick={handleResend}
-                  className="font-bold text-actionDark underline decoration-gray-400 underline-offset-4 hover:decoration-actionDark"
+                  className="font-dmsans text-actionDark underline decoration-stoneEdge underline-offset-4 hover:decoration-actionDark"
                 >
                   Resend
                 </button>
@@ -162,10 +162,10 @@ export function OtpVerificationStep({
           type="button"
           onClick={() => handleVerify()}
           className={cn(
-            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[56px] w-full rounded-[12px] text-[16px] font-medium text-white transition-colors duration-200",
             isOtpComplete
-              ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge"
+              ? "bg-actionDark hover:bg-actionDarkHover active:bg-actionDarkPressed cursor-pointer"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge text-warmGray cursor-not-allowed"
           )}
         >
           Verify

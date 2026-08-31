@@ -49,13 +49,13 @@ export function IntroStep({ onStart, onBack }: IntroStepProps) {
 
         {/* ── Titles & Description ── */}
         <div className="mt-4">
-          <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+          <span className="block font-dmsans text-[14px] font-semibold uppercase tracking-wider text-warmGray">
             Neighbour Vouching
           </span>
           <h1 className="mt-1 font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[32px]">
             Get verified by your neighbours
           </h1>
-          <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+          <p className="mt-2 text-[14px] leading-relaxed text-warmGray">
             Don't have your estate code? No worries. At least 2 neighbours need to vouch for you to gain access.
           </p>
         </div>
@@ -67,7 +67,7 @@ export function IntroStep({ onStart, onBack }: IntroStepProps) {
               {/* Connector line between steps */}
               {idx < steps.length - 1 && (
                 <div
-                  className="absolute left-[13px] top-[28px] h-[calc(100%-8px)] w-[1.5px] bg-[#E5E5E5]"
+                  className="absolute left-[13px] top-[28px] h-[calc(100%-8px)] w-[1.5px] bg-stoneEdge/50"
                   aria-hidden="true"
                 />
               )}
@@ -79,10 +79,10 @@ export function IntroStep({ onStart, onBack }: IntroStepProps) {
 
               {/* Step Content */}
               <div className="flex-1 pb-5">
-                <h3 className="font-dmsans text-[15px] font-bold text-actionDark leading-snug">
+                <h3 className="font-dmsans text-[16px] font-bold text-actionDark leading-snug">
                   {step.title}
                 </h3>
-                <p className="mt-0.5 font-dmsans text-[13px] text-gray-500 leading-normal">
+                <p className="mt-0.5 font-dmsans text-[13px] text-warmGray leading-normal">
                   {step.description}
                 </p>
               </div>
@@ -96,7 +96,7 @@ export function IntroStep({ onStart, onBack }: IntroStepProps) {
         <Button
           type="button"
           onClick={onStart}
-          className="h-[54px] w-full rounded-[14px] bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90"
+          className="h-[56px] w-full rounded-[12px] bg-actionDark text-[16px] font-medium text-white transition-colors hover:bg-actionDarkHover active:bg-actionDarkPressed"
         >
           Get Started
         </Button>

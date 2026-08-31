@@ -133,13 +133,13 @@ export function FacialVerificationStep({
       {/* ── Top Content ── */}
       <div>
         {/* ── Section Title ── */}
-        <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+        <span className="block font-dmsans text-[14px] font-semibold uppercase tracking-wider text-warmGray">
           Step {currentStep} of {totalSteps}
         </span>
-        <h1 className="mt-1 font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[32px]">
+        <h1 className="mt-1 font-dmsans text-[32px] font-bold leading-tight text-actionDark sm:text-[32px]">
           Let's verify your identity
         </h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-2 text-[16px] leading-relaxed text-warmGray">
           Take a quick selfie for secure access to your estate community
         </p>
 
@@ -162,10 +162,10 @@ export function FacialVerificationStep({
           onClick={hasError ? handleRetakePhoto : handleTakePhoto}
           disabled={!hasError && !isButtonActive}
           className={cn(
-            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[56px] w-full rounded-[12px] text-[16px] font-medium text-white transition-colors duration-200",
             hasError || isButtonActive
-              ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge cursor-not-allowed"
+              ? "bg-actionDark hover:bg-actionDarkHover active:bg-actionDarkPressed cursor-pointer"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge text-warmGray cursor-not-allowed"
           )}
         >
           {hasError ? "Retake Photo" : isCapturing ? "Processing..." : "Take Photo"}

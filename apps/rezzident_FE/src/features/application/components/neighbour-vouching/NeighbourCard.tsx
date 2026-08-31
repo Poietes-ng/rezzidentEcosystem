@@ -24,7 +24,7 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
               className="h-11 w-11 rounded-lg object-cover shadow-xs"
             />
           ) : (
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-offWhite text-gray-400">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-offWhite text-slateGray">
               <span className="text-[16px] font-medium text-warningGold">—</span>
             </div>
           )}
@@ -34,7 +34,7 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
             <span className="font-dmsans text-[15px] font-bold text-actionDark leading-tight">
               {isVouched ? neighbour.name : "Awaiting"}
             </span>
-            <span className="font-dmsans text-[13px] text-gray-500 leading-tight mt-0.5">
+            <span className="font-dmsans text-[13px] text-warmGray leading-tight mt-0.5">
               {isVouched ? neighbour.unit : `Neighbour ${index + 1}`}
             </span>
           </div>
@@ -59,14 +59,14 @@ export function NeighbourCard({ neighbour, index, showDivider = true }: Neighbou
               <span>Vouched</span>
             </div>
           ) : (
-            <span className="inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-3 py-1 font-dmsans text-[13px] font-medium text-amber-700">
+            <span className="inline-flex items-center rounded-full border border-warningGold/40 bg-inputBg/60 px-3 py-1 font-dmsans text-[13px] font-medium text-warningGold">
               Pending
             </span>
           )}
         </div>
       </div>
 
-      {showDivider && <div className="h-[1px] w-full bg-[#F0EFEB]" />}
+      {showDivider && <div className="h-[1px] w-full bg-stoneEdge/30" />}
     </div>
   );
 }

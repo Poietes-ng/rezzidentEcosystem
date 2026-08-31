@@ -22,7 +22,7 @@ export function SuccessStep({ onSetupPin }: SuccessStepProps) {
         <h1 className="font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[30px]">
           Hurray you're verified!
         </h1>
-        <p className="mt-3 text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-3 text-[14px] leading-relaxed text-warmGray">
           Your neighbours have confirmed your identity. Set up your PIN to complete your account and access the app.
         </p>
 
@@ -31,7 +31,7 @@ export function SuccessStep({ onSetupPin }: SuccessStepProps) {
           <Button
             type="button"
             onClick={onSetupPin}
-            className="h-[54px] w-full rounded-xl bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90 cursor-pointer"
+            className="h-[56px] w-full rounded-[12px] bg-actionDark text-[16px] font-medium text-white transition-colors hover:bg-actionDarkHover active:bg-actionDarkPressed cursor-pointer"
           >
             Set Up PIN
           </Button>

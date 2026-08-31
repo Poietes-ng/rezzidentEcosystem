@@ -59,13 +59,13 @@ export function PinSetupStep({
       {/* ── Top Content ── */}
       <div>
         {/* ── Section Title ── */}
-        <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+        <span className="block font-dmsans text-[14px] font-semibold uppercase tracking-wider text-warmGray">
           Step {currentStep} of {totalSteps}
         </span>
-        <h1 className="mt-1 font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[32px]">
+        <h1 className="mt-1 font-dmsans text-[32px] font-bold leading-tight text-actionDark sm:text-[32px]">
           Create your PIN
         </h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-2 text-[16px] leading-relaxed text-warmGray">
           Set a 4-digit PIN for quick and secure access
         </p>
 
@@ -73,7 +73,7 @@ export function PinSetupStep({
         <div className="mt-8 space-y-8">
           {/* Enter PIN */}
           <div className="flex flex-col items-center">
-            <label className="font-dmsans text-[13px] font-medium text-gray-500 mb-2">
+            <label className="font-dmsans text-[13px] font-medium text-warmGray mb-2">
               Enter PIN
             </label>
             <PinInput
@@ -89,7 +89,7 @@ export function PinSetupStep({
 
           {/* Confirm PIN */}
           <div className="flex flex-col items-center">
-            <label className="font-dmsans text-[13px] font-medium text-gray-500 mb-2">
+            <label className="font-dmsans text-[13px] font-medium text-warmGray mb-2">
               Confirm PIN
             </label>
             <PinInput
@@ -134,10 +134,10 @@ export function PinSetupStep({
           type="button"
           onClick={() => handleSubmit()}
           className={cn(
-            "h-[54px] w-full rounded-xl text-[16px] font-medium text-white transition-colors duration-200",
+            "h-[56px] w-full rounded-[12px] text-[16px] font-medium text-white transition-colors duration-200",
             isMatch
-              ? "bg-actionDark hover:bg-actionDark/90 cursor-pointer"
-              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge"
+              ? "bg-actionDark hover:bg-actionDarkHover active:bg-actionDarkPressed cursor-pointer"
+              : "bg-stoneEdge hover:bg-stoneEdge active:bg-stoneEdge text-warmGray cursor-not-allowed"
           )}
         >
           Complete Setup

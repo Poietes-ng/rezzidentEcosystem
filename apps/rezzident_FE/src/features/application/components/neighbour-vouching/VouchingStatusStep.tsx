@@ -61,19 +61,19 @@ export function VouchingStatusStep({
       {/* ── Top Content ── */}
       <div>
         {/* ── Section Title ── */}
-        <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+        <span className="block font-dmsans text-[14px] font-semibold uppercase tracking-wider text-warmGray">
           Step {currentStep} of {totalSteps}
         </span>
-        <h1 className="mt-1 font-dmsans text-[28px] font-bold leading-tight text-actionDark sm:text-[32px]">
+        <h1 className="mt-1 font-dmsans text-[32px] font-bold leading-tight text-actionDark sm:text-[32px]">
           {title}
         </h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-2 text-[16px] leading-relaxed text-warmGray">
           {subtitle}
         </p>
 
         {/* ── Vouching Progress Section ── */}
         <div className="mt-8">
-          <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+          <span className="block font-dmsans text-[11px] font-semibold uppercase tracking-wider text-slateGray">
             Vouching Progress
           </span>
           <h2 className="mt-1 font-dmsans text-[16px] font-bold text-actionDark">
@@ -81,7 +81,7 @@ export function VouchingStatusStep({
           </h2>
 
           {/* ── Neighbour Cards List ── */}
-          <div className="mt-4 divide-y divide-[#F0EFEB]">
+          <div className="mt-4 divide-y divide-mutedOlive">
             {neighbours.map((neighbour, index) => (
               <NeighbourCard
                 key={neighbour.id}
@@ -100,7 +100,7 @@ export function VouchingStatusStep({
           <Button
             type="button"
             onClick={onContinue}
-            className="h-[54px] w-full rounded-[14px] bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90"
+            className="h-[56px] w-full rounded-[12px] bg-actionDark text-[16px] font-medium text-white transition-colors hover:bg-actionDarkHover active:bg-actionDarkPressed"
           >
             Continue
           </Button>
@@ -109,12 +109,11 @@ export function VouchingStatusStep({
             type="button"
             onClick={handleRefreshClick}
             disabled={isRefreshing}
-            className="h-[54px] w-full rounded-[14px] bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90 flex items-center justify-center gap-2"
+            className="h-[56px] w-full rounded-[12px] bg-actionDark text-[16px] font-medium text-white transition-colors hover:bg-actionDarkHover active:bg-actionDarkPressed flex items-center justify-center gap-2"
           >
             <span
-              className={`material-symbols-outlined text-[20px] ${
-                isRefreshing ? "animate-spin" : ""
-              }`}
+              className={`material-symbols-outlined text-[20px] ${isRefreshing ? "animate-spin" : ""
+                }`}
             >
               refresh
             </span>

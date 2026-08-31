@@ -32,25 +32,25 @@ export function CompletedStep({ fullName, faceIdEnabled, onFinish }: CompletedSt
         <h1 className="font-dmsans text-[28px] font-bold text-actionDark sm:text-[32px]">
           Welcome to Rezzident!
         </h1>
-        <p className="mt-2 max-w-[280px] font-dmsans text-[14px] leading-relaxed text-gray-500">
+        <p className="mt-2 max-w-[280px] font-dmsans text-[14px] leading-relaxed text-warmGray">
           Your profile has been fully verified through neighbour vouching.
         </p>
 
         {/* ── Summary Card ── */}
-        <div className="mt-8 w-full rounded-2xl border border-gray-100 bg-offWhite p-5 text-left shadow-2xs">
-          <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
-            <span className="text-[13px] text-gray-500">Resident</span>
+        <div className="mt-8 w-full rounded-2xl border border-stoneEdge/40 bg-offWhite p-5 text-left shadow-2xs">
+          <div className="flex items-center justify-between border-b border-stoneEdge/30 pb-3">
+            <span className="text-[13px] text-warmGray">Resident</span>
             <span className="font-bold text-actionDark text-[14px]">{fullName || "Resident"}</span>
           </div>
-          <div className="flex items-center justify-between border-b border-gray-200/60 py-3">
-            <span className="text-[13px] text-gray-500">Verification</span>
+          <div className="flex items-center justify-between border-b border-stoneEdge/30 py-3">
+            <span className="text-[13px] text-warmGray">Verification</span>
             <span className="inline-flex items-center gap-1 font-bold text-successGreen text-[13px]">
               <span className="h-2 w-2 rounded-full bg-successGreen" />
               Tier 2 Verified
             </span>
           </div>
           <div className="flex items-center justify-between pt-3">
-            <span className="text-[13px] text-gray-500">Face ID</span>
+            <span className="text-[13px] text-warmGray">Face ID</span>
             <span className="font-medium text-actionDark text-[13px]">
               {faceIdEnabled ? "Enabled" : "Disabled"}
             </span>
@@ -63,7 +63,7 @@ export function CompletedStep({ fullName, faceIdEnabled, onFinish }: CompletedSt
         <Button
           type="button"
           onClick={onFinish}
-          className="h-[54px] w-full rounded-xl bg-actionDark text-[16px] font-medium text-white hover:bg-actionDark/90"
+          className="h-[56px] w-full rounded-[12px] bg-actionDark text-[16px] font-medium text-white transition-colors hover:bg-actionDarkHover active:bg-actionDarkPressed"
         >
           Enter Dashboard
         </Button>

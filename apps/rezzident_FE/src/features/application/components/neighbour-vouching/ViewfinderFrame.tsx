@@ -121,7 +121,7 @@ export function ViewfinderFrame({
           Verification failed. Please try again.
         </p>
       ) : (
-        <p className="mt-5 text-center font-dmsans text-[14px] text-gray-500">
+        <p className="mt-5 text-center font-dmsans text-[14px] text-warmGray">
           Position your face within the frame
         </p>
       )}
