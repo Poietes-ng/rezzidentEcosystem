@@ -1,10 +1,10 @@
-import { Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
-import { AppFrame } from "../../shared/components/layout/AppFrame";
-import { HomeIndicator } from "../../shared/components/layout/HomeIndicator";
+import { Outlet, createFileRoute, useLocation } from '@tanstack/react-router'
+import { AppFrame } from '../../shared/components/layout/AppFrame'
+import { HomeIndicator } from '../../shared/components/layout/HomeIndicator'
+import { ErrorStateComponent } from '../../shared/components/ui/ErrorStateComponent'
+import { AuthFlowProvider } from '#/features/auth'
 
-import { ErrorStateComponent } from "../../shared/components/ui/ErrorStateComponent";
-
-export const Route = createFileRoute("/_app")({
+export const Route = createFileRoute('/_app')({
   component: AppLayout,
   notFoundComponent: () => (
     <ErrorStateComponent
@@ -17,7 +17,9 @@ export const Route = createFileRoute("/_app")({
     />
   ),
   errorComponent: ({ error }) => {
-    const isForbidden = error?.message?.includes("403") || error?.message?.toLowerCase().includes("forbidden");
+    const isForbidden =
+      error.message.includes('403') ||
+      error.message.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent
@@ -28,7 +30,7 @@ export const Route = createFileRoute("/_app")({
           actionText="Go Back"
           actionLink="/app/welcome"
         />
-      );
+      )
     }
     return (
       <ErrorStateComponent
@@ -39,23 +41,25 @@ export const Route = createFileRoute("/_app")({
         actionText="Try Again"
         onAction={() => window.location.reload()}
       />
-    );
+    )
   },
-});
+})
 
 function AppLayout() {
-  const location = useLocation();
-  const isSplash = location.pathname === "/app/splash";
+  const location = useLocation()
+  const isSplash = location.pathname === '/app/splash'
 
   if (isSplash) {
-    return <Outlet />;
+    return <Outlet />
   }
 
   return (
-    <AppFrame>
-      {/* The actual mobile screens will render here */}
-      <Outlet />
-      <HomeIndicator />
-    </AppFrame>
-  );
+    <AuthFlowProvider>
+      <AppFrame>
+        {/* The actual mobile screens will render here */}
+        <Outlet />
+        <HomeIndicator />
+      </AppFrame>
+    </AuthFlowProvider>
+  )
 }
