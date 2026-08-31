@@ -10,11 +10,11 @@ export interface BannerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const bannerVariants: Record<BannerVariant, string> = {
-  info: "bg-blue-50 text-blue-900 border-blue-200",
-  success: "bg-green-50 text-green-900 border-green-200",
-  warning: "bg-amber-50 text-amber-900 border-amber-200",
-  error: "bg-red-50 text-red-900 border-red-200",
-  neutral: "bg-offWhite text-actionDark border-gray-200",
+  info: "bg-offWhite text-actionDark border-stoneEdge",
+  success: "bg-successGreen/10 text-successGreen border-successGreen/30",
+  warning: "bg-warningGold/10 text-warningGold border-warningGold/30",
+  error: "bg-errorRed/10 text-errorRed border-errorRed/30",
+  neutral: "bg-offWhite text-actionDark border-stoneEdge",
 };
 
 export const Banner = React.forwardRef<HTMLDivElement, BannerProps>(

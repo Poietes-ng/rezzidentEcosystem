@@ -8,10 +8,10 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const cardVariants: Record<CardVariant, string> = {
-  default: "bg-white border border-gray-100 rounded-2xl shadow-sm",
-  "dashed-yellow": "bg-white border-2 border-dashed border-actionYellow rounded-2xl",
-  outlined: "bg-white border border-gray-200 rounded-2xl",
-  flat: "bg-gray-50 rounded-2xl",
+  default: "bg-white border border-stoneEdge/40 rounded-2xl shadow-sm",
+  "dashed-yellow": "bg-white border border-dashed border-actionYellow rounded-2xl",
+  outlined: "bg-white border border-stoneEdge rounded-2xl",
+  flat: "bg-offWhite rounded-2xl",
 };
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
