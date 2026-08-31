@@ -50,7 +50,7 @@ export function ViewfinderFrame({
 
           {/* Scanning beam animation when isCapturing */}
           {isCapturing && (
-            <div className="absolute inset-x-0 h-1 bg-actionYellow shadow-[0_0_12px_#FFE022] animate-pulse transition-all duration-700" />
+            <div className="absolute inset-x-0 h-1 bg-actionYellow shadow-sm shadow-actionYellow/50 animate-pulse transition-all duration-700" />
           )}
         </div>
 
@@ -70,9 +70,8 @@ export function ViewfinderFrame({
             height="253"
             rx="34"
             ry="34"
-            stroke="#FFE853"
+            className="stroke-actionYellow/60"
             strokeWidth="1.2"
-            strokeOpacity="0.6"
             fill="none"
           />
 
@@ -80,7 +79,7 @@ export function ViewfinderFrame({
           {/* Top-Left Corner */}
           <path
             d="M 3.5 48 L 3.5 37.5 A 34 34 0 0 1 37.5 3.5 L 48 3.5"
-            stroke="#E5C200"
+            className="stroke-actionYellowPressed"
             strokeWidth="5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -89,7 +88,7 @@ export function ViewfinderFrame({
           {/* Top-Right Corner */}
           <path
             d="M 212 3.5 L 222.5 3.5 A 34 34 0 0 1 256.5 37.5 L 256.5 48"
-            stroke="#E5C200"
+            className="stroke-actionYellowPressed"
             strokeWidth="5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -98,7 +97,7 @@ export function ViewfinderFrame({
           {/* Bottom-Right Corner */}
           <path
             d="M 256.5 212 L 256.5 222.5 A 34 34 0 0 1 222.5 256.5 L 212 256.5"
-            stroke="#E5C200"
+            className="stroke-actionYellowPressed"
             strokeWidth="5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -107,7 +106,7 @@ export function ViewfinderFrame({
           {/* Bottom-Left Corner */}
           <path
             d="M 48 256.5 L 37.5 256.5 A 34 34 0 0 1 3.5 222.5 L 3.5 212"
-            stroke="#E5C200"
+            className="stroke-actionYellowPressed"
             strokeWidth="5"
             strokeLinecap="round"
             strokeLinejoin="round"

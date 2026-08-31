@@ -90,7 +90,7 @@ export function VouchCodeStep({
                 height="calc(100% - 1px)"
                 rx="16"
                 fill="none"
-                stroke="#FFE022"
+                className="stroke-actionYellow"
                 strokeWidth="1"
                 strokeDasharray="6 4"
               />
@@ -145,7 +145,7 @@ export function VouchCodeStep({
                 height="calc(100% - 1px)"
                 rx="16"
                 fill="none"
-                stroke="#FFE022"
+                className="stroke-actionYellow"
                 strokeWidth="1"
                 strokeDasharray="6 4"
               />

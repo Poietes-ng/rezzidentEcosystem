@@ -180,8 +180,8 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => {
     // If it's a 403 or permission error, we can show a specific message
     const isForbidden =
-      error.message.includes('403') ||
-      error.message.toLowerCase().includes('forbidden')
+      error?.message?.includes('403') ||
+      error?.message?.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent
