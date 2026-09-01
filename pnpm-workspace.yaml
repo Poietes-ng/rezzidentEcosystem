@@ -1,3 +1,15 @@
+# ──────────────────────────────────────────────────────────
+# pnpm Workspace — Defines which directories are part of
+# the monorepo's Node.js dependency graph.
+#
+# NOTE: apps/rezzident_BE is intentionally excluded.
+# It is a Python (FastAPI) project managed with pip, not
+# pnpm. It has its own requirements.txt and virtual
+# environment. Including it here would serve no purpose
+# since pnpm cannot resolve Python dependencies.
+#
+# To work on the backend, see: apps/rezzident_BE/README.md
+# ──────────────────────────────────────────────────────────
 packages:
   - "apps/rezzident_FE"
   - "apps/rezzident_MB"

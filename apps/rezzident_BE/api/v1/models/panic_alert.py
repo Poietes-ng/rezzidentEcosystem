@@ -63,7 +63,7 @@ class PanicAlert(BaseTableModel):
     )
 
     # ── Metadata ──
-    metadata = Column(JSONB, nullable=True)
+    extra_metadata = Column("metadata", JSONB, nullable=True)
 
     # Relationships
     user = relationship("User")

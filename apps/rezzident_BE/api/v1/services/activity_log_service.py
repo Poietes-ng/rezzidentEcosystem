@@ -85,7 +85,7 @@ class ActivityLogService:
                 target_id=target_id,
                 ip_address=ip_address,
                 user_agent=user_agent,
-                metadata=metadata_str,
+                extra_metadata=metadata_str,
             )
 
             db.add(activity)
@@ -379,7 +379,7 @@ class ActivityLogService:
             target_id=activity.target_id,
             ip_address=activity.ip_address,
             user_agent=activity.user_agent,
-            metadata=activity.metadata,
+            metadata=activity.extra_metadata,
             created_at=activity.created_at,
         )
 

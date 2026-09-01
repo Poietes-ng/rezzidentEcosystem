@@ -13,9 +13,28 @@ from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON
+
+# ── Disable fastapi-guard SecurityMiddleware for tests ─────────────────────────
+# Must be patched BEFORE importing main.py, which calls app.add_middleware()
+# at module level. Without this, every test request hits Redis.
+from unittest.mock import patch as _patch
+
+_guard_patcher = _patch("guard.SecurityMiddleware", lambda app, **kw: app)
+_guard_patcher.start()
 
 from api.db.database import Base, get_db
 from main import app
+
+
+# ── SQLite compatibility: render JSONB as JSON ─────────────────────────────────
+from sqlalchemy.ext.compiler import compiles
+
+@compiles(JSONB, "sqlite")
+def _compile_jsonb_sqlite(type_, compiler, **kw):
+    return compiler.visit_JSON(type_, **kw)
+
 
 
 # ── In-memory SQLite for tests ────────────────────────────────────────────────

@@ -17,4 +17,4 @@ class StatusHistory(BaseTableModel):
     new_status = Column(String(50), nullable=False)
     changed_by = Column(String, nullable=True)
     reason = Column(String, nullable=True)
-    metadata = Column(JSONB, nullable=True)
+    extra_metadata = Column("metadata", JSONB, nullable=True)

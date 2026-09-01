@@ -131,7 +131,8 @@ class ActivityLog(BaseTableModel):
     user_agent = Column(String(500), nullable=True)
 
     # Structured metadata (JSONB for PG queries)
-    metadata = Column(
+    extra_metadata = Column(
+        "metadata",
         JSONB,
         nullable=True,
         comment="Extra context: old/new values, amounts, references",
