@@ -176,12 +176,6 @@ def verify_token(token: str) -> Dict:
             detail="Invalid Token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except PyJWTError as e:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Invalid Token: {str(e)}",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
 
 
 def decode_access_token(token: str) -> Optional[Dict]:
