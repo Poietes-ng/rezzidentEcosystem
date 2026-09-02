@@ -165,16 +165,16 @@ def verify_token(token: str) -> Dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except InvalidTokenError:
-        raise HTTPException(
-            status_code=401,
-            detail="Token Has Expired",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
             detail="Invalid Token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token Has Expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
