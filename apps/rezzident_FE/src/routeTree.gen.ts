@@ -9,71 +9,51 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AppRouteRouteImport } from './routes/_app/route'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
-import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as publicIndexRouteImport } from './routes/(public)/index'
-import { Route as AppWelcomeRouteImport } from './routes/_app/welcome'
-import { Route as AppSplashRouteImport } from './routes/_app/splash'
-import { Route as AppJoinRouteImport } from './routes/_app/join'
-import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
-import { Route as publicHomeRouteImport } from './routes/(public)/home'
-import { Route as publicAboutRouteImport } from './routes/(public)/about'
-import { Route as authRegistrationCriteriaRouteImport } from './routes/(auth)/registration-criteria'
+import { Route as publicRouteRouteImport } from './routes/(public)/route'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as authRegistrationRouteImport } from './routes/(auth)/registration'
+import { Route as authRegistrationCriteriaRouteImport } from './routes/(auth)/registration-criteria'
+import { Route as publicIndexRouteImport } from './routes/(public)/index'
+import { Route as publicAboutRouteImport } from './routes/(public)/about'
+import { Route as publicHomeRouteImport } from './routes/(public)/home'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AppIndexRouteImport } from './routes/app/index'
+import { Route as AppJoinRouteImport } from './routes/app/join'
+import { Route as AppSplashRouteImport } from './routes/app/splash'
+import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
 
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const authRouteRoute = authRouteRouteImport.update({
+  id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
 const publicRouteRoute = publicRouteRouteImport.update({
   id: '/(public)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authRouteRoute = authRouteRouteImport.update({
-  id: '/(auth)',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRouteRoute,
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authRegistrationRoute = authRegistrationRouteImport.update({
+  id: '/registration',
+  path: '/registration',
+  getParentRoute: () => authRouteRoute,
+} as any)
+const authRegistrationCriteriaRoute = authRegistrationCriteriaRouteImport.update({
+  id: '/registration-criteria',
+  path: '/registration-criteria',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => publicRouteRoute,
-} as any)
-const AppWelcomeRoute = AppWelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppSplashRoute = AppSplashRouteImport.update({
-  id: '/splash',
-  path: '/splash',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppJoinRoute = AppJoinRouteImport.update({
-  id: '/join',
-  path: '/join',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const publicHomeRoute = publicHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
 const publicAboutRoute = publicAboutRouteImport.update({
@@ -81,16 +61,35 @@ const publicAboutRoute = publicAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => publicRouteRoute,
 } as any)
-const authRegistrationCriteriaRoute =
-  authRegistrationCriteriaRouteImport.update({
-    id: '/registration-criteria',
-    path: '/registration-criteria',
-    getParentRoute: () => authRouteRoute,
-  } as any)
-const authRegistrationRoute = authRegistrationRouteImport.update({
-  id: '/registration',
-  path: '/registration',
-  getParentRoute: () => authRouteRoute,
+const publicHomeRoute = publicHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => publicRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppJoinRoute = AppJoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSplashRoute = AppSplashRouteImport.update({
+  id: '/splash',
+  path: '/splash',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppWelcomeRoute = AppWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -138,45 +137,45 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-  | '/'
-  | '/app'
-  | '/registration'
-  | '/registration-criteria'
-  | '/about'
-  | '/home'
-  | '/profile'
-  | '/app/join'
-  | '/app/splash'
-  | '/app/welcome'
-  | '/app/'
+    | '/'
+    | '/app'
+    | '/registration'
+    | '/registration-criteria'
+    | '/about'
+    | '/home'
+    | '/profile'
+    | '/app/join'
+    | '/app/splash'
+    | '/app/welcome'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
-  | '/'
-  | '/registration'
-  | '/registration-criteria'
-  | '/about'
-  | '/home'
-  | '/profile'
-  | '/app/join'
-  | '/app/splash'
-  | '/app/welcome'
-  | '/app'
+    | '/'
+    | '/registration'
+    | '/registration-criteria'
+    | '/about'
+    | '/home'
+    | '/profile'
+    | '/app/join'
+    | '/app/splash'
+    | '/app/welcome'
+    | '/app'
   id:
-  | '__root__'
-  | '/(auth)'
-  | '/(public)'
-  | '/_authenticated'
-  | '/app'
-  | '/(auth)/registration'
-  | '/(auth)/registration-criteria'
-  | '/(public)/about'
-  | '/(public)/home'
-  | '/_authenticated/profile'
-  | '/app/join'
-  | '/app/splash'
-  | '/app/welcome'
-  | '/(public)/'
-  | '/app/'
+    | '__root__'
+    | '/(auth)'
+    | '/(public)'
+    | '/_authenticated'
+    | '/app'
+    | '/(auth)/registration'
+    | '/(auth)/registration-criteria'
+    | '/(public)/about'
+    | '/(public)/home'
+    | '/_authenticated/profile'
+    | '/app/join'
+    | '/app/splash'
+    | '/app/welcome'
+    | '/(public)/'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,18 +187,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
+    '/(auth)': {
+      id: '/(auth)'
       path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      fullPath: ''
+      preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(public)': {
@@ -209,60 +201,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)': {
-      id: '/(auth)'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
-      fullPath: ''
-      preLoaderRoute: typeof authRouteRouteImport
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/registration': {
+      id: '/(auth)/registration'
+      path: '/registration'
+      fullPath: '/registration'
+      preLoaderRoute: typeof authRegistrationRouteImport
+      parentRoute: typeof authRouteRoute
+    }
+    '/(auth)/registration-criteria': {
+      id: '/(auth)/registration-criteria'
+      path: '/registration-criteria'
+      fullPath: '/registration-criteria'
+      preLoaderRoute: typeof authRegistrationCriteriaRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/(public)/': {
       id: '/(public)/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof publicIndexRouteImport
-      parentRoute: typeof publicRouteRoute
-    }
-    '/app/welcome': {
-      id: '/app/welcome'
-      path: '/welcome'
-      fullPath: '/app/welcome'
-      preLoaderRoute: typeof AppWelcomeRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/splash': {
-      id: '/app/splash'
-      path: '/splash'
-      fullPath: '/app/splash'
-      preLoaderRoute: typeof AppSplashRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/join': {
-      id: '/app/join'
-      path: '/join'
-      fullPath: '/app/join'
-      preLoaderRoute: typeof AppJoinRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_authenticated/profile': {
-      id: '/_authenticated/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/(public)/home': {
-      id: '/(public)/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof publicHomeRouteImport
       parentRoute: typeof publicRouteRoute
     }
     '/(public)/about': {
@@ -272,19 +243,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicAboutRouteImport
       parentRoute: typeof publicRouteRoute
     }
-    '/(auth)/registration-criteria': {
-      id: '/(auth)/registration-criteria'
-      path: '/registration-criteria'
-      fullPath: '/registration-criteria'
-      preLoaderRoute: typeof authRegistrationCriteriaRouteImport
-      parentRoute: typeof authRouteRoute
+    '/(public)/home': {
+      id: '/(public)/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof publicHomeRouteImport
+      parentRoute: typeof publicRouteRoute
     }
-    '/(auth)/registration': {
-      id: '/(auth)/registration'
-      path: '/registration'
-      fullPath: '/registration'
-      preLoaderRoute: typeof authRegistrationRouteImport
-      parentRoute: typeof authRouteRoute
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/join': {
+      id: '/app/join'
+      path: '/join'
+      fullPath: '/app/join'
+      preLoaderRoute: typeof AppJoinRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/splash': {
+      id: '/app/splash'
+      path: '/splash'
+      fullPath: '/app/splash'
+      preLoaderRoute: typeof AppSplashRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/welcome': {
+      id: '/app/welcome'
+      path: '/welcome'
+      fullPath: '/app/welcome'
+      preLoaderRoute: typeof AppWelcomeRouteImport
+      parentRoute: typeof AppRouteRoute
     }
   }
 }
@@ -299,9 +298,7 @@ const authRouteRouteChildren: authRouteRouteChildren = {
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
-)
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(authRouteRouteChildren)
 
 interface publicRouteRouteChildren {
   publicAboutRoute: typeof publicAboutRoute
@@ -315,9 +312,7 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
 }
 
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
-  publicRouteRouteChildren,
-)
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -327,8 +322,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
+  AuthenticatedRouteRouteChildren,
+)
 
 interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
@@ -344,9 +340,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,

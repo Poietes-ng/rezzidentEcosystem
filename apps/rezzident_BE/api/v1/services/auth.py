@@ -15,7 +15,7 @@ Reference: docs/architecture/08-pin-biometric-auth.md
 
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 
 from fastapi import BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
@@ -24,7 +24,13 @@ from sqlalchemy.orm import Session
 from api.v1.models.users import User, VerificationTier
 from api.v1.models.otp import OTP, OTPPurpose
 from api.v1.models.resident import Resident
-from api.utils.jwt_handler import create_token_for_user, create_refresh_token
+from api.utils.jwt_handler import (
+    create_token_for_user,
+    create_refresh_token,
+    verify_token,
+    verify_refresh_token,
+    _remaining_ttl_seconds,
+)
 from api.utils.settings import settings
 from api.loggers.app_logger import app_logger
 
@@ -51,6 +57,10 @@ def _generate_otp() -> str:
     Uses secrets.randbelow (CSPRNG) instead of random.randint.
     """
     return "".join([str(secrets.randbelow(10)) for _ in range(OTP_LENGTH)])
+
+def _generate_password() -> str:
+    """Generate a password of 8-16 digits"""
+    return "".join([str(secrets.randbelow(10)) for _ in range(secrets.randbelow(9) + 8)])
 
 
 def _hash_value(value: str) -> str:
@@ -445,3 +455,174 @@ class AuthService:
         tokens = AuthService.generate_tokens(user, estate_code=estate_code)
 
         return user, tokens
+
+    # ── Login helpers (extracted from routes) ──────────────────────────────────
+
+    @staticmethod
+    def login_verify_otp(
+        db: Session,
+        phone_number: str,
+        otp_code: str,
+    ) -> Dict[str, Any]:
+        """Verify OTP for login and check if user has a PIN set.
+
+        Args:
+            db: Database session.
+            phone_number: User's phone number.
+            otp_code: The 6-digit OTP to verify.
+
+        Returns:
+            Dict with phone_number, verified flag, and requires_pin flag.
+        """
+        AuthService.verify_otp(db=db, phone_number=phone_number, otp_code=otp_code)
+
+        user = db.query(User).filter(User.phone_number == phone_number).first()
+        has_pin = user is not None and user.pin_hash is not None
+
+        return {
+            "phone_number": phone_number,
+            "verified": True,
+            "requires_pin": has_pin,
+        }
+
+    @staticmethod
+    def login_with_pin(
+        db: Session,
+        phone_number: str,
+        pin: str,
+    ) -> Tuple[User, dict]:
+        """Verify PIN and issue tokens for login.
+
+        Args:
+            db: Database session.
+            phone_number: User's phone number.
+            pin: 4-digit PIN.
+
+        Returns:
+            Tuple of (User, token_dict).
+
+        Raises:
+            HTTPException: If user not found or PIN invalid.
+        """
+        user = db.query(User).filter(User.phone_number == phone_number).first()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found. Please register first.",
+            )
+
+        AuthService.verify_pin(db=db, user=user, pin=pin)
+        tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
+
+        return user, tokens
+
+    @staticmethod
+    def serialize_user(user: User) -> Dict[str, Any]:
+        """Serialize a User object into a dict for API responses.
+
+        Single source of truth for user serialization — prevents
+        inconsistent field selection across routes.
+
+        Args:
+            user: User model instance.
+
+        Returns:
+            Dict with user fields.
+        """
+        return {
+            "id": user.id,
+            "phone_number": user.phone_number,
+            "full_name": user.full_name,
+            "email": user.email,
+            "role": user.role.value,
+            "house_number": user.house_number,
+            "profile_image": user.profile_image,
+            "verification_tier": (
+                user.verification_tier.value if user.verification_tier else None
+            ),
+            "dashboard_tier": user.dashboard_tier,
+            "is_primary_holder": user.is_primary_holder(),
+        }
+
+    @staticmethod
+    async def refresh_tokens(
+        db: Session,
+        redis,
+        refresh_token_str: str,
+    ) -> Tuple[User, dict]:
+        """Exchange a refresh token for a new token pair.
+
+        Implements refresh token rotation:
+        - Old refresh token JTI is blacklisted in Redis.
+        - New token pair is issued.
+
+        Args:
+            db: Database session.
+            redis: Redis connection (or None).
+            refresh_token_str: The refresh token string.
+
+        Returns:
+            Tuple of (User, new_token_dict).
+
+        Raises:
+            HTTPException: If token is invalid or user not found.
+        """
+        from api.db.redis import blacklist_jti
+
+        payload = verify_refresh_token(refresh_token_str)
+        user_id = payload.get("user_id")
+        old_jti = payload.get("jti", "")
+
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found.",
+            )
+
+        # Blacklist the old refresh token JTI (rotation)
+        if redis and old_jti:
+            try:
+                ttl = _remaining_ttl_seconds(payload)
+                await blacklist_jti(redis, old_jti, ttl)
+            except Exception:
+                app_logger.warning(
+                    "[JWT Refresh] Could not blacklist old JTI — Redis error."
+                )
+
+        tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
+        return user, tokens
+
+    @staticmethod
+    async def invalidate_token(
+        redis,
+        token_str: str,
+    ) -> Dict[str, str]:
+        """Invalidate a specific token by blacklisting its JTI.
+
+        Used for explicit logout — pass access_token or refresh_token.
+
+        Args:
+            redis: Redis connection (or None).
+            token_str: The token string to invalidate.
+
+        Returns:
+            Dict with message.
+        """
+        from api.db.redis import blacklist_jti
+
+        try:
+            payload = verify_token(token_str)
+            jti = payload.get("jti", "")
+            token_type = payload.get("type", "unknown")
+
+            if redis and jti:
+                ttl = _remaining_ttl_seconds(payload)
+                await blacklist_jti(redis, jti, ttl)
+
+            return {
+                "message": f"{token_type.capitalize()} token invalidated successfully."
+            }
+        except Exception:
+            return {"message": "Logged out successfully."}

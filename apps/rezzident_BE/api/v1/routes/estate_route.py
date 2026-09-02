@@ -3,23 +3,26 @@
 The registration endpoint is the entry point for the SaaS onboarding flow:
 1. Admin registers an estate → system generates estate_code + PostgreSQL schema
 2. Admin sets up house structure (preloaded template or custom)
-3. Admin adds stakeholders (2 key contacts)
+3. Admin adds stakeholders (2 key contacts) — the first 2 are granted
+   admin-panel access and emailed their dashboard credentials
 4. Estate goes active → residents can join using the estate_code
+
+All business logic lives in EstateService — routes are thin wrappers:
+validate input → call service → return response.
+(Same convention as AuthService — see api/v1/routes/auth_route.py.)
 
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from api.db.database import get_db
 from api.utils.success_response import success_response
 from api.utils.jwt_handler import get_current_user
 from api.v1.models.users import User
-from api.v1.models.estate import Estate, Stakeholder
-from api.v1.schemas.estate import EstateRegisterSchema, EstateResponse
-from api.v1.services.tenant_service import TenantService
-from api.loggers.app_logger import app_logger
+from api.v1.schemas.estate import EstateRegisterSchema
+from api.v1.services.estate_service import EstateService
 
 
 estates = APIRouter(prefix="/estates", tags=["Estates"])
@@ -32,69 +35,18 @@ estates = APIRouter(prefix="/estates", tags=["Estates"])
 @estates.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_estate(
     body: EstateRegisterSchema,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """Register a new estate — creates the per-tenant PostgreSQL schema.
-
-    This is the core SaaS onboarding endpoint:
-    1. Generates unique estate_code (e.g., PAR-7X3KM) — system-generated
-    2. Derives schema_name (e.g., est_par7x3km)
-    3. Creates PostgreSQL schema via TenantService
-    4. Stores estate record in public schema
-    5. Optionally stores stakeholders and structure
+    """Register a new estate.
 
     No auth required for initial registration (the registering admin
     becomes the first stakeholder). Auth is added after estate is created.
     """
-    try:
-        estate = TenantService.register_estate(
-            db=db,
-            name=body.name,
-            address=body.address,
-            city=body.city,
-            state=body.state,
-            management_type=body.management_type,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e),
-        )
-
-    # ── Optional: set structure template ──
-    if body.structure_template_id:
-        estate.structure_template_id = body.structure_template_id
-        estate.has_structure = True
-    if body.custom_structure:
-        estate.structure_definition = [
-            level.model_dump() for level in body.custom_structure
-        ]
-        estate.is_custom_structure = True
-        estate.has_structure = True
-
-    # ── Optional: house count ──
-    if body.house_count_tier:
-        estate.house_count_tier = body.house_count_tier
-
-    # ── Optional: add stakeholders ──
-    if body.stakeholders:
-        for s in body.stakeholders:
-            stakeholder = Stakeholder(
-                estate_id=estate.id,
-                full_name=s.full_name,
-                phone_number=s.phone_number,
-                email=s.email,
-                role_title=s.role_title,
-                is_primary=s.is_primary,
-            )
-            db.add(stakeholder)
-
-    db.commit()
-    db.refresh(estate)
-
-    app_logger.info(
-        f"Estate registered: {estate.name} ({estate.estate_code}) "
-        f"→ schema: {estate.schema_name}"
+    estate = EstateService.register_estate(
+        db=db,
+        background_tasks=background_tasks,
+        body=body,
     )
 
     return success_response(
@@ -127,18 +79,8 @@ async def lookup_estate(
     """Look up an estate by its code — used by residents when joining.
 
     Returns public estate info (name, address) without sensitive data.
-    This is called during user registration when they enter an estate_code.
     """
-    estate = db.query(Estate).filter(
-        Estate.estate_code == estate_code.upper(),
-        Estate.status == "active",
-    ).first()
-
-    if not estate:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estate not found. Please check the estate code.",
-        )
+    estate = EstateService.get_estate_by_code(db=db, estate_code=estate_code)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -164,21 +106,7 @@ async def get_my_estate(
     db: Session = Depends(get_db),
 ):
     """Get the current user's estate details."""
-    if not current_user.estate_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="You are not associated with any estate.",
-        )
-
-    estate = db.query(Estate).filter(
-        Estate.estate_code == current_user.estate_id,
-    ).first()
-
-    if not estate:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estate not found.",
-        )
+    estate = EstateService.get_estate_for_user(db=db, current_user=current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -195,4 +123,38 @@ async def get_my_estate(
             "onboarding_step": estate.onboarding_step,
             "has_structure": estate.has_structure,
         },
+    )
+
+
+# ═══════════════════════════════════════════════
+# LIST ESTATE STRUCTURE TEMPLATES
+# ═══════════════════════════════════════════════
+
+@estates.get("/structure-templates", status_code=status.HTTP_200_OK)
+async def list_structure_templates(
+    levels: int = None,         # Filter by level count
+    category: str = None,       # Filter by category
+    db: Session = Depends(get_db),
+):
+    """List available estate structure templates for registration form."""
+    templates = EstateService.list_structure_templates(
+        db=db, levels=levels, category=category,
+    )
+
+    return success_response(
+        status_code=200,
+        message="Structure templates retrieved.",
+        data=[
+            {
+                "template_id": t.template_id,
+                "name": t.name,
+                "description": t.description,
+                "category": t.category,
+                "levels": t.levels,
+                "address_format": t.address_format,
+                "structure": t.structure,
+                "example_address": t.example_address,
+            }
+            for t in templates
+        ],
     )

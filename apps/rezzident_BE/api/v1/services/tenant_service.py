@@ -43,6 +43,7 @@ class TenantService:
         address: str,
         city: str = None,
         state: str = None,
+        local_government: str = None,
         management_type: str = "community",
     ) -> Estate:
         """Register a new estate — creates DB record + schema.
@@ -86,6 +87,7 @@ class TenantService:
             address=address,
             city=city,
             state=state,
+            local_government=local_government,
             management_type=management_type,
             status="active",
         )

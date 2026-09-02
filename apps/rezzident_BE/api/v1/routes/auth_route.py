@@ -6,30 +6,19 @@ Implements the complete auth flow from docs/architecture/08-pin-biometric-auth.m
 3. Token management: Refresh (rotates + blacklists old), Logout (blacklists both tokens)
 4. Admin login: Email + Password + optional OTP (future)
 
-OTP delivery uses BackgroundTasks — the HTTP response is returned immediately
-while the SMS/log runs asynchronously in the background.
-
-JWT blacklisting on logout/refresh uses Redis (JTI-based).
+All business logic lives in AuthService — routes are thin wrappers:
+  validate input → call service → return response.
 
 Reference: docs/architecture/08-pin-biometric-auth.md
 """
-
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from api.db.database import get_db
-from api.db.redis import get_redis, blacklist_jti, is_jti_blacklisted
+from api.db.redis import get_redis
 from api.utils.success_response import success_response
-from api.utils.jwt_handler import (
-    get_current_user,
-    verify_refresh_token,
-    verify_token,
-    create_token_for_user,
-    create_refresh_token,
-    _remaining_ttl_seconds,
-)
+from api.utils.jwt_handler import get_current_user
 from api.v1.models.users import User
 from api.v1.models.otp import OTPPurpose
 from api.v1.schemas.auth import (
@@ -57,12 +46,7 @@ async def register_request_otp(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """Step 1: Send OTP to phone for registration.
-
-    OTP is sent asynchronously via BackgroundTasks (SMS or dev log).
-    OTP is NEVER returned in the response body.
-    Rate limited: max 5 requests per phone per hour.
-    """
+    """Step 1: Send OTP to phone for registration."""
     result = AuthService.create_and_send_otp(
         db=db,
         phone_number=body.phone_number,
@@ -84,11 +68,7 @@ async def register_verify_otp(
     body: VerifyOTPSchema,
     db: Session = Depends(get_db),
 ):
-    """Step 2: Verify OTP during registration.
-
-    Returns confirmation that OTP is valid.
-    Next step: POST /register/set-pin to complete registration.
-    """
+    """Step 2: Verify OTP during registration."""
     AuthService.verify_otp(
         db=db,
         phone_number=body.phone_number,
@@ -106,11 +86,7 @@ async def register_set_pin(
     body: SetPINSchema,
     db: Session = Depends(get_db),
 ):
-    """Step 3: Set PIN to complete registration.
-
-    Creates user account and returns access + refresh tokens.
-    PIN is validated against security rules (no sequential, no repeated).
-    """
+    """Step 3: Set PIN to complete registration."""
     user, tokens = AuthService.register_user(
         db=db,
         phone_number=body.phone_number,
@@ -122,14 +98,7 @@ async def register_set_pin(
         status_code=status.HTTP_201_CREATED,
         message="Registration successful.",
         data={
-            "user": {
-                "id": user.id,
-                "phone_number": user.phone_number,
-                "full_name": user.full_name,
-                "role": user.role.value,
-                "verification_tier": user.verification_tier.value,
-                "house_number": user.house_number,
-            },
+            "user": AuthService.serialize_user(user),
             "tokens": tokens,
         },
     )
@@ -145,10 +114,7 @@ async def login_request_otp(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    """Step 1: Send OTP to phone for login.
-
-    OTP is delivered asynchronously via BackgroundTasks.
-    """
+    """Step 1: Send OTP to phone for login."""
     result = AuthService.create_and_send_otp(
         db=db,
         phone_number=body.phone_number,
@@ -170,27 +136,16 @@ async def login_verify_otp(
     body: VerifyOTPSchema,
     db: Session = Depends(get_db),
 ):
-    """Step 2: Verify OTP for login.
-
-    Returns requires_pin flag — client must then submit PIN.
-    """
-    AuthService.verify_otp(
+    """Step 2: Verify OTP for login."""
+    data = AuthService.login_verify_otp(
         db=db,
         phone_number=body.phone_number,
         otp_code=body.otp_code,
     )
-
-    user = db.query(User).filter(User.phone_number == body.phone_number).first()
-    has_pin = user is not None and user.pin_hash is not None
-
     return success_response(
         status_code=status.HTTP_200_OK,
         message="OTP verified. Please enter your PIN.",
-        data={
-            "phone_number": body.phone_number,
-            "verified": True,
-            "requires_pin": has_pin,
-        },
+        data=data,
     )
 
 
@@ -199,38 +154,17 @@ async def login_verify_pin(
     body: VerifyPINSchema,
     db: Session = Depends(get_db),
 ):
-    """Step 3: Verify PIN and issue tokens.
-
-    On success: returns access_token + refresh_token.
-    On failure: returns remaining attempts or lockout message.
-    """
-    user = db.query(User).filter(User.phone_number == body.phone_number).first()
-
-    if not user:
-        return success_response(
-            status_code=status.HTTP_404_NOT_FOUND,
-            message="User not found. Please register first.",
-        )
-
-    AuthService.verify_pin(db=db, user=user, pin=body.pin)
-
-    tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
-
+    """Step 3: Verify PIN and issue tokens."""
+    user, tokens = AuthService.login_with_pin(
+        db=db,
+        phone_number=body.phone_number,
+        pin=body.pin,
+    )
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Login successful.",
         data={
-            "user": {
-                "id": user.id,
-                "phone_number": user.phone_number,
-                "full_name": user.full_name,
-                "role": user.role.value,
-                "verification_tier": (
-                    user.verification_tier.value if user.verification_tier else None
-                ),
-                "house_number": user.house_number,
-                "profile_image": user.profile_image,
-            },
+            "user": AuthService.serialize_user(user),
             "tokens": tokens,
         },
     )
@@ -246,35 +180,12 @@ async def refresh_token(
     db: Session = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ):
-    """Exchange refresh token for a new access + refresh token pair.
-
-    Implements refresh token rotation:
-    - Old refresh token JTI is blacklisted in Redis.
-    - New token pair is issued.
-    - If Redis is unavailable, rotation still works (blacklist skipped with warning).
-    """
-    payload = verify_refresh_token(body.refresh_token)
-    user_id = payload.get("user_id")
-    old_jti = payload.get("jti", "")
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return success_response(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            message="User not found.",
-        )
-
-    # Blacklist the old refresh token JTI (rotation)
-    if redis and old_jti:
-        try:
-            ttl = _remaining_ttl_seconds(payload)
-            await blacklist_jti(redis, old_jti, ttl)
-        except Exception:
-            from api.loggers.app_logger import app_logger
-            app_logger.warning("[JWT Refresh] Could not blacklist old JTI — Redis error.")
-
-    tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
-
+    """Exchange refresh token for a new access + refresh token pair."""
+    _user, tokens = await AuthService.refresh_tokens(
+        db=db,
+        redis=redis,
+        refresh_token_str=body.refresh_token,
+    )
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Token refreshed successfully.",
@@ -287,18 +198,7 @@ async def logout(
     current_user: User = Depends(get_current_user),
     redis: aioredis.Redis = Depends(get_redis),
 ):
-    """Logout — blacklist current access token JTI in Redis.
-
-    The client must also discard its refresh token locally.
-    For full refresh token invalidation, call this endpoint with the
-    refresh token in the Authorization header before discarding.
-    """
-    # get_current_user already validated the token — get the raw creds
-    # by re-verifying to extract JTI (already decoded in get_current_user)
-    # We can't easily get the raw token here without refactoring,
-    # so we blacklist based on user ID + current timestamp as a fallback.
-    # Full JTI blacklisting is handled via get_current_user's Redis check.
-
+    """Logout — invalidate current session."""
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Logged out successfully. Please discard your tokens.",
@@ -311,32 +211,15 @@ async def logout_with_token(
     db: Session = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ):
-    """Logout — blacklist a specific token JTI (access or refresh).
-
-    Pass the token you want to invalidate in the `refresh_token` field.
-    Call this once with access_token and once with refresh_token to fully
-    log out from all sessions.
-
-    This is the recommended logout endpoint for complete session invalidation.
-    """
-    try:
-        payload = verify_token(body.refresh_token)
-        jti = payload.get("jti", "")
-        token_type = payload.get("type", "unknown")
-
-        if redis and jti:
-            ttl = _remaining_ttl_seconds(payload)
-            await blacklist_jti(redis, jti, ttl)
-
-        return success_response(
-            status_code=status.HTTP_200_OK,
-            message=f"{token_type.capitalize()} token invalidated successfully.",
-        )
-    except Exception:
-        return success_response(
-            status_code=status.HTTP_200_OK,
-            message="Logged out successfully.",
-        )
+    """Logout — blacklist a specific token JTI (access or refresh)."""
+    result = await AuthService.invalidate_token(
+        redis=redis,
+        token_str=body.refresh_token,
+    )
+    return success_response(
+        status_code=status.HTTP_200_OK,
+        message=result["message"],
+    )
 
 
 # ═══════════════════════════════════════════════
@@ -349,20 +232,5 @@ async def get_me(current_user: User = Depends(get_current_user)):
     return success_response(
         status_code=status.HTTP_200_OK,
         message="User profile retrieved.",
-        data={
-            "id": current_user.id,
-            "phone_number": current_user.phone_number,
-            "full_name": current_user.full_name,
-            "email": current_user.email,
-            "role": current_user.role.value,
-            "house_number": current_user.house_number,
-            "profile_image": current_user.profile_image,
-            "verification_tier": (
-                current_user.verification_tier.value
-                if current_user.verification_tier
-                else None
-            ),
-            "dashboard_tier": current_user.dashboard_tier,
-            "is_primary_holder": current_user.is_primary_holder(),
-        },
+        data=AuthService.serialize_user(current_user),
     )

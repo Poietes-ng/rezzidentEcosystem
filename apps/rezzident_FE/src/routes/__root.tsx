@@ -5,14 +5,13 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { ErrorStateComponent } from '#/shared/components/ui/ErrorStateComponent'
 
 import { ThemeProvider } from '#/shared/context/ThemeContext'
-import { AuthProvider } from '#/features/auth/context/AuthContext'
+import { AuthProvider } from '#/features/auth/estate-registration/context/AuthContext'
 import { DevelopmentBanner } from '#/shared/components/layout/DevelopmentBanner'
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
 
 const SITE_URL = 'https://www.rezzident.co'
-const OG_IMAGE =
-  'https://res.cloudinary.com/tzdjufav/image/upload/v1/poietes/v1/try2.png'
+const OG_IMAGE = 'https://res.cloudinary.com/tzdjufav/image/upload/v1/poietes/v1/try2.png'
 
 // JSON-LD Structured Data for Google Rich Results & Sitelinks
 const ORGANIZATION_SCHEMA = JSON.stringify({
@@ -98,8 +97,7 @@ export const Route = createRootRoute({
       },
       {
         name: 'robots',
-        content:
-          'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+        content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
       },
       { name: 'publisher', content: 'Poietes' },
       { name: 'author', content: 'Poietes' },
@@ -180,8 +178,7 @@ export const Route = createRootRoute({
   errorComponent: ({ error }) => {
     // If it's a 403 or permission error, we can show a specific message
     const isForbidden =
-      error.message.includes('403') ||
-      error.message.toLowerCase().includes('forbidden')
+      error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent

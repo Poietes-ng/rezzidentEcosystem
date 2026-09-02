@@ -36,8 +36,7 @@
 
 @font-face {
   font-family: "Cabinet Grotesk";
-  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Extralight.otf")
-    format("opentype");
+  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Extralight.otf") format("opentype");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -53,8 +52,7 @@
 
 @font-face {
   font-family: "Cabinet Grotesk";
-  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Regular.otf")
-    format("opentype");
+  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -62,8 +60,7 @@
 
 @font-face {
   font-family: "Cabinet Grotesk";
-  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Medium.otf")
-    format("opentype");
+  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Medium.otf") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -79,8 +76,7 @@
 
 @font-face {
   font-family: "Cabinet Grotesk";
-  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Extrabold.otf")
-    format("opentype");
+  src: url("/fonts/cabinet-grotesk/CabinetGrotesk-Extrabold.otf") format("opentype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -326,6 +322,7 @@
  * ═══════════════════════════════════════════════════════════ */
 
 @layer theme {
+
   :root,
   :host {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -427,9 +424,6 @@ a {
   text-underline-offset: 2px;
 }
 
-a:hover {
-  color: #fede32;
-}
 
 code {
   font-size: 0.9em;
@@ -564,6 +558,23 @@ pre code {
 
 .demo-muted {
   color: var(--sea-ink-soft);
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* "Paints" over the browser's autofill background using an inset shadow */
+  -webkit-box-shadow: 0 0 0px 1000px #FAFAF5 inset !important;
+  box-shadow: 0 0 0px 1000px #FAFAF5 inset !important;
+
+  /* Forces the text color, since `color` alone gets ignored */
+  -webkit-text-fill-color: #1A1A1A !important;
+  caret-color: #1A1A1A !important;
+
+  /* Prevents the flash-of-yellow before your override kicks in */
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* ── Form Inputs ── */
