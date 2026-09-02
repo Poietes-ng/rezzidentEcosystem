@@ -58,6 +58,10 @@ def _generate_otp() -> str:
     """
     return "".join([str(secrets.randbelow(10)) for _ in range(OTP_LENGTH)])
 
+def _generate_password() -> str:
+    """Generate a password of 8-16 digits"""
+    return "".join([str(secrets.randbelow(10)) for _ in range(secrets.randbelow(9) + 8)])
+
 
 def _hash_value(value: str) -> str:
     """Hash a value using bcrypt."""

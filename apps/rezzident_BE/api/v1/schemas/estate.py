@@ -15,6 +15,7 @@ class StakeholderSchema(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     phone_number: str = Field(..., description="Nigerian phone (+234 or 0 prefix)")
     email: Optional[str] = None
+    nin: Optional[str] = None
     role_title: str = Field(
         default="stakeholder",
         description="chairman | secretary | treasurer | stakeholder | firm_rep",
@@ -35,8 +36,8 @@ class EstateRegisterSchema(BaseModel):
     """Estate registration — creates a new tenant (schema + record).
 
     This is the main registration endpoint that:
-    1. Generates a unique estate_code (e.g., PAR-7X3KM)
-    2. Creates a PostgreSQL schema (e.g., est_par7x3km)
+    1. Generates a unique estate_code (e.g., EST-7X3KM)
+    2. Creates a PostgreSQL schema (e.g., est_est7x3km)
     3. Stores the estate record in the public schema
     4. Optionally stores stakeholders
     """
@@ -44,6 +45,7 @@ class EstateRegisterSchema(BaseModel):
     address: str = Field(..., min_length=5, description="Full address")
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, max_length=100)
+    local_government: Optional[str] = Field(None, max_length=100)
     management_type: str = Field(
         default="community",
         description="community | firm",
@@ -59,16 +61,18 @@ class EstateRegisterSchema(BaseModel):
         description="Custom structure levels if not using a preloaded template",
     )
 
+    # ── Units (NEW) ──
+    number_of_units: Optional[int] = Field(None, ge=1)
+
+    # ── Bank Info (NEW) ──
+    settlement_account_number: Optional[str] = Field(None, max_length=20) 
+    settlement_bank_name: Optional[str] = Field(None, max_length=100)    
+    settlement_account_name: Optional[str] = Field(None, max_length=200)   
+
     # ── Stakeholders (optional at registration — can be added later) ──
     stakeholders: Optional[List[StakeholderSchema]] = Field(
         None,
         description="2 key contacts for the estate (from Figma form)",
-    )
-
-    # ── House count ──
-    house_count_tier: Optional[str] = Field(
-        None,
-        description="<10 | <20 | <50 | <100 | 100+",
     )
 
     @field_validator("management_type")
