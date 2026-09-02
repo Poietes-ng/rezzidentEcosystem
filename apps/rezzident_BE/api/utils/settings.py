@@ -93,8 +93,16 @@ class Settings(BaseSettings):
     MAIL_USERNAME: str = ""
     MAIL_PASSWORD: str = ""
     MAIL_FROM: str = ""
+    MAIL_FROM_NAME: str = "Rezzident"
     MAIL_PORT: int = 465
     MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_STARTTLS: bool = False
+    MAIL_SSL_TLS: bool = True
+
+    # ── Estate admin panel ──
+    # TODO: confirm the real frontend route once the estate-admin dashboard
+    # login page exists, then update this default (or set it via .env).
+    ADMIN_DASHBOARD_URL: str = "http://localhost:3000/admin/login"
 
     # ── Helpers ──
     TEMP_DIR: str = os.path.join(BASE_DIR, "tmp", "media")
