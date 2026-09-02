@@ -146,7 +146,6 @@ def create_refresh_token(data: dict) -> str:
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
 def verify_token(token: str) -> Dict:
     """Verify and decode JWT token (sync — no Redis check).
 
@@ -165,13 +164,13 @@ def verify_token(token: str) -> Dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except InvalidTokenError:
+    except ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
             detail="Token Has Expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except ExpiredSignatureError:
+    except InvalidTokenError:
         raise HTTPException(
             status_code=401,
             detail="Invalid Token",

@@ -50,7 +50,7 @@ def ensure_secret_key():
             env_path.write_text(new_content)
             # Inject into current env so pydantic-settings picks it up
             os.environ["SECRET_KEY"] = new_key
-            print("✅ Auto-generated new SECRET_KEY in .env")
+            app_logger.info("✅ Auto-generated new SECRET_KEY in .env")
 
 # Run before settings are imported
 ensure_secret_key()
