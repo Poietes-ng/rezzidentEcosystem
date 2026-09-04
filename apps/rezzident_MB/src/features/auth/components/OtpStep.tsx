@@ -1,32 +1,32 @@
-import { View, Text, Pressable } from 'react-native';
-import { PinInput, Button } from '@/components/ui';
-import { AuthLayout } from './AuthLayout';
-import { useAuthForm } from '../hooks/useAuthForm';
-import { verifyOtp, requestOtp } from '../api/authQueries';
-import { useState } from 'react';
-import type { LoginResponse } from '@rezzident/shared-types';
+import { View, Text, Pressable } from 'react-native'
+import { PinInput, Button } from '@/components/ui'
+import { AuthLayout } from './AuthLayout'
+import { useAuthForm } from '../hooks/useAuthForm'
+import { verifyOtp, requestOtp } from '../api/authQueries'
+import { useState } from 'react'
+import type { LoginResponseData } from '@rezzident/shared-types'
 
 export interface OtpStepProps {
-  phone: string;
-  onVerified: (result: LoginResponse) => void;
-  onBack: () => void;
-  form: ReturnType<typeof useAuthForm>;
+  phone: string
+  onVerified: (result: LoginResponseData) => void
+  onBack: () => void
+  form: ReturnType<typeof useAuthForm>
 }
 
 /** Step 2 — OTP verification. */
 export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false)
 
   const handleVerify = async () => {
-    if (!form.validateOtp()) return;
-    setSubmitting(true);
+    if (!form.validateOtp()) return
+    setSubmitting(true)
     try {
-      const res = await verifyOtp({ phone_number: phone, otp: form.otp.trim() });
-      if (res.data) onVerified(res.data);
+      const res = await verifyOtp({ phone_number: phone, otp_code: form.otp.trim() })
+      if (res.data) onVerified(res.data)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <AuthLayout
@@ -41,11 +41,15 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
     >
       <View className="items-center gap-lg">
         <PinInput length={4} value={form.otp} onChange={(v) => form.setField('otp', v)} />
-        {form.errors.otp ? <Text className="font-dmsans text-caption text-red-500">{form.errors.otp}</Text> : null}
+        {form.errors.otp ? (
+          <Text className="font-dmsans text-caption text-red-500">{form.errors.otp}</Text>
+        ) : null}
         <Pressable onPress={() => requestOtp({ phone_number: phone })}>
-          <Text className="font-dmsans text-body-small font-medium text-actionDark underline">Resend code</Text>
+          <Text className="font-dmsans text-body-small font-medium text-actionDark underline">
+            Resend code
+          </Text>
         </Pressable>
       </View>
     </AuthLayout>
-  );
+  )
 }
