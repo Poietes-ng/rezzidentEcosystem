@@ -61,6 +61,7 @@ export function PinInput({ length = 4, value = '', onChange, className }: PinInp
               onFocus={() => setFocusedIndex(index)}
               onBlur={() => setFocusedIndex(null)}
               className="absolute inset-0 h-full w-full bg-transparent text-center text-transparent caret-transparent outline-none"
+              aria-label={`Digit ${index + 1} of ${length}`}
             />
             {/* Display Dot if filled */}
             <div className="pointer-events-none flex h-full w-full items-center justify-center">

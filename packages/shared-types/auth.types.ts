@@ -26,9 +26,7 @@ export type UserRole =
   | "RESIDENT";
 
 export type VerificationTier =
-  | "PRE_VERIFIED"
-  | "SELF_REGISTERED"
-  | "NIN_VERIFIED";
+  "PRE_VERIFIED" | "SELF_REGISTERED" | "NIN_VERIFIED";
 
 // ── User ──
 
@@ -70,8 +68,8 @@ export interface SetPINPayload {
   phone_number: string;
   pin: string;
   confirm_pin: string;
-  full_name: string;
-  estate_code: string;
+  full_name?: string;
+  estate_code?: string;
 }
 
 // ── Login flow request payloads ──

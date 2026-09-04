@@ -40,8 +40,8 @@ class SetPINSchema(BaseModel):
     phone_number: str
     pin: str = Field(..., min_length=4, max_length=4, description="4-digit PIN")
     confirm_pin: str = Field(..., min_length=4, max_length=4, description="Confirm PIN")
-    full_name: str = Field(..., min_length=2, max_length=100)
-    estate_code: str = Field(..., description="Estate code (e.g., PAR-7X3KM)")
+    full_name: str | None = Field(default=None, min_length=2, max_length=100)
+    estate_code: str | None = Field(default=None, description="Estate code (e.g., PAR-7X3KM)")
 
     @field_validator("phone_number")
     @classmethod

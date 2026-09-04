@@ -3,7 +3,7 @@ import { PinInput, Button } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { setPin } from '../api/authQueries'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export interface PinStepProps {
   onComplete: () => void
@@ -16,6 +16,20 @@ export interface PinStepProps {
 export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
   const [stage, setStage] = useState<'create' | 'confirm'>('create')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (stage === 'create' && form.pin.length === 4) {
+      const timer = setTimeout(() => setStage('confirm'), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [form.pin, stage])
+
+  useEffect(() => {
+    if (stage === 'confirm' && form.confirmPin.length === 4) {
+      const timer = setTimeout(() => handleNext(), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [form.confirmPin, stage])
 
   const handleNext = async () => {
     if (stage === 'create') {
@@ -33,8 +47,6 @@ export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
         pin: form.pin,
         confirm_pin: form.confirmPin,
         phone_number: phone,
-        full_name: '',
-        estate_code: '',
       })
       onComplete()
     } finally {

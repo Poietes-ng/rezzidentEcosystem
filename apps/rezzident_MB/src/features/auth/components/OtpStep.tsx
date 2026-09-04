@@ -3,7 +3,7 @@ import { PinInput, Button } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { verifyOtp, requestOtp } from '../api/authQueries'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { LoginResponseData } from '@rezzident/shared-types'
 
 export interface OtpStepProps {
@@ -16,6 +16,15 @@ export interface OtpStepProps {
 /** Step 2 — OTP verification. */
 export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (form.otp.length === 4) {
+      const timer = setTimeout(() => {
+        handleVerify()
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [form.otp])
 
   const handleVerify = async () => {
     if (!form.validateOtp()) return
