@@ -134,7 +134,7 @@ class SchemaASTVisitor(ast.NodeVisitor):
     def __init__(self):
         self.models = []
 
-    def visit_ClassDef(self, node):
+    def visit_ClassDef(self, node):  # noqa: N802
         bases_str = [ast.unparse(b) for b in node.bases]
         if any("Enum" in b for b in bases_str):
             return
