@@ -14,24 +14,37 @@ import type {
  * app/(auth)/login.tsx comment: "3-step flow: Phone -> OTP -> PIN").
  */
 export async function requestOtp(payload: RequestOTPPayload): Promise<APIEnvelope<null>> {
-  const { data } = await apiClient.post<APIEnvelope<null>>('/auth/request-otp', payload)
+  const endpoint =
+    payload.purpose === 'login' ? '/auth/login/request-otp' : '/auth/register/request-otp'
+  const { data } = await apiClient.post<APIEnvelope<null>>(endpoint, payload)
   return data
 }
 
 export async function verifyOtp(
   payload: VerifyOTPPayload,
 ): Promise<APIEnvelope<LoginResponseData>> {
-  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>('/auth/verify-otp', payload)
+  // We default to register/verify-otp as per suggestion, though ideally it should be dynamic
+  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>(
+    '/auth/register/verify-otp',
+    payload,
+  )
   return data
 }
 
 export async function setPin(payload: SetPINPayload): Promise<APIEnvelope<null>> {
-  const { data } = await apiClient.post<APIEnvelope<null>>('/auth/set-pin', payload)
+  const { data } = await apiClient.post<APIEnvelope<null>>('/auth/register/set-pin', payload)
   return data
 }
 
-export async function loginWithPin(pin: string): Promise<APIEnvelope<LoginResponseData>> {
-  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>('/auth/login-pin', { pin })
+// Note: If the backend requires phone_number, you will need to add it to this payload later.
+export async function loginWithPin(
+  pin: string,
+  phone_number?: string,
+): Promise<APIEnvelope<LoginResponseData>> {
+  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>('/auth/login/verify-pin', {
+    pin,
+    phone_number,
+  })
   return data
 }
 

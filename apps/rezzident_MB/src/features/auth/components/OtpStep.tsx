@@ -18,7 +18,7 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (form.otp.length === 4) {
+    if (form.otp.length === 6) {
       const timer = setTimeout(() => {
         handleVerify()
       }, 300)
@@ -40,7 +40,7 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
   return (
     <AuthLayout
       title="Verify your number"
-      subtitle={`Enter the 4-digit code sent to ${phone}`}
+      subtitle={`Enter the 6-digit code sent to ${phone}`}
       onBack={onBack}
       footer={
         <Button variant="default" className="w-full" loading={submitting} onPress={handleVerify}>
@@ -49,7 +49,7 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
       }
     >
       <View className="items-center gap-lg">
-        <PinInput length={4} value={form.otp} onChange={(v) => form.setField('otp', v)} />
+        <PinInput length={6} value={form.otp} onChange={(v) => form.setField('otp', v)} />
         {form.errors.otp ? (
           <Text className="font-dmsans text-caption text-red-500">{form.errors.otp}</Text>
         ) : null}
