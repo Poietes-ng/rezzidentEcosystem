@@ -1,6 +1,6 @@
 """Support ticket model — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel

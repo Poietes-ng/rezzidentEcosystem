@@ -9,29 +9,30 @@ based on Figma flow:
 
 Structure Examples (preloaded):
   Pattern 1: Estate Name → Street → House Number
-  Pattern 2: Estate Name → Block → Flat Number  
+  Pattern 2: Estate Name → Block → Flat Number
   Pattern 3: Estate Name → Area → Plot → Unit
   Pattern 4: Estate Name → Phase → Street → House Number
   Pattern 5: Estate Name → Zone → Block → Floor → Flat
   ... (200+ combinations stored in estate_structure_templates table)
 """
 
-from sqlalchemy import Column, String, Float, ForeignKey, Integer, Boolean, Text
+import enum
+
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
-import enum
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class EstateStatus(str, enum.Enum):
+class EstateStatus(enum.StrEnum):
     PENDING = "pending"
     ACTIVE = "active"
     SUSPENDED = "suspended"
     DELETED = "deleted"
 
 
-class OnboardingStep(str, enum.Enum):
+class OnboardingStep(enum.StrEnum):
     REGISTRATION = "registration"
     STAKEHOLDER_VERIFICATION = "stakeholder_verification"
     HOUSE_SETUP = "house_setup"
@@ -81,15 +82,18 @@ class Estate(BaseTableModel):
     # ══════════════════════════════════════════════════════
     has_structure = Column(Boolean, default=True)
     structure_template_id = Column(
-        String(50), nullable=True,
+        String(50),
+        nullable=True,
         comment="ID from estate_structure_templates table, or 'custom'",
     )
     structure_definition = Column(
-        JSONB, nullable=True,
+        JSONB,
+        nullable=True,
         comment="Full structure definition (levels array) — either from template or custom",
     )
     is_custom_structure = Column(
-        Boolean, default=False,
+        Boolean,
+        default=False,
         comment="True if user requested a custom structure not in preloaded templates",
     )
 
@@ -102,7 +106,8 @@ class Estate(BaseTableModel):
     # If a firm manages the estate, they register as stakeholders
     registered_by = Column(String, nullable=True, comment="platform_user.id who registered")
     management_type = Column(
-        String(20), default="community",
+        String(20),
+        default="community",
         comment="community | firm — who manages this estate",
     )
 
@@ -112,7 +117,9 @@ class Estate(BaseTableModel):
 
     # ── Subscription ──
     subscription_id = Column(
-        String, ForeignKey("subscriptions.id"), nullable=True,
+        String,
+        ForeignKey("subscriptions.id"),
+        nullable=True,
         comment="Connected subscription record",
     )
 
@@ -131,8 +138,12 @@ class Estate(BaseTableModel):
 
     # Relationships
     subscription = relationship("Subscription", foreign_keys=[subscription_id])
-    stakeholders = relationship("Stakeholder", back_populates="estate", cascade="all, delete-orphan")
-    house_entities = relationship("HouseEntity", back_populates="estate", cascade="all, delete-orphan")
+    stakeholders = relationship(
+        "Stakeholder", back_populates="estate", cascade="all, delete-orphan"
+    )
+    house_entities = relationship(
+        "HouseEntity", back_populates="estate", cascade="all, delete-orphan"
+    )
 
 
 class Stakeholder(BaseTableModel):
@@ -158,7 +169,8 @@ class Stakeholder(BaseTableModel):
 
     # ── Role ──
     role_title = Column(
-        String(50), default="stakeholder",
+        String(50),
+        default="stakeholder",
         comment="chairman | secretary | treasurer | stakeholder | firm_rep",
     )
     is_primary = Column(Boolean, default=False, comment="Primary contact for approvals")
@@ -198,17 +210,22 @@ class HouseEntity(BaseTableModel):
 
     # ── Address Components (following estate structure) ──
     address_components = Column(
-        JSONB, nullable=False,
+        JSONB,
+        nullable=False,
         comment='Key-value pairs following structure: {"Block": "A", "Floor": "3", "Flat": "12"}',
     )
     formatted_address = Column(
-        String(200), nullable=False, index=True,
+        String(200),
+        nullable=False,
+        index=True,
         comment="Human-readable: 'Block A, Floor 3, Flat 12'",
     )
 
     # ── Shorthand ──
     house_number = Column(
-        String(50), nullable=True, index=True,
+        String(50),
+        nullable=True,
+        index=True,
         comment="Short reference like 'A-3-12' — generated from components",
     )
 
@@ -239,13 +256,16 @@ class EstateStructureTemplate(BaseTableModel):
 
     # ── Category for filtering ──
     category = Column(
-        String(50), nullable=True, index=True,
+        String(50),
+        nullable=True,
+        index=True,
         comment="residential | commercial | mixed | gated_community | estate | apartment",
     )
 
     # ── Structure Definition ──
     levels = Column(
-        JSONB, nullable=False,
+        JSONB,
+        nullable=False,
         comment="""Array of level definitions:
         [
           {"level": 1, "label": "Street", "type": "text", "required": true},
@@ -257,25 +277,30 @@ class EstateStructureTemplate(BaseTableModel):
 
     # ── Format ──
     address_format = Column(
-        String(200), nullable=True,
+        String(200),
+        nullable=True,
         comment="Display format template: '{Street}, House {House Number}'",
     )
 
     # ── Provenance ──
     structure = Column(
-        String(300), nullable=True,
+        String(300),
+        nullable=True,
         comment="Plain-word label of the level sequence, e.g. 'Phase, Street, House Number'",
     )
     example_address = Column(
-        String(500), nullable=True,
+        String(500),
+        nullable=True,
         comment="Illustrative full address string showing what this template produces",
     )
     verified = Column(
-        Boolean, default=False,
+        Boolean,
+        default=False,
         comment="True if modeled on a documented real-world estate's actual address scheme",
     )
     source = Column(
-        Text, nullable=True,
+        Text,
+        nullable=True,
         comment="Where the pattern comes from: a named real estate, or a rationale",
     )
 

@@ -11,23 +11,22 @@ Endpoints:
 - GET  /dashboard/profile           — User profile (any authenticated user)
 """
 
-from fastapi import APIRouter, Depends, status, Query
-from sqlalchemy.orm import Session
 from datetime import datetime
 
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.orm import Session
+
 from api.db.database import get_db
-from api.utils.success_response import success_response
-from api.utils.jwt_handler import get_current_user
 from api.utils.auth_dependencies import (
     require_admin,
-    require_super_admin,
-    require_roles,
     require_financial_access,
     require_security_access,
+    require_super_admin,
 )
+from api.utils.jwt_handler import get_current_user
+from api.utils.success_response import success_response
 from api.v1.models.users import User
 from api.v1.services.dashboard_service import dashboard_service
-
 
 dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -35,6 +34,7 @@ dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 # ══════════════════════════════════════════════════════
 # GENERIC — any authenticated user
 # ══════════════════════════════════════════════════════
+
 
 @dashboard.get(
     "/summary",
@@ -58,6 +58,7 @@ def get_dashboard_summary(
 # RESIDENT
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/resident",
     status_code=status.HTTP_200_OK,
@@ -80,6 +81,7 @@ def get_resident_dashboard(
 # ══════════════════════════════════════════════════════
 # ADMIN
 # ══════════════════════════════════════════════════════
+
 
 @dashboard.get(
     "/admin",
@@ -123,6 +125,7 @@ def get_superadmin_dashboard(
 # SECURITY
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/admin/security",
     status_code=status.HTTP_200_OK,
@@ -145,6 +148,7 @@ def get_security_dashboard(
 # ══════════════════════════════════════════════════════
 # TREASURER
 # ══════════════════════════════════════════════════════
+
 
 @dashboard.get(
     "/admin/treasurer",
@@ -192,6 +196,7 @@ def get_transaction_volume(
 # STAFF REPORTS
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/staff/reports",
     status_code=status.HTTP_200_OK,
@@ -212,6 +217,7 @@ def get_staff_reports(
 # ══════════════════════════════════════════════════════
 # PROFILE — any authenticated user
 # ══════════════════════════════════════════════════════
+
 
 @dashboard.get(
     "/profile",

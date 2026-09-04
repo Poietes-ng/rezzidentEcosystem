@@ -77,16 +77,34 @@ Use **VS Code** with these extensions:
 
 ## Branch Strategy
 
-```
+```text
 main ──────────────────────────────────────────── Production-ready
   │
   └── develop ─────────────────────────────────── Integration branch
         │
-        ├── feature/auth-otp-screen ───────────── New features
+        ├── feat/auth-otp-screen ──────────────── New features
         ├── fix/phone-validation-bug ──────────── Bug fixes
         ├── chore/add-eslint-mb ───────────────── Tooling/config
         └── docs/update-architecture ──────────── Documentation
 ```
+
+## Branch Naming Rules
+
+We follow a strict branch naming convention that matches our commit types. Every branch must be prefixed with the type of work being done, followed by a forward slash `/`, and a kebab-case description:
+
+`type/kebab-case-description`
+
+| Branch Prefix | When to Use                                    | Example                      |
+| ------------- | ---------------------------------------------- | ---------------------------- |
+| `feat/`       | New features or capabilities                   | `feat/payment-gateway`       |
+| `fix/`        | Bug fixes                                      | `fix/login-crash`            |
+| `chore/`      | Maintenance, dependencies, config              | `chore/update-typescript`    |
+| `refactor/`   | Code structure changes (no new features/fixes) | `refactor/extract-auth-hook` |
+| `docs/`       | Documentation updates                          | `docs/api-readme`            |
+| `test/`       | Adding or fixing tests                         | `test/auth-middleware`       |
+| `perf/`       | Performance improvements                       | `perf/optimize-queries`      |
+| `style/`      | Code formatting (no logic changes)             | `style/format-json`          |
+| `ci/`         | CI/CD pipeline changes                         | `ci/fix-lint-workflow`       |
 
 ## Rules
 
@@ -102,15 +120,15 @@ main ─────────────────────────
 git checkout develop
 git pull origin develop
 
-# Create your feature branch
-git checkout -b feature/your-feature-name
+# Create your feature branch using the naming rules
+git checkout -b feat/your-feature-name
 
 # Work, commit, push
 git add .
 git commit -m "feat(auth): add OTP input component"
-git push -u origin feature/your-feature-name
+git push -u origin feat/your-feature-name
 
-# Open a PR on GitHub: feature/your-feature-name → develop
+# Open a PR on GitHub: feat/your-feature-name → develop
 ```
 
 ---
@@ -176,10 +194,10 @@ We use **Conventional Commits**. Every commit message follows this format:
 
 ```
 [ ] Your code runs locally without errors
-[ ] You ran the linter:
-    - FE: pnpm --filter rezzident-fe lint
-    - MB: pnpm --filter rezzident-mb lint
-    - BE: cd apps/rezzident_BE && ruff check .
+[ ] You ran the linter and fixed errors:
+    - **FE:** `cd apps/rezzident_FE && pnpm run lint --fix && pnpm run format`
+    - **MB:** `cd apps/rezzident_MB && pnpm run lint --fix && pnpm run format`
+    - **BE:** `cd apps/rezzident_BE && ruff check --fix --unsafe-fixes . && black .`
 [ ] You ran existing tests:
     - pnpm --filter @rezzident/utils test
     - pnpm test:be

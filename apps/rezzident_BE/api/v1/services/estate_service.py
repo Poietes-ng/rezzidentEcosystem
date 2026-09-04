@@ -18,20 +18,18 @@ Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
 import secrets
-from typing import Optional
 
 from fastapi import BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from api.v1.models.estate import Estate, Stakeholder, EstateStructureTemplate
+from api.loggers.app_logger import app_logger
+from api.utils.mailer import send_email
+from api.utils.settings import settings
+from api.v1.models.estate import Estate, EstateStructureTemplate, Stakeholder
 from api.v1.models.users import User
 from api.v1.schemas.estate import EstateRegisterSchema
 from api.v1.services.tenant_service import TenantService
-from api.utils.mailer import send_email
-from api.utils.settings import settings
-from api.loggers.app_logger import app_logger
-
 
 # ── Crypto context for stakeholder panel-password hashing ──────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,20 +41,17 @@ PANEL_ACCESS_STAKEHOLDER_COUNT = 2
 
 # ── Private helpers ──────────────────────────────────────────────────────────
 
+
 def _generate_panel_password() -> str:
     """Generate a random 8-16 digit password for stakeholder panel access."""
-    return "".join(
-        [str(secrets.randbelow(10)) for _ in range(secrets.randbelow(9) + 8)]
-    )
+    return "".join([str(secrets.randbelow(10)) for _ in range(secrets.randbelow(9) + 8)])
 
 
 def _hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 
-async def _send_panel_credentials_email(
-    email: str, estate_code: str, password: str
-) -> None:
+async def _send_panel_credentials_email(email: str, estate_code: str, password: str) -> None:
     """Email a stakeholder their estate admin-dashboard credentials.
 
     Runs as a background task so it never blocks the registration
@@ -79,6 +74,7 @@ async def _send_panel_credentials_email(
 
 
 # ── EstateService ─────────────────────────────────────────────────────────
+
 
 class EstateService:
     """Estate registration and management business logic."""
@@ -140,9 +136,7 @@ class EstateService:
             estate.structure_template_id = body.structure_template_id
             estate.has_structure = True
         if body.custom_structure:
-            estate.structure_definition = [
-                level.model_dump() for level in body.custom_structure
-            ]
+            estate.structure_definition = [level.model_dump() for level in body.custom_structure]
             estate.is_custom_structure = True
             estate.has_structure = True
 
@@ -197,10 +191,14 @@ class EstateService:
     @staticmethod
     def get_estate_by_code(db: Session, estate_code: str) -> Estate:
         """Look up an active estate by its code — used by residents joining."""
-        estate = db.query(Estate).filter(
-            Estate.estate_code == estate_code.upper(),
-            Estate.status == "active",
-        ).first()
+        estate = (
+            db.query(Estate)
+            .filter(
+                Estate.estate_code == estate_code.upper(),
+                Estate.status == "active",
+            )
+            .first()
+        )
 
         if not estate:
             raise HTTPException(
@@ -219,9 +217,13 @@ class EstateService:
                 detail="You are not associated with any estate.",
             )
 
-        estate = db.query(Estate).filter(
-            Estate.estate_code == current_user.estate_id,
-        ).first()
+        estate = (
+            db.query(Estate)
+            .filter(
+                Estate.estate_code == current_user.estate_id,
+            )
+            .first()
+        )
 
         if not estate:
             raise HTTPException(
@@ -234,8 +236,8 @@ class EstateService:
     @staticmethod
     def list_structure_templates(
         db: Session,
-        levels: Optional[int] = None,
-        category: Optional[str] = None,
+        levels: int | None = None,
+        category: str | None = None,
     ) -> list[EstateStructureTemplate]:
         """List available estate structure templates for the registration form."""
         query = db.query(EstateStructureTemplate).filter(

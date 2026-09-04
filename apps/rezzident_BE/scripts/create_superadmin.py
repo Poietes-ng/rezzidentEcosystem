@@ -5,18 +5,19 @@ Usage: python scripts/create_superadmin.py
 Requires SUPER_ADMIN_SETUP_KEY environment variable to match.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from getpass import getpass
-from passlib.context import CryptContext
-from api.db.database import SessionLocal
-from api.v1.models.platform_user import PlatformUser
-from api.utils.settings import settings
-from api.loggers.app_logger import app_logger
 
+from passlib.context import CryptContext
+
+from api.db.database import SessionLocal
+from api.loggers.app_logger import app_logger
+from api.utils.settings import settings
+from api.v1.models.platform_user import PlatformUser
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

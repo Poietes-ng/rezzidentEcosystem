@@ -3,15 +3,16 @@
 Reference: docs/architecture/08-pin-biometric-auth.md
 """
 
-from typing import Optional
 from pydantic import BaseModel, Field, field_validator
-from api.utils.validators import validate_phone_number, validate_pin
 
+from api.utils.validators import validate_phone_number, validate_pin
 
 # ── Registration Flow ──
 
+
 class RequestOTPSchema(BaseModel):
     """Request OTP for registration or login."""
+
     phone_number: str = Field(..., description="Nigerian phone number (+234 or 0 prefix)")
     purpose: str = Field(default="registration", description="'registration' or 'login'")
 
@@ -23,6 +24,7 @@ class RequestOTPSchema(BaseModel):
 
 class VerifyOTPSchema(BaseModel):
     """Verify OTP code."""
+
     phone_number: str = Field(..., description="Phone number that received the OTP")
     otp_code: str = Field(..., min_length=6, max_length=6, description="6-digit OTP code")
 
@@ -34,6 +36,7 @@ class VerifyOTPSchema(BaseModel):
 
 class SetPINSchema(BaseModel):
     """Set 4-digit PIN after OTP verification."""
+
     phone_number: str
     pin: str = Field(..., min_length=4, max_length=4, description="4-digit PIN")
     confirm_pin: str = Field(..., min_length=4, max_length=4, description="Confirm PIN")
@@ -60,8 +63,10 @@ class SetPINSchema(BaseModel):
 
 # ── Login Flow ──
 
+
 class VerifyPINSchema(BaseModel):
     """Verify PIN for login (after OTP)."""
+
     phone_number: str
     pin: str = Field(..., min_length=4, max_length=4)
 
@@ -73,22 +78,27 @@ class VerifyPINSchema(BaseModel):
 
 # ── Token Management ──
 
+
 class RefreshTokenSchema(BaseModel):
     """Exchange refresh token for new access token."""
+
     refresh_token: str
 
 
 class AdminLoginSchema(BaseModel):
     """Admin email + password login."""
+
     email: str
     password: str
-    otp_code: Optional[str] = None
+    otp_code: str | None = None
 
 
 # ── Responses ──
 
+
 class TokenResponse(BaseModel):
     """Token pair response."""
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
@@ -97,6 +107,7 @@ class TokenResponse(BaseModel):
 
 class OTPResponse(BaseModel):
     """OTP sent confirmation — NEVER includes the OTP itself."""
+
     message: str
     phone_number: str
     expires_in_seconds: int = 300
@@ -104,14 +115,15 @@ class OTPResponse(BaseModel):
 
 class UserResponse(BaseModel):
     """User profile response."""
+
     id: str
     phone_number: str
-    full_name: Optional[str] = None
-    email: Optional[str] = None
+    full_name: str | None = None
+    email: str | None = None
     role: str
-    house_number: Optional[str] = None
-    profile_image: Optional[str] = None
-    verification_tier: Optional[str] = None
+    house_number: str | None = None
+    profile_image: str | None = None
+    verification_tier: str | None = None
     is_primary_holder: bool = True
 
     class Config:

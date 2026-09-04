@@ -1,13 +1,14 @@
 """Resident bill model — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class ResidentBillStatus(str, enum.Enum):
+class ResidentBillStatus(enum.StrEnum):
     PENDING = "pending"
     PARTIALLY_PAID = "partially_paid"
     PAID = "paid"

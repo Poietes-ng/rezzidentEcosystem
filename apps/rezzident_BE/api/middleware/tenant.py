@@ -12,7 +12,6 @@ from starlette.requests import Request
 from api.db.tenant import current_tenant_schema
 from api.utils.jwt_handler import decode_access_token
 
-
 # Routes that don't require tenant context
 PUBLIC_PATHS = {
     "/",
