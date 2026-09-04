@@ -43,12 +43,13 @@ jobs:
         working-directory: apps/rezzident_BE
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-dev.txt
 
-      - name: lint/format with ruff, flake8 & black
+      - name: lint/format with ruff & black
+        working-directory: apps/rezzident_BE
         run: |
-          ruff check . && black --check .
-          ruff check --fix . && black .
+          ruff check .
+          black --check .
           mypy api/ --ignore-missing-imports
 
   Backend_test:
@@ -84,7 +85,8 @@ jobs:
         working-directory: apps/rezzident_BE
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Test with pytest
-        run: pnpm turbo run test --filter=rezzident-be
+        working-directory: apps/rezzident_BE
+        run: python -m pytest tests/ -v
