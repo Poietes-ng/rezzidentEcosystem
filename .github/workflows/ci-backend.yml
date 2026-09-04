@@ -88,4 +88,7 @@ jobs:
 
       - name: Test with pytest
         working-directory: apps/rezzident_BE
+        env:
+          SECRET_KEY: "ci-test-secret-key-not-used-in-production"
+          DB_PASSWORD: "ci-test-db-password"
         run: python -m pytest tests/ -v
