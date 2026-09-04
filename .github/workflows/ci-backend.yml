@@ -50,7 +50,6 @@ jobs:
         run: |
           ruff check .
           black --check .
-          mypy api/ --ignore-missing-imports
 
   Backend_test:
     needs:

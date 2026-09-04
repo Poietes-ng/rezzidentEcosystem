@@ -1,39 +1,46 @@
-import { View, Text } from 'react-native';
-import { PinInput, Button } from '@/components/ui';
-import { AuthLayout } from './AuthLayout';
-import { useAuthForm } from '../hooks/useAuthForm';
-import { setPin } from '../api/authQueries';
-import { useState } from 'react';
+import { View, Text } from 'react-native'
+import { PinInput, Button } from '@/components/ui'
+import { AuthLayout } from './AuthLayout'
+import { useAuthForm } from '../hooks/useAuthForm'
+import { setPin } from '../api/authQueries'
+import { useState } from 'react'
 
 export interface PinStepProps {
-  onComplete: () => void;
-  onBack: () => void;
-  form: ReturnType<typeof useAuthForm>;
+  onComplete: () => void
+  onBack: () => void
+  form: ReturnType<typeof useAuthForm>
+  phone: string
 }
 
 /** Step 3 — set a 4-digit PIN used for subsequent quick sign-in. */
-export function PinStep({ onComplete, onBack, form }: PinStepProps) {
-  const [stage, setStage] = useState<'create' | 'confirm'>('create');
-  const [submitting, setSubmitting] = useState(false);
+export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
+  const [stage, setStage] = useState<'create' | 'confirm'>('create')
+  const [submitting, setSubmitting] = useState(false)
 
   const handleNext = async () => {
     if (stage === 'create') {
       if (form.pin.length !== 4) {
-        form.validatePin();
-        return;
+        form.validatePin()
+        return
       }
-      setStage('confirm');
-      return;
+      setStage('confirm')
+      return
     }
-    if (!form.validatePin()) return;
-    setSubmitting(true);
+    if (!form.validatePin()) return
+    setSubmitting(true)
     try {
-      await setPin({ pin: form.pin, confirm_pin: form.confirmPin });
-      onComplete();
+      await setPin({
+        pin: form.pin,
+        confirm_pin: form.confirmPin,
+        phone_number: phone,
+        full_name: '',
+        estate_code: '',
+      })
+      onComplete()
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <AuthLayout
@@ -50,12 +57,18 @@ export function PinStep({ onComplete, onBack, form }: PinStepProps) {
         {stage === 'create' ? (
           <PinInput length={4} value={form.pin} onChange={(v) => form.setField('pin', v)} />
         ) : (
-          <PinInput length={4} value={form.confirmPin} onChange={(v) => form.setField('confirmPin', v)} />
+          <PinInput
+            length={4}
+            value={form.confirmPin}
+            onChange={(v) => form.setField('confirmPin', v)}
+          />
         )}
         {(form.errors.pin || form.errors.confirmPin) && (
-          <Text className="font-dmsans text-caption text-red-500">{form.errors.pin || form.errors.confirmPin}</Text>
+          <Text className="font-dmsans text-caption text-red-500">
+            {form.errors.pin || form.errors.confirmPin}
+          </Text>
         )}
       </View>
     </AuthLayout>
-  );
+  )
 }
