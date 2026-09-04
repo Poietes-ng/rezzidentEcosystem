@@ -113,7 +113,7 @@ class DashboardService:
                 .filter(
                     VisitorCode.user_id == current_user.id,
                     VisitorCode.is_active,
-                    VisitorCode.is_used == False,
+                    not VisitorCode.is_used,
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -274,7 +274,7 @@ class DashboardService:
                 db.query(Notification)
                 .filter(
                     Notification.user_id == user.id,
-                    Notification.is_read == False,
+                    not Notification.is_read,
                 )
                 .count()
             )
@@ -469,7 +469,7 @@ class DashboardService:
                 db.query(VisitorCode)
                 .filter(
                     VisitorCode.is_active,
-                    VisitorCode.is_used == False,
+                    not VisitorCode.is_used,
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -493,7 +493,7 @@ class DashboardService:
                 db.query(VisitorCode)
                 .filter(
                     VisitorCode.is_active,
-                    VisitorCode.is_used == False,
+                    not VisitorCode.is_used,
                     VisitorCode.time_of_visit >= today_start,
                     VisitorCode.time_of_visit < today_start + timedelta(days=1),
                 )
