@@ -89,7 +89,8 @@ virtualenv==21.7.5
 watchfiles==1.2.0
 websockets==15.0.1
 wrapt==2.3.0
-yarl==1.24.5aiohappyeyeballs==2.7.1
+yarl==1.24.5
+aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
 aiosignal==1.4.0
 aiosmtplib==3.0.2
