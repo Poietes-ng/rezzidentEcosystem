@@ -36,10 +36,10 @@ jobs:
       - name: install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: lint
+      - name: lint/format with eslint & prettier
         run: pnpm turbo run lint --filter=rezzident-fe
 
-      - name: test
+      - name: test with vitest
         run: pnpm turbo run test --filter=rezzident-fe
 
       - name: build app
