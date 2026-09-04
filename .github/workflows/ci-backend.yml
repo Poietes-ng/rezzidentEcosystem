@@ -59,8 +59,8 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ci-test-db-password
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: rezzident_test
         ports:
           - 5432:5432
@@ -103,8 +103,8 @@ jobs:
       - name: Test with pytest
         working-directory: apps/rezzident_BE
         env:
-          SECRET_KEY: "ci-test-secret-key-not-used-in-production"
-          DB_PASSWORD: "ci-test-db-password"
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           DB_HOST: "localhost"
           DB_PORT: "5432"
           DB_USER: "postgres"
