@@ -113,7 +113,7 @@ class DashboardService:
                 .filter(
                     VisitorCode.user_id == current_user.id,
                     VisitorCode.is_active,
-                    not VisitorCode.is_used,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -274,7 +274,7 @@ class DashboardService:
                 db.query(Notification)
                 .filter(
                     Notification.user_id == user.id,
-                    not Notification.is_read,
+                    Notification.is_read == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                 )
                 .count()
             )
@@ -469,7 +469,7 @@ class DashboardService:
                 db.query(VisitorCode)
                 .filter(
                     VisitorCode.is_active,
-                    not VisitorCode.is_used,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -493,7 +493,7 @@ class DashboardService:
                 db.query(VisitorCode)
                 .filter(
                     VisitorCode.is_active,
-                    not VisitorCode.is_used,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.time_of_visit >= today_start,
                     VisitorCode.time_of_visit < today_start + timedelta(days=1),
                 )
