@@ -22,8 +22,6 @@ export function InternetStatus({ status, onReconnect, className }: InternetStatu
     }
   }, [status])
 
-  if (!visible) return null
-
   return (
     <div
       className={cn(
