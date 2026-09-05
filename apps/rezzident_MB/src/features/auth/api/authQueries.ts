@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api-client'
 import type {
   APIEnvelope,
   LoginResponseData,
+  OTPVerifiedData,
   RequestOTPPayload,
   VerifyOTPPayload,
   SetPINPayload,
@@ -22,17 +23,22 @@ export async function requestOtp(payload: RequestOTPPayload): Promise<APIEnvelop
 
 export async function verifyOtp(
   payload: VerifyOTPPayload,
-): Promise<APIEnvelope<LoginResponseData>> {
-  // We default to register/verify-otp as per suggestion, though ideally it should be dynamic
-  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>(
+): Promise<APIEnvelope<OTPVerifiedData>> {
+  // /auth/register/verify-otp returns OTPVerifiedData { phone_number, verified }
+  // — not LoginResponseData. Tokens are issued only after set-pin completes.
+  const { data } = await apiClient.post<APIEnvelope<OTPVerifiedData>>(
     '/auth/register/verify-otp',
     payload,
   )
   return data
 }
 
-export async function setPin(payload: SetPINPayload): Promise<APIEnvelope<null>> {
-  const { data } = await apiClient.post<APIEnvelope<null>>('/auth/register/set-pin', payload)
+export async function setPin(payload: SetPINPayload): Promise<APIEnvelope<LoginResponseData>> {
+  // /auth/register/set-pin issues user details + auth tokens on success.
+  const { data } = await apiClient.post<APIEnvelope<LoginResponseData>>(
+    '/auth/register/set-pin',
+    payload,
+  )
   return data
 }
 

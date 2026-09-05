@@ -4,11 +4,11 @@ import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { verifyOtp, requestOtp } from '../api/authQueries'
 import { useState, useEffect } from 'react'
-import type { LoginResponseData } from '@rezzident/shared-types'
 
 export interface OtpStepProps {
   phone: string
-  onVerified: (result: LoginResponseData) => void
+  /** Called once the OTP is accepted by the server — no payload; tokens come from set-pin. */
+  onVerified: () => void
   onBack: () => void
   form: ReturnType<typeof useAuthForm>
 }
@@ -30,8 +30,10 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
     if (!form.validateOtp()) return
     setSubmitting(true)
     try {
-      const res = await verifyOtp({ phone_number: phone, otp_code: form.otp.trim() })
-      if (res.data) onVerified(res.data)
+      await verifyOtp({ phone_number: phone, otp_code: form.otp.trim() })
+      // /auth/register/verify-otp returns { phone_number, verified } — no tokens.
+      // Simply advance to the PIN step on HTTP success; tokens are issued by set-pin.
+      onVerified()
     } finally {
       setSubmitting(false)
     }

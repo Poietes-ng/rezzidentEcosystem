@@ -3,6 +3,7 @@ import { PinInput, Button } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { setPin } from '../api/authQueries'
+import { useAuthStore } from '../hooks/useAuth'
 import { useState, useEffect } from 'react'
 
 export interface PinStepProps {
@@ -16,6 +17,7 @@ export interface PinStepProps {
 export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
   const [stage, setStage] = useState<'create' | 'confirm'>('create')
   const [submitting, setSubmitting] = useState(false)
+  const setAuth = useAuthStore((s) => s.setAuth)
 
   useEffect(() => {
     if (stage === 'create' && form.pin.length === 4) {
@@ -43,11 +45,13 @@ export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
     if (!form.validatePin()) return
     setSubmitting(true)
     try {
-      await setPin({
+      const res = await setPin({
         pin: form.pin,
         confirm_pin: form.confirmPin,
         phone_number: phone,
       })
+      // /auth/register/set-pin returns user + tokens — persist them before navigating.
+      await setAuth(res.data.user, res.data.tokens)
       onComplete()
     } finally {
       setSubmitting(false)
