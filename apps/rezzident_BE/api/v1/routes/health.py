@@ -4,13 +4,12 @@ Standard Kubernetes-style health checks for monitoring.
 """
 
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from api.db.database import get_db
-from api.utils.success_response import success_response
 from api.loggers.app_logger import app_logger
-
+from api.utils.success_response import success_response
 
 health = APIRouter(tags=["Health"])
 

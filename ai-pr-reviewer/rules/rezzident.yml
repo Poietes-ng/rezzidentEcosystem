@@ -53,7 +53,6 @@ frontend_shared_ui:
   no_local_reimplementation_of_button_input_select_alertbox_etc: true
   shared_ui_components_live_only_in_shared_components_ui: true
   screen_specific_components_must_stay_in_their_feature_folder: true
-  flag_new_color_or_spacing_literals_not_sourced_from_design_tokens: true # packages/design-tokens
 
 frontend_routing:
   # apps/rezzident_FE uses TanStack Start file-based routing under src/routes.

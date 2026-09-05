@@ -5,7 +5,7 @@ and audit logging. These are the Rezzident platform super-admins
 who manage the entire SaaS platform (not estate admins).
 """
 
-from sqlalchemy import Column, String, Boolean, DateTime, Integer
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -31,11 +31,13 @@ class PlatformUser(BaseTableModel):
 
     # ── V2: Role & Permissions ──
     role = Column(
-        String(30), default="platform_admin",
+        String(30),
+        default="platform_admin",
         comment="platform_admin | platform_super_admin | support",
     )
     permissions = Column(
-        JSONB, nullable=True,
+        JSONB,
+        nullable=True,
         comment='Granular permissions: {"manage_estates": true, "manage_billing": true}',
     )
 

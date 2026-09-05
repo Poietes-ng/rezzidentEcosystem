@@ -1,11 +1,11 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useState, useCallback, useEffect } from 'react'
-import { registerEstate, fetchStructureTemplates  } from '../api/estate'
-import { INITIAL_FORM   } from '../types/reg-form.types'
+import { registerEstate, fetchStructureTemplates } from '../api/estate'
+import { INITIAL_FORM } from '../types/reg-form.types'
 import { subStepToLogical, validateStep } from '../types/reg-validation.type'
-import type {StructureTemplate} from '../api/estate';
-import type {EstateFormData, FieldErrors} from '../types/reg-form.types';
-import type React from 'react';
+import type React from 'react'
+import type { StructureTemplate } from '../api/estate'
+import type { EstateFormData, FieldErrors } from '../types/reg-form.types'
 
 export type { EstateFormData, FieldErrors } from '../types/reg-form.types'
 export { NIGERIAN_BANKS, STRUCTURE_PAGES } from '../types/reg-form.types'
