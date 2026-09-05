@@ -16,7 +16,13 @@ export interface OtpStepProps {
 }
 
 /** Step 2 — OTP verification. */
-export function OtpStep({ phone, purpose = 'registration', onVerified, onBack, form }: OtpStepProps) {
+export function OtpStep({
+  phone,
+  purpose = 'registration',
+  onVerified,
+  onBack,
+  form,
+}: OtpStepProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -57,7 +63,7 @@ export function OtpStep({ phone, purpose = 'registration', onVerified, onBack, f
         {form.errors.otp ? (
           <Text className="font-dmsans text-caption text-red-500">{form.errors.otp}</Text>
         ) : null}
-        <Pressable onPress={() => requestOtp({ phone_number: phone })}>
+        <Pressable onPress={() => requestOtp({ phone_number: phone, purpose })}>
           <Text className="font-dmsans text-body-small font-medium text-actionDark underline">
             Resend code
           </Text>
