@@ -11,10 +11,17 @@ export interface PinStepProps {
   onBack: () => void
   form: ReturnType<typeof useAuthForm>
   phone: string
+  /**
+   * Override the default set-pin submission.
+   * Use this when the caller needs a different endpoint (e.g. loginWithPin
+   * on the login flow rather than setPin on the registration flow).
+   * Receives the raw PIN value and must resolve when done.
+   */
+  onPinSubmit?: (pin: string, phone: string) => Promise<void>
 }
 
 /** Step 3 — set a 4-digit PIN used for subsequent quick sign-in. */
-export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
+export function PinStep({ onComplete, onBack, form, phone, onPinSubmit }: PinStepProps) {
   const [stage, setStage] = useState<'create' | 'confirm'>('create')
   const [submitting, setSubmitting] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
@@ -45,13 +52,18 @@ export function PinStep({ onComplete, onBack, form, phone }: PinStepProps) {
     if (!form.validatePin()) return
     setSubmitting(true)
     try {
-      const res = await setPin({
-        pin: form.pin,
-        confirm_pin: form.confirmPin,
-        phone_number: phone,
-      })
-      // /auth/register/set-pin returns user + tokens — persist them before navigating.
-      await setAuth(res.data.user, res.data.tokens)
+      if (onPinSubmit) {
+        // Caller-supplied handler (e.g. loginWithPin for the login flow).
+        await onPinSubmit(form.pin, phone)
+      } else {
+        // Default: registration set-pin endpoint returns user + tokens.
+        const res = await setPin({
+          pin: form.pin,
+          confirm_pin: form.confirmPin,
+          phone_number: phone,
+        })
+        await setAuth(res.data.user, res.data.tokens)
+      }
       onComplete()
     } finally {
       setSubmitting(false)

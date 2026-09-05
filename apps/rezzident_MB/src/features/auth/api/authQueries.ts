@@ -22,14 +22,15 @@ export async function requestOtp(payload: RequestOTPPayload): Promise<APIEnvelop
 }
 
 export async function verifyOtp(
-  payload: VerifyOTPPayload,
+  payload: VerifyOTPPayload & { purpose?: 'registration' | 'login' },
 ): Promise<APIEnvelope<OTPVerifiedData>> {
-  // /auth/register/verify-otp returns OTPVerifiedData { phone_number, verified }
-  // — not LoginResponseData. Tokens are issued only after set-pin completes.
-  const { data } = await apiClient.post<APIEnvelope<OTPVerifiedData>>(
-    '/auth/register/verify-otp',
-    payload,
-  )
+  // Mirror the same dynamic endpoint pattern used by requestOtp.
+  // /auth/login/verify-otp    — existing user verifying OTP during login
+  // /auth/register/verify-otp — new user verifying OTP during registration (returns OTPVerifiedData)
+  const { purpose, ...body } = payload
+  const endpoint =
+    purpose === 'login' ? '/auth/login/verify-otp' : '/auth/register/verify-otp'
+  const { data } = await apiClient.post<APIEnvelope<OTPVerifiedData>>(endpoint, body)
   return data
 }
 

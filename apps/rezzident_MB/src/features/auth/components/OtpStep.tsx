@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react'
 
 export interface OtpStepProps {
   phone: string
+  /** Determines which backend endpoint is hit: login or registration OTP verification. */
+  purpose?: 'registration' | 'login'
   /** Called once the OTP is accepted by the server — no payload; tokens come from set-pin. */
   onVerified: () => void
   onBack: () => void
@@ -14,7 +16,7 @@ export interface OtpStepProps {
 }
 
 /** Step 2 — OTP verification. */
-export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
+export function OtpStep({ phone, purpose = 'registration', onVerified, onBack, form }: OtpStepProps) {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function OtpStep({ phone, onVerified, onBack, form }: OtpStepProps) {
     if (!form.validateOtp()) return
     setSubmitting(true)
     try {
-      await verifyOtp({ phone_number: phone, otp_code: form.otp.trim() })
+      await verifyOtp({ phone_number: phone, otp_code: form.otp.trim(), purpose })
       // /auth/register/verify-otp returns { phone_number, verified } — no tokens.
       // Simply advance to the PIN step on HTTP success; tokens are issued by set-pin.
       onVerified()

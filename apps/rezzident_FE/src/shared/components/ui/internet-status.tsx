@@ -29,7 +29,7 @@ export function InternetStatus({ status, onReconnect, className }: InternetStatu
       className={cn(
         'text-body-small fixed top-0 right-0 left-0 z-50 flex items-center justify-center gap-3 px-4 py-3 font-medium text-white transition-transform duration-300',
         status === 'offline' ? 'bg-red-500' : 'bg-green-500',
-        'translate-y-0',
+        visible ? 'translate-y-0' : '-translate-y-full',
         className,
       )}
     >
