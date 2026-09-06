@@ -58,10 +58,19 @@ export function useAuthForm() {
     return pinValid && matchValid
   }, [state.pin, state.confirmPin])
 
+  const setError = useCallback(
+    (field: keyof AuthFormState['errors'], message: string) =>
+      setState((prev) => ({
+        ...prev,
+        errors: { ...prev.errors, [field]: message },
+      })),
+    [],
+  )
+
   const reset = useCallback(
     () => setState({ phone: '', otp: '', pin: '', confirmPin: '', errors: {} }),
     [],
   )
 
-  return { ...state, setField, validatePhone, validateOtp, validatePin, reset }
+  return { ...state, setField, setError, validatePhone, validateOtp, validatePin, reset }
 }

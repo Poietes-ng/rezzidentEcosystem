@@ -41,7 +41,7 @@ dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
     status_code=status.HTTP_200_OK,
     summary="Get dashboard summary for authenticated user",
 )
-def get_dashboard_summary(
+async def get_dashboard_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -64,7 +64,7 @@ def get_dashboard_summary(
     status_code=status.HTTP_200_OK,
     summary="Resident Dashboard",
 )
-def get_resident_dashboard(
+async def get_resident_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -88,7 +88,7 @@ def get_resident_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Admin Dashboard — All Admin Roles",
 )
-def get_admin_dashboard(
+async def get_admin_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
@@ -107,7 +107,7 @@ def get_admin_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Super Admin Dashboard",
 )
-def get_superadmin_dashboard(
+async def get_superadmin_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_super_admin),
 ):
@@ -131,7 +131,7 @@ def get_superadmin_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Security Dashboard",
 )
-def get_security_dashboard(
+async def get_security_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_security_access),
 ):
@@ -155,7 +155,7 @@ def get_security_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Treasurer Dashboard",
 )
-def get_treasurer_dashboard(
+async def get_treasurer_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_financial_access),
 ):
@@ -174,7 +174,7 @@ def get_treasurer_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Transaction volume chart data",
 )
-def get_transaction_volume(
+async def get_transaction_volume(
     year: int = Query(default=None, description="Year (defaults to current)"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
@@ -202,7 +202,7 @@ def get_transaction_volume(
     status_code=status.HTTP_200_OK,
     summary="Staff Reports — All Staff Members",
 )
-def get_staff_reports(
+async def get_staff_reports(
     current_user: User = Depends(require_admin),
 ):
     """Reports accessible to all admin/staff roles."""
@@ -224,7 +224,7 @@ def get_staff_reports(
     status_code=status.HTTP_200_OK,
     summary="User Profile",
 )
-def get_user_profile(
+async def get_user_profile(
     current_user: User = Depends(get_current_user),
 ):
     """Current user profile for any authenticated role."""

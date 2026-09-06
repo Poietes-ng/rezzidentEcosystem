@@ -27,7 +27,7 @@ activity_logs = APIRouter(prefix="/activity-logs", tags=["Activity Logs"])
     status_code=status.HTTP_200_OK,
     summary="List activity logs with filters",
 )
-def list_activity_logs(
+async def list_activity_logs(
     activity_type: str | None = Query(None, description="Filter by type"),
     user_id: str | None = Query(None, description="Filter by user (staff only)"),
     date_from: datetime | None = Query(None, description="From date (ISO 8601)"),
@@ -67,7 +67,7 @@ def list_activity_logs(
     status_code=status.HTTP_200_OK,
     summary="Get activity summary statistics",
 )
-def get_activity_summary(
+async def get_activity_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -86,7 +86,7 @@ def get_activity_summary(
     status_code=status.HTTP_200_OK,
     summary="Get activity log detail",
 )
-def get_activity_detail(
+async def get_activity_detail(
     activity_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -111,7 +111,7 @@ def get_activity_detail(
     status_code=status.HTTP_200_OK,
     summary="Get activities for specific user — Admin only",
 )
-def get_user_activities(
+async def get_user_activities(
     user_id: str,
     activity_type: str | None = Query(None),
     date_from: datetime | None = Query(None),

@@ -65,6 +65,11 @@ export function PinStep({ onComplete, onBack, form, phone, onPinSubmit }: PinSte
         await setAuth(res.data.user, res.data.tokens)
       }
       onComplete()
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Something went wrong. Please try again.'
+      form.setError('pin', message)
     } finally {
       setSubmitting(false)
     }

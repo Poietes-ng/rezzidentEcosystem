@@ -42,6 +42,11 @@ export function OtpStep({
       // /auth/register/verify-otp returns { phone_number, verified } — no tokens.
       // Simply advance to the PIN step on HTTP success; tokens are issued by set-pin.
       onVerified()
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        'Invalid or expired code. Please try again.'
+      form.setError('otp', message)
     } finally {
       setSubmitting(false)
     }
