@@ -147,48 +147,48 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/app'
-    | '/registration'
-    | '/registration-criteria'
-    | '/about'
-    | '/home'
-    | '/profile'
-    | '/app/join'
-    | '/app/splash'
-    | '/app/vouch'
-    | '/app/welcome'
-    | '/app/'
+  | '/'
+  | '/app'
+  | '/registration'
+  | '/registration-criteria'
+  | '/about'
+  | '/home'
+  | '/profile'
+  | '/app/join'
+  | '/app/splash'
+  | '/app/vouch'
+  | '/app/welcome'
+  | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
-    | '/registration'
-    | '/registration-criteria'
-    | '/about'
-    | '/home'
-    | '/profile'
-    | '/app/join'
-    | '/app/splash'
-    | '/app/vouch'
-    | '/app/welcome'
-    | '/app'
+  | '/'
+  | '/registration'
+  | '/registration-criteria'
+  | '/about'
+  | '/home'
+  | '/profile'
+  | '/app/join'
+  | '/app/splash'
+  | '/app/vouch'
+  | '/app/welcome'
+  | '/app'
   id:
-    | '__root__'
-    | '/(auth)'
-    | '/(public)'
-    | '/_authenticated'
-    | '/app'
-    | '/(auth)/registration'
-    | '/(auth)/registration-criteria'
-    | '/(public)/about'
-    | '/(public)/home'
-    | '/_authenticated/profile'
-    | '/app/join'
-    | '/app/splash'
-    | '/app/vouch'
-    | '/app/welcome'
-    | '/(public)/'
-    | '/app/'
+  | '__root__'
+  | '/(auth)'
+  | '/(public)'
+  | '/_authenticated'
+  | '/app'
+  | '/(auth)/registration'
+  | '/(auth)/registration-criteria'
+  | '/(public)/about'
+  | '/(public)/home'
+  | '/_authenticated/profile'
+  | '/app/join'
+  | '/app/splash'
+  | '/app/vouch'
+  | '/app/welcome'
+  | '/(public)/'
+  | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -318,9 +318,7 @@ const authRouteRouteChildren: authRouteRouteChildren = {
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
-)
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(authRouteRouteChildren)
 
 interface publicRouteRouteChildren {
   publicAboutRoute: typeof publicAboutRoute
@@ -334,9 +332,7 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
 }
 
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
-  publicRouteRouteChildren,
-)
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -346,8 +342,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
+  AuthenticatedRouteRouteChildren,
+)
 
 interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
@@ -365,9 +362,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppIndexRoute: AppIndexRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
-  AppRouteRouteChildren,
-)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,

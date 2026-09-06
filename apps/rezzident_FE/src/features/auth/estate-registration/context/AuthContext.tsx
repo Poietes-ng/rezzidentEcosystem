@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback  } from 'react'
+import type {ReactNode} from 'react';
 import type { User, AuthState } from '../types/auth.types'
 
 // ─── Context (internal) ─────────────────────────────────────────────────────
@@ -9,7 +10,7 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
-const STORAGE_KEY = 'poietes_user'
+const STORAGE_KEY = ' '
 
 // ─── Provider ───────────────────────────────────────────────────────────────
 export function AuthProvider({ children }: { children: ReactNode }) {

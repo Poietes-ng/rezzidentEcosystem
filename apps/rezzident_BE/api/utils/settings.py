@@ -1,6 +1,6 @@
 import os
 from pydantic_settings import BaseSettings
-from decouple import config
+from pydantic import computed_field
 from pathlib import Path
 
 
@@ -9,79 +9,100 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
-    """Application configuration — loaded from .env file.
+    """Application configuration — loaded from .env file by pydantic-settings.
 
-    Mirrors the estate_management_BE settings.py pattern with V2 additions
-    for multi-tenancy, Redis, security middleware, and split payments.
+    pydantic-settings reads .env natively — no need for python-decouple.
+
+    Rules:
+    - Secrets (passwords, API keys) have NO defaults — the app crashes on
+      startup if they are missing. This is intentional.
+    - Non-secret config (ports, feature flags) may have sensible defaults.
     """
 
-    # ── Environment ──
-    PYTHON_ENV: str = config("PYTHON_ENV", default="development")
+    model_config = {
+        "env_file": ".env",
+        "env_file_encoding": "utf-8",
+        "extra": "ignore",
+    }
 
-    # ── Security ──
-    SECRET_KEY: str = config("SECRET_KEY")
-    ALGORITHM: str = config("ALGORITHM", default="HS256")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = config(
-        "ACCESS_TOKEN_EXPIRE_MINUTES", default=15, cast=int
-    )
-    JWT_REFRESH_EXPIRY: int = config("JWT_REFRESH_EXPIRY", default=7, cast=int)
-    SUPER_ADMIN_SETUP_KEY: str = config("SUPER_ADMIN_SETUP_KEY", default="")
+    # ── Environment ──
+    PYTHON_ENV: str = "development"
+
+    # ── Security (NO defaults — must be set) ──
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    JWT_REFRESH_EXPIRY: int = 7
+    SUPER_ADMIN_SETUP_KEY: str = ""
 
     # ── Application ──
-    APP_URL: str = config("APP_URL", default="http://localhost:7001")
-    FRONTEND_URL: str = config("FRONTEND_URL", default="http://localhost:3000")
-    ALLOWED_ORIGINS: str = config(
-        "ALLOWED_ORIGINS", default="http://localhost:3000,http://localhost:5173"
-    )
+    APP_URL: str = "http://localhost:7001"
+    FRONTEND_URL: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
 
-    # ── Database ──
-    DB_HOST: str = config("DB_HOST", default="localhost")
-    DB_PORT: int = config("DB_PORT", default=5432, cast=int)
-    DB_USER: str = config("DB_USER", default="postgres")
-    DB_PASSWORD: str = config("DB_PASSWORD", default="password")
-    DB_NAME: str = config("DB_NAME", default="rezzident_db")
-    DB_TYPE: str = config("DB_TYPE", default="postgresql")
-    DB_URL: str = config(
-        "DB_URL",
-        default="postgresql://postgres:password@localhost:5432/rezzident_db",
-    )
+    # ── Database (password has NO default) ──
+    DB_HOST: str = "localhost"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str
+    DB_NAME: str = "rezzident_db"
+    DB_TYPE: str = "postgresql"
+    DB_POOL_SIZE: int = 5
+    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_RECYCLE: int = 300
+    DB_POOL_PRE_PING: bool = True
 
     # ── Redis ──
-    REDIS_URL: str = config("REDIS_URL", default="redis://localhost:6379/0")
+    REDIS_URL: str = "redis://localhost:6379/0"
 
-    # ── Paystack ──
-    PAYSTACK_SECRET_KEY: str = config("PAYSTACK_SECRET_KEY", default="")
-    PAYSTACK_PUBLIC_KEY: str = config("PAYSTACK_PUBLIC_KEY", default="")
-    PAYSTACK_WEBHOOK_SECRET: str = config("PAYSTACK_WEBHOOK_SECRET", default="")
+    # ── Security Guard (fastapi-guard) ──
+    GUARD_RATE_LIMIT: int = 100
+    GUARD_RATE_LIMIT_WINDOW: int = 60
+    GUARD_AUTO_BAN_THRESHOLD: int = 25
+    GUARD_AUTO_BAN_DURATION: int = 3600
+    GUARD_REDIS_PREFIX: str = "guard:"
+
+    # ── Paystack (NO defaults for secrets) ──
+    PAYSTACK_SECRET_KEY: str = ""
+    PAYSTACK_PUBLIC_KEY: str = ""
+    PAYSTACK_WEBHOOK_SECRET: str = ""
     PAYSTACK_BASE_URL: str = "https://api.paystack.co"
 
     # ── Termii (SMS OTP) ──
-    TERMII_API_KEY: str = config("TERMII_API_KEY", default="")
-    TERMII_SENDER_ID: str = config("TERMII_SENDER_ID", default="Rezzident")
+    TERMII_API_KEY: str = ""
+    TERMII_SENDER_ID: str = "Rezzident"
 
     # ── Dojah (NIN Verification) ──
-    DOJAH_APP_ID: str = config("DOJAH_APP_ID", default="")
-    DOJAH_SECRET_KEY: str = config("DOJAH_SECRET_KEY", default="")
-    DOJAH_API_KEY: str = config("DOJAH_API_KEY", default="")
+    DOJAH_APP_ID: str = ""
+    DOJAH_SECRET_KEY: str = ""
+    DOJAH_API_KEY: str = ""
 
     # ── MinIO (Object Storage) ──
-    MINIO_ENDPOINT: str = config("MINIO_ENDPOINT", default="localhost:9000")
-    MINIO_ACCESS_KEY: str = config("MINIO_ACCESS_KEY", default="minioadmin")
-    MINIO_SECRET_KEY: str = config("MINIO_SECRET_KEY", default="minioadmin")
-    MINIO_BUCKET_NAME: str = config("MINIO_BUCKET_NAME", default="rezzident")
-    MINIO_USE_SSL: bool = config("MINIO_USE_SSL", default=False, cast=bool)
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET_NAME: str = "rezzident"
+    MINIO_USE_SSL: bool = False
 
     # ── Cloudinary (Image CDN) ──
-    CLOUDINARY_CLOUD_NAME: str = config("CLOUDINARY_CLOUD_NAME", default="")
-    CLOUDINARY_API_KEY: str = config("CLOUDINARY_API_KEY", default="")
-    CLOUDINARY_API_SECRET: str = config("CLOUDINARY_API_SECRET", default="")
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
 
     # ── Email ──
-    MAIL_USERNAME: str = config("MAIL_USERNAME", default="")
-    MAIL_PASSWORD: str = config("MAIL_PASSWORD", default="")
-    MAIL_FROM: str = config("MAIL_FROM", default="")
-    MAIL_PORT: int = config("MAIL_PORT", default=465, cast=int)
-    MAIL_SERVER: str = config("MAIL_SERVER", default="smtp.gmail.com")
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_FROM_NAME: str = "Rezzident"
+    MAIL_PORT: int = 465
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_STARTTLS: bool = False
+    MAIL_SSL_TLS: bool = True
+
+    # ── Estate admin panel ──
+    # TODO: confirm the real frontend route once the estate-admin dashboard
+    # login page exists, then update this default (or set it via .env).
+    ADMIN_DASHBOARD_URL: str = "http://localhost:3000/admin/login"
 
     # ── Helpers ──
     TEMP_DIR: str = os.path.join(BASE_DIR, "tmp", "media")
@@ -93,7 +114,10 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        """Construct database URL from components."""
+        """Construct database URL from components.
+
+        Single source of truth — used by both the app and Alembic.
+        """
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 

@@ -25,9 +25,7 @@ describe('Button', () => {
 
   it('applies different classes for secondary variant', () => {
     const { container: defaultContainer } = render(<Button>Default</Button>)
-    const { container: secondaryContainer } = render(
-      <Button variant="secondary">Secondary</Button>,
-    )
+    const { container: secondaryContainer } = render(<Button variant="secondary">Secondary</Button>)
     const defaultBtn = defaultContainer.querySelector('button')!
     const secondaryBtn = secondaryContainer.querySelector('button')!
     // Secondary should have different styling than default

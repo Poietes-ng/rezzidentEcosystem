@@ -424,8 +424,6 @@ Or navigate to the PR creation page and replace the default template content wit
 | `packages/api-client/`    | `@frontend-team` + `@mobile-team`  |
 | `packages/design-tokens/` | `@frontend-team` + `@mobile-team`  |
 
-> **Note**: CODEOWNERS only enforces reviews when your GitHub repo has **branch protection** enabled with "Require review from Code Owners" checked.
-
 ### CI/CD Workflows
 
 Workflows in `.github/workflows/` run automatically on push/PR events. Check the workflow files for specific triggers and jobs.

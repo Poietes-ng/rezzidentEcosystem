@@ -1,6 +1,65 @@
+# Frontend rules — derived from apps/rezzident_FE/CONTRIBUTING.md
+# These rules are injected into the LLM prompt when a PR touches
+# .ts/.tsx/.js/.jsx files. Keep them actionable and specific.
+
 react:
+  # --- Component authoring ---
   no_use_effect_for_data_fetching: true
   use_tanstack_query_for_server_state: true
   component_max_lines: 250
   no_inline_styles: true
   accessible_labels_on_inputs: true
+  use_function_declarations_for_components: true # not arrow functions for top-level components
+  one_exported_component_per_file: true # small internal sub-components are OK
+  destructure_props_in_function_signature: true # ({ title, children }: CardProps), not (props: CardProps)
+  props_interface_named_after_component: true # HeroSectionProps for HeroSection
+
+  # --- Hooks ---
+  extract_complex_state_into_custom_hooks: true # 2-3+ useState/useEffect combos → custom hook
+
+  # --- Context ---
+  never_export_raw_context_object: true # only export Provider + consumer hook (useTheme, etc.)
+  consumer_hooks_must_throw_if_outside_provider: true # if (!context) throw new Error(...)
+
+typescript:
+  prefer_interface_for_object_shapes: true # use `type` only for unions/intersections
+  use_import_type_for_type_only_imports: true # import type { User } from ...
+  no_any_use_unknown_and_narrow: true # never use `any`, use `unknown` + type guards
+  explicit_return_types_on_exported_functions: true
+  typed_function_parameters: true
+
+architecture:
+  # --- The 5 Import Rules (non-negotiable) ---
+  no_cross_feature_imports: true # features/X cannot import from features/Y
+  shared_cannot_import_from_features: true # shared/ → shared/ only
+  server_cannot_import_from_features: true # server/ → shared/ only
+  routes_can_import_features_and_shared: true
+
+  # --- Barrel exports ---
+  always_import_from_barrel_index: true # import from '#/features/home', not internals
+  new_public_components_must_be_in_barrel: true # every public component/hook → index.ts
+
+  # --- Route files ---
+  route_files_max_lines: 20 # routes are thin: loader + component only
+  no_business_logic_in_route_files: true
+
+  # --- shared/ boundaries ---
+  no_business_logic_in_shared: true # shared/ is generic reusable code only
+
+styling:
+  use_tailwind_utility_classes: true
+  use_cn_utility_for_conditional_classes: true # cn() from '#/shared/utils/cn'
+  no_inline_styles_unless_animating: true
+  use_brand_colour_tokens: true # #FF6730, #FDC60A, #1A1A1A, etc.
+
+routing:
+  use_tanstack_router_not_react_router: true # no react-router-dom imports
+  no_manual_window_location_navigation: true
+
+naming:
+  components_pascal_case_tsx: true # HeroSection.tsx
+  hooks_camel_case_starts_with_use: true # useAuth.ts
+  utils_camel_case_ts: true # formatDate.ts
+  type_files_kebab_case_dot_types: true # auth.types.ts
+  assets_kebab_case: true # hero-background.png
+  barrel_exports_always_index_ts: true # index.ts, never index.tsx

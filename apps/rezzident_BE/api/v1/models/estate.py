@@ -261,6 +261,24 @@ class EstateStructureTemplate(BaseTableModel):
         comment="Display format template: '{Street}, House {House Number}'",
     )
 
+    # ── Provenance ──
+    structure = Column(
+        String(300), nullable=True,
+        comment="Plain-word label of the level sequence, e.g. 'Phase, Street, House Number'",
+    )
+    example_address = Column(
+        String(500), nullable=True,
+        comment="Illustrative full address string showing what this template produces",
+    )
+    verified = Column(
+        Boolean, default=False,
+        comment="True if modeled on a documented real-world estate's actual address scheme",
+    )
+    source = Column(
+        Text, nullable=True,
+        comment="Where the pattern comes from: a named real estate, or a rationale",
+    )
+
     # ── Usage tracking ──
     usage_count = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)

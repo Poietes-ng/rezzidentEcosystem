@@ -1,6 +1,6 @@
-import { apiClient } from '#/shared/lib/apiClient'
 import type { User, LoginPayload, RegisterPayload } from '../types/auth.types'
 import type { ApiResponse } from '#/shared/types/api.types'
+import { apiClient } from '#/shared/lib/apiClient'
 
 /**
  * Auth API layer — all authentication-related calls to the FastAPI backend.
