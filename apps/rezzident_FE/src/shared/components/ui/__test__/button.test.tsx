@@ -34,7 +34,7 @@ describe('Button', () => {
 
   it('is disabled when disabled prop is set', () => {
     render(<Button disabled>Disabled</Button>)
-    const btn = screen.getByRole('button')
+    const btn = screen.getByRole<HTMLButtonElement>('button')
     expect(btn.disabled).toBe(true)
   })
 })
