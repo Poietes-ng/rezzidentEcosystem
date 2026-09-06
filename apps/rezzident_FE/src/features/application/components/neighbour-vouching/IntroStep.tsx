@@ -6,7 +6,7 @@ export interface IntroStepProps {
   onBack: () => void;
 }
 
-export function IntroStep({ onStart, onBack }: IntroStepProps) {
+export function IntroStep({ onStart, onBack }: IntroStepProps): React.JSX.Element {
   const steps = [
     {
       number: "1",

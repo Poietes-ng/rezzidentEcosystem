@@ -17,7 +17,7 @@ export function FacialVerificationStep({
   onCaptureComplete,
   initialError = false,
   serverDowntime = false,
-}: FacialVerificationStepProps) {
+}: FacialVerificationStepProps): React.JSX.Element {
   const [isCapturing, setIsCapturing] = useState(false);
   const [captured, setCaptured] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);

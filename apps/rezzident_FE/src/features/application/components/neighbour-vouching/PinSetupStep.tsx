@@ -26,7 +26,7 @@ export function PinSetupStep({
   onConfirmPinChange,
   onFaceIdToggle,
   onComplete,
-}: PinSetupStepProps) {
+}: PinSetupStepProps): React.JSX.Element {
   const [submitted, setSubmitted] = useState(false);
 
   const isPinComplete = pin.length === 4;

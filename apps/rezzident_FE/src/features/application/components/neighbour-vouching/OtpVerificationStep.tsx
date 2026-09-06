@@ -24,7 +24,7 @@ export function OtpVerificationStep({
   onOtpChange,
   onVerify,
   onResend,
-}: OtpVerificationStepProps) {
+}: OtpVerificationStepProps): React.JSX.Element {
   const [otpStatus, setOtpStatus] = useState<"idle" | "invalid" | "expired">("idle");
   const [countdown, setCountdown] = useState(0);
 

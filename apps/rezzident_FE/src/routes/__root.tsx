@@ -176,9 +176,9 @@ export const Route = createRootRoute({
     />
   ),
   errorComponent: ({ error }) => {
-    // If it's a 403 or permission error, we can show a specific message
     const isForbidden =
-      error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
+      error?.message?.includes('403') ||
+      error?.message?.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent
@@ -205,7 +205,7 @@ export const Route = createRootRoute({
   component: RootComponent,
 })
 
-function RootComponent() {
+function RootComponent(): React.JSX.Element {
   return (
     <div className="font-sans [overflow-wrap:anywhere] antialiased selection:bg-[rgba(79,184,178,0.24)]">
       <ThemeProvider>

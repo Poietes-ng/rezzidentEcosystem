@@ -17,7 +17,7 @@ export function ViewfinderFrame({
   hasError = false,
   videoRef,
   canvasRef,
-}: ViewfinderFrameProps) {
+}: ViewfinderFrameProps): React.JSX.Element {
   return (
     <div className={cn("flex flex-col items-center justify-center", className)}>
       <div className="relative aspect-square w-[260px] max-w-[80vw] select-none transition-all duration-300">

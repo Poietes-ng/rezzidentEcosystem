@@ -14,7 +14,7 @@ export function NeighbourVouchingHeader({
   currentStepNumber,
   serverDowntime,
   onBack,
-}: NeighbourVouchingHeaderProps) {
+}: NeighbourVouchingHeaderProps): React.JSX.Element {
   return (
     <div className="relative shrink-0 bg-white z-10">
       <AnimatePresence mode="wait">

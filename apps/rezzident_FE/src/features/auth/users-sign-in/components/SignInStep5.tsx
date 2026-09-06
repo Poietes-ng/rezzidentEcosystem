@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Button } from '../../../../shared/components/ui/button'
 import { cn } from '../../../../shared/utils/cn'
 import type { UseJoinEstateReturn } from '../useJoinEstate'
@@ -6,7 +7,7 @@ interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step5FacialCapture({ join }: Props) {
+export function Step5FacialCapture({ join }: Props): React.JSX.Element {
   const {
     displayStep,
     totalSteps,

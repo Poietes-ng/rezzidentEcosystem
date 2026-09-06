@@ -7,7 +7,7 @@ import { OtpVerificationStep, MOCK_VALID_OTP } from "./OtpVerificationStep";
 import { PinSetupStep } from "./PinSetupStep";
 import { VouchingStatusStep } from "./VouchingStatusStep";
 import { CompletedStep } from "./CompletedStep";
-import type { NeighbourVouch } from "./types";
+import type { NeighbourVouch } from "./neighbour-vouching.types";
 
 describe("Neighbour Vouching Steps", () => {
   describe("IntroStep", () => {

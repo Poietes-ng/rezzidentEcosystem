@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "#/shared/utils/cn";
-import type { NeighbourVouch } from "./types";
+import type { NeighbourVouch } from "./neighbour-vouching.types";
 
 export interface NeighbourCardProps {
   neighbour: NeighbourVouch;
@@ -8,7 +8,11 @@ export interface NeighbourCardProps {
   showDivider?: boolean;
 }
 
-export function NeighbourCard({ neighbour, index, showDivider = true }: NeighbourCardProps) {
+export function NeighbourCard({
+  neighbour,
+  index,
+  showDivider = true,
+}: NeighbourCardProps): React.JSX.Element {
   const isVouched = neighbour.status === "vouched";
 
   return (

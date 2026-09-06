@@ -5,7 +5,7 @@ export interface SuccessStepProps {
   onSetupPin: () => void;
 }
 
-export function SuccessStep({ onSetupPin }: SuccessStepProps) {
+export function SuccessStep({ onSetupPin }: SuccessStepProps): React.JSX.Element {
   return (
     <div className="flex min-h-full w-full flex-1 flex-col items-center justify-center px-6 py-12 font-dmsans">
       <div className="flex w-full max-w-[340px] flex-col items-center text-center">

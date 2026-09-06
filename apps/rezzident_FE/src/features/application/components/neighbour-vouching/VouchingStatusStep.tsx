@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "#/shared/components/ui/button";
 import { NeighbourCard } from "./NeighbourCard";
-import type { NeighbourVouch } from "./types";
+import type { NeighbourVouch } from "./neighbour-vouching.types";
 
 export interface VouchingStatusStepProps {
   currentStep: number;
@@ -19,7 +19,7 @@ export function VouchingStatusStep({
   neighbours,
   onRefresh,
   onContinue,
-}: VouchingStatusStepProps) {
+}: VouchingStatusStepProps): React.JSX.Element {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const isComplete = vouchCount === 2;

@@ -16,7 +16,7 @@ import {
   TOTAL_STEPS,
 } from "./useNeighbourVouchingFlow";
 
-export function NeighbourVouchingFlow() {
+export function NeighbourVouchingFlow(): React.JSX.Element {
   const {
     state,
     setState,

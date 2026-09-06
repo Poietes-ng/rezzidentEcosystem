@@ -21,7 +21,7 @@ export function PersonalDetailsStep({
   onFullNameChange,
   onPhoneNumberChange,
   onNext,
-}: PersonalDetailsStepProps) {
+}: PersonalDetailsStepProps): React.JSX.Element {
   const [submitted, setSubmitted] = useState(false);
 
   // Validate inputs

@@ -15,7 +15,7 @@ export function VouchCodeStep({
   vouchCode,
   vouchLink,
   onViewStatus,
-}: VouchCodeStepProps) {
+}: VouchCodeStepProps): React.JSX.Element {
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 

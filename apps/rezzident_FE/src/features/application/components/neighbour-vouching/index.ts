@@ -12,4 +12,4 @@ export * from "./ViewfinderFrame";
 export * from "./NeighbourCard";
 export * from "./NeighbourVouchingHeader";
 export * from "./useNeighbourVouchingFlow";
-export type * from "./types";
+export type * from "./neighbour-vouching.types";

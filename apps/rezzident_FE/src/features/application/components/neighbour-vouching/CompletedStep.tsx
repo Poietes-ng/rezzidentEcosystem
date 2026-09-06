@@ -7,7 +7,11 @@ export interface CompletedStepProps {
   onFinish: () => void;
 }
 
-export function CompletedStep({ fullName, faceIdEnabled, onFinish }: CompletedStepProps) {
+export function CompletedStep({
+  fullName,
+  faceIdEnabled,
+  onFinish,
+}: CompletedStepProps): React.JSX.Element {
   return (
     <div className="flex min-h-full w-full flex-col justify-between px-6 pb-8 pt-12 font-dmsans animate-in fade-in zoom-in-95 duration-400">
       <div className="flex flex-1 flex-col items-center justify-center text-center">

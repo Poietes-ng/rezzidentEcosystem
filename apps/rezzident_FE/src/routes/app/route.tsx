@@ -4,11 +4,7 @@ import { HomeIndicator } from '../../shared/components/layout/HomeIndicator'
 
 import { ErrorStateComponent } from '../../shared/components/ui/ErrorStateComponent'
 
-<<<<<<< HEAD
-export const Route = createFileRoute("/app")({
-=======
 export const Route = createFileRoute('/app')({
->>>>>>> origin/dev
   component: AppLayout,
   notFoundComponent: () => (
     <ErrorStateComponent
@@ -22,7 +18,7 @@ export const Route = createFileRoute('/app')({
   ),
   errorComponent: ({ error }) => {
     const isForbidden =
-      error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
+      error?.message?.includes('403') || error?.message?.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent
@@ -48,7 +44,7 @@ export const Route = createFileRoute('/app')({
   },
 })
 
-function AppLayout() {
+function AppLayout(): React.JSX.Element {
   const location = useLocation()
   const isSplash = location.pathname === '/app/splash'
 

@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Button } from '../../../../shared/components/ui/button'
 import { Input } from '../../../../shared/components/ui/input'
 import { cn } from '../../../../shared/utils/cn'
@@ -7,7 +8,7 @@ interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step4Address({ join }: Props) {
+export function Step4Address({ join }: Props): React.JSX.Element {
   const {
     displayStep,
     totalSteps,
