@@ -1,13 +1,14 @@
+import type React from 'react'
 import { Button } from '../../../../shared/components/ui/button'
 import { PinInput } from '../../../../shared/components/ui/pin-input'
 import { cn } from '../../../../shared/utils/cn'
-import type { UseJoinEstateReturn } from '../useJoinEstate'
+import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
 
 interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step3Otp({ join }: Props) {
+export function Step3Otp({ join }: Props): React.JSX.Element {
   const { displayStep, totalSteps, phoneNumber, otp, setOtp, handleNext, isStepValid } = join
 
   return (

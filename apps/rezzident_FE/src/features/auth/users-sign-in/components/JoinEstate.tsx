@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useJoinEstate } from '../hooks/useJoinEstate'
 import { Step1EstateId } from './SignInStep1'
 import { Step2PersonalDetails } from './SignInStep2'
@@ -6,7 +7,7 @@ import { Step4Address } from './SignInStep4'
 import { Step5FacialCapture } from './SignInStep5'
 import { Step6PinSetup } from './SignInStep6'
 
-export function JoinEstateFlow() {
+export function JoinEstateFlow(): React.JSX.Element {
   const join = useJoinEstate()
   const { internalStep, displayStep, totalSteps, handleBack } = join
 

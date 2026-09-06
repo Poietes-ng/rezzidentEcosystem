@@ -22,6 +22,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppJoinRouteImport } from './routes/app/join'
 import { Route as AppSplashRouteImport } from './routes/app/splash'
+import { Route as AppVouchRouteImport } from './routes/app/vouch'
 import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
 
 const authRouteRoute = authRouteRouteImport.update({
@@ -46,11 +47,12 @@ const authRegistrationRoute = authRegistrationRouteImport.update({
   path: '/registration',
   getParentRoute: () => authRouteRoute,
 } as any)
-const authRegistrationCriteriaRoute = authRegistrationCriteriaRouteImport.update({
-  id: '/registration-criteria',
-  path: '/registration-criteria',
-  getParentRoute: () => authRouteRoute,
-} as any)
+const authRegistrationCriteriaRoute =
+  authRegistrationCriteriaRouteImport.update({
+    id: '/registration-criteria',
+    path: '/registration-criteria',
+    getParentRoute: () => authRouteRoute,
+  } as any)
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -86,6 +88,11 @@ const AppSplashRoute = AppSplashRouteImport.update({
   path: '/splash',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppVouchRoute = AppVouchRouteImport.update({
+  id: '/vouch',
+  path: '/vouch',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppWelcomeRoute = AppWelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
@@ -102,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/app/join': typeof AppJoinRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app/': typeof AppIndexRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/app/join': typeof AppJoinRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app': typeof AppIndexRoute
 }
@@ -130,6 +139,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/app/join': typeof AppJoinRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/(public)/': typeof publicIndexRoute
   '/app/': typeof AppIndexRoute
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/app/join'
     | '/app/splash'
+    | '/app/vouch'
     | '/app/welcome'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/app/join'
     | '/app/splash'
+    | '/app/vouch'
     | '/app/welcome'
     | '/app'
   id:
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/app/join'
     | '/app/splash'
+    | '/app/vouch'
     | '/app/welcome'
     | '/(public)/'
     | '/app/'
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSplashRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/vouch': {
+      id: '/app/vouch'
+      path: '/vouch'
+      fullPath: '/app/vouch'
+      preLoaderRoute: typeof AppVouchRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/welcome': {
       id: '/app/welcome'
       path: '/welcome'
@@ -298,7 +318,9 @@ const authRouteRouteChildren: authRouteRouteChildren = {
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(authRouteRouteChildren)
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
 
 interface publicRouteRouteChildren {
   publicAboutRoute: typeof publicAboutRoute
@@ -312,7 +334,9 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
 }
 
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
+  publicRouteRouteChildren,
+)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -322,13 +346,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
-  AuthenticatedRouteRouteChildren,
-)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
   AppSplashRoute: typeof AppSplashRoute
+  AppVouchRoute: typeof AppVouchRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
   AppIndexRoute: typeof AppIndexRoute
 }
@@ -336,11 +360,14 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppJoinRoute: AppJoinRoute,
   AppSplashRoute: AppSplashRoute,
+  AppVouchRoute: AppVouchRoute,
   AppWelcomeRoute: AppWelcomeRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,

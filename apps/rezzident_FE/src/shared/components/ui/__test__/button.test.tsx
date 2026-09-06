@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { Button } from './button'
+import { Button } from '../button'
 
 describe('Button', () => {
   it('renders children', () => {
@@ -34,7 +34,7 @@ describe('Button', () => {
 
   it('is disabled when disabled prop is set', () => {
     render(<Button disabled>Disabled</Button>)
-    const btn = screen.getByRole('button')
+    const btn = screen.getByRole<HTMLButtonElement>('button')
     expect(btn.disabled).toBe(true)
   })
 })

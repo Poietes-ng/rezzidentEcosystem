@@ -1,12 +1,13 @@
+import type React from 'react'
 import { Button } from '../../../../shared/components/ui/button'
 import { Input } from '../../../../shared/components/ui/input'
-import type { UseJoinEstateReturn } from '../useJoinEstate'
+import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
 
 interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step1EstateId({ join }: Props) {
+export function Step1EstateId({ join }: Props): React.JSX.Element {
   const { displayStep, totalSteps, estateId, setEstateId, handleNext, isStepValid } = join
 
   return (
