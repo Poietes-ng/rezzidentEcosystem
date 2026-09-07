@@ -2,7 +2,7 @@ import { Outlet, useLocation } from '@tanstack/react-router'
 import { AppFrame } from './AppFrame'
 import { HomeIndicator } from './HomeIndicator'
 
-export function AppLayout() {
+export function AppLayout(): React.JSX.Element {
   const location = useLocation()
   const isSplash = location.pathname === '/app/splash'
 
