@@ -1,5 +1,5 @@
 import { useRouter } from '@tanstack/react-router'
-import { ErrorStateComponent } from '../ui/ErrorStateComponent'
+import { ErrorStateComponent } from '../ui'
 
 interface AppErrorBoundaryProps {
   error: Error

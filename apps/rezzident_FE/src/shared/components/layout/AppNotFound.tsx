@@ -1,4 +1,4 @@
-import { ErrorStateComponent } from '../ui/ErrorStateComponent'
+import { ErrorStateComponent } from '../ui'
 
 export function AppNotFound(): React.JSX.Element {
   return (
