@@ -15,14 +15,15 @@ Figma Flow: "My neighbors can vouch for me (at least 2)"
 Reference: docs/architecture/07-resident-verification-tiers.md
 """
 
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Enum
-from sqlalchemy.dialects.postgresql import JSONB
 import enum
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class VerificationStatus(str, enum.Enum):
+class VerificationStatus(enum.StrEnum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -39,7 +40,9 @@ class VerificationRequest(BaseTableModel):
 
     # ── Verification Method ──
     method = Column(
-        String(30), nullable=False, default="vouch",
+        String(30),
+        nullable=False,
+        default="vouch",
         comment="vouch | admin_review | csv_match | nin_verify",
     )
 
@@ -48,15 +51,20 @@ class VerificationRequest(BaseTableModel):
 
     # ── V2: Vouch Flow (from Figma) ──
     vouch_code = Column(
-        String(20), unique=True, nullable=True, index=True,
+        String(20),
+        unique=True,
+        nullable=True,
+        index=True,
         comment="Shareable code for vouch links (Figma: share via WhatsApp etc.)",
     )
     vouch_link_url = Column(
-        String(500), nullable=True,
+        String(500),
+        nullable=True,
         comment="Deep link URL: rezzident.app/vouch/{vouch_code}",
     )
     min_vouches_required = Column(
-        Integer, default=2,
+        Integer,
+        default=2,
         comment="Figma says 'at least 2' neighbors",
     )
     vouches_received = Column(Integer, default=0)
@@ -68,7 +76,8 @@ class VerificationRequest(BaseTableModel):
 
     # ── V2: Facial Capture (from Figma registration) ──
     facial_capture_url = Column(
-        String(500), nullable=True,
+        String(500),
+        nullable=True,
         comment="Facial capture submitted during verification",
     )
 
@@ -97,6 +106,7 @@ class VerificationVouch(BaseTableModel):
 
     # ── V2: Vouch method tracking ──
     vouch_method = Column(
-        String(20), nullable=True,
+        String(20),
+        nullable=True,
         comment="link | code | in_app — how the vouch was submitted",
     )

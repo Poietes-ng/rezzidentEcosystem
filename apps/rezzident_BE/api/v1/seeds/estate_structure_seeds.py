@@ -41,9 +41,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "House Number Only",
         "description": "Simple numbering: House 1, House 2, ...",
         "category": "residential",
-        "levels": [
-            {"level": 1, "label": "House Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "House Number", "type": "alphanumeric", "required": True}],
         "address_format": "House {House Number}",
         "structure": "House Number",
         "example_address": "Chevy View Estate, House 14",
@@ -55,9 +53,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Unit Number Only",
         "description": "Simple unit numbering: Unit 1, Unit 2, ...",
         "category": "residential",
-        "levels": [
-            {"level": 1, "label": "Unit Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Unit Number", "type": "alphanumeric", "required": True}],
         "address_format": "Unit {Unit Number}",
         "structure": "Unit Number",
         "example_address": "Chevy View Estate, Unit 4",
@@ -69,9 +65,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Flat Number Only",
         "description": "Simple flat numbering: Flat 1, Flat 2, ...",
         "category": "apartment",
-        "levels": [
-            {"level": 1, "label": "Flat Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Flat Number", "type": "alphanumeric", "required": True}],
         "address_format": "Flat {Flat Number}",
         "structure": "Flat Number",
         "example_address": "Chevy View Estate, Flat 4",
@@ -83,9 +77,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Lot Number Only",
         "description": "Lot-based numbering: Lot 1, Lot 2, ...",
         "category": "residential",
-        "levels": [
-            {"level": 1, "label": "Lot Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Lot Number", "type": "alphanumeric", "required": True}],
         "address_format": "Lot {Lot Number}",
         "structure": "Lot Number",
         "example_address": "Chevy View Estate, Lot 4",
@@ -97,9 +89,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Suite Number Only",
         "description": "Suite-based numbering: Suite 1, Suite 2, ...",
         "category": "commercial",
-        "levels": [
-            {"level": 1, "label": "Suite Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Suite Number", "type": "alphanumeric", "required": True}],
         "address_format": "Suite {Suite Number}",
         "structure": "Suite Number",
         "example_address": "Cedar Court Estate, Suite 4",
@@ -186,9 +176,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Plot Number Only",
         "description": "Plot-based numbering: Plot 1, Plot 2, ...",
         "category": "residential",
-        "levels": [
-            {"level": 1, "label": "Plot Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Plot Number", "type": "alphanumeric", "required": True}],
         "address_format": "Plot {Plot Number}",
         "structure": "Plot Number",
         "example_address": "Chevy View Estate, Plot 4",
@@ -210,7 +198,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — common where estates sit inside a broader government/private layout referred to as an 'Area'",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Block-based (apartments, flats)
     # ────────────────────────────────────────────────
@@ -292,7 +279,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — Wing-labeled variant of the block/floor/flat pattern",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Street-based (gated communities)
     # ────────────────────────────────────────────────
@@ -371,7 +357,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": True,
         "source": "Festac Town, Lagos — internal roads referenced this way in real listings",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Phase-based (large estates)
     # ────────────────────────────────────────────────
@@ -439,7 +424,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Extends Dolphin Estate's documented phase/block scheme with a Floor tier, for taller multi-story phased buildings",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Zone-based
     # ────────────────────────────────────────────────
@@ -507,7 +491,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — Zone-labeled variant of the block/floor/flat pattern for larger multi-zone apartment estates",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Area / Plot based
     # ────────────────────────────────────────────────
@@ -559,7 +542,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — common where estates sit inside a broader government/private layout",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Court / Terrace / Villa
     # ────────────────────────────────────────────────
@@ -598,9 +580,7 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "name": "Villa Number Only",
         "description": "Villa-based numbering",
         "category": "residential",
-        "levels": [
-            {"level": 1, "label": "Villa Number", "type": "alphanumeric", "required": True}
-        ],
+        "levels": [{"level": 1, "label": "Villa Number", "type": "alphanumeric", "required": True}],
         "address_format": "Villa {Villa Number}",
         "structure": "Villa Number",
         "example_address": "Chevy View Estate, Villa 4",
@@ -622,7 +602,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — villa developments grouped into named/numbered clusters",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Duplex / Semi-detached / Bungalow
     # ────────────────────────────────────────────────
@@ -658,7 +637,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — terrace-row housing organized by block and row",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Commercial / Mixed-use
     # ────────────────────────────────────────────────
@@ -692,7 +670,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — simple commercial shop numbering",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: Nigerian-specific patterns
     # ────────────────────────────────────────────────
@@ -959,7 +936,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         # (e.g. adding a Floor tier before Unit for a high-rise variant), add a
         # separate template rather than silently expanding this one.
     },
-
     # ────────────────────────────────────────────────
     # More Nigerian-common patterns
     # ────────────────────────────────────────────────
@@ -1031,8 +1007,22 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "description": "Type-based: 3-Bedroom Flat 1, Duplex 5, etc.",
         "category": "residential",
         "levels": [
-            {"level": 1, "label": "House Type", "type": "select", "required": True,
-             "options": ["Flat", "Duplex", "Semi-Detached", "Detached", "Bungalow", "Terrace", "Penthouse", "Maisonette"]},
+            {
+                "level": 1,
+                "label": "House Type",
+                "type": "select",
+                "required": True,
+                "options": [
+                    "Flat",
+                    "Duplex",
+                    "Semi-Detached",
+                    "Detached",
+                    "Bungalow",
+                    "Terrace",
+                    "Penthouse",
+                    "Maisonette",
+                ],
+            },
             {"level": 2, "label": "Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "{House Type} {Number}",
@@ -1048,8 +1038,13 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "category": "estate",
         "levels": [
             {"level": 1, "label": "Block", "type": "alphanumeric", "required": True},
-            {"level": 2, "label": "House Type", "type": "select", "required": True,
-             "options": ["Flat", "Duplex", "Terrace", "Bungalow"]},
+            {
+                "level": 2,
+                "label": "House Type",
+                "type": "select",
+                "required": True,
+                "options": ["Flat", "Duplex", "Terrace", "Bungalow"],
+            },
             {"level": 3, "label": "Number", "type": "alphanumeric", "required": True},
         ],
         "address_format": "Block {Block}, {House Type} {Number}",
@@ -1058,7 +1053,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Generic — block-organized estate with mixed house types per block",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: 5-Level Structures (mega-estates)
     # ────────────────────────────────────────────────
@@ -1116,7 +1110,6 @@ ESTATE_STRUCTURE_TEMPLATES = [
         "verified": False,
         "source": "Logical extension — multi-district high-rise mega-development",
     },
-
     # ────────────────────────────────────────────────
     # CATEGORY: 6-Level Structures (theoretical maximum)
     # ────────────────────────────────────────────────
@@ -1169,9 +1162,11 @@ def seed_estate_structures(db_session):
     from api.v1.models.estate import EstateStructureTemplate
 
     for tpl in ESTATE_STRUCTURE_TEMPLATES:
-        existing = db_session.query(EstateStructureTemplate).filter(
-            EstateStructureTemplate.template_id == tpl["template_id"]
-        ).first()
+        existing = (
+            db_session.query(EstateStructureTemplate)
+            .filter(EstateStructureTemplate.template_id == tpl["template_id"])
+            .first()
+        )
 
         if existing:
             # Update
@@ -1206,6 +1201,7 @@ def seed_estate_structures(db_session):
 
 if __name__ == "__main__":
     from api.db.database import SessionLocal
+
     db = SessionLocal()
     try:
         seed_estate_structures(db)

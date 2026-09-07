@@ -4,10 +4,11 @@ Uses settings.database_url (constructed from DB_HOST, DB_PORT, etc.)
 so there is no duplicate DB_URL env var.
 """
 
-from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
 from sqlalchemy.pool import QueuePool
-from api.utils.settings import settings, BASE_DIR
+
+from api.utils.settings import BASE_DIR, settings
 
 
 def get_db_engine(test_mode: bool = False):

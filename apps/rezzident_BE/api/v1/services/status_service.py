@@ -12,15 +12,15 @@ Reference: docs/architecture/12-observability.md
 """
 
 import time
-import socket
-from typing import Dict, Any, List
-from datetime import datetime, timezone, timedelta
 from collections import defaultdict
-from sqlalchemy import text, desc
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+from sqlalchemy import desc, text
 from sqlalchemy.orm import Session
 
-from api.utils.settings import settings
 from api.loggers.app_logger import app_logger
+from api.utils.settings import settings
 from api.v1.models.system_health import SystemHealthCheck
 
 # Track server start time
@@ -46,7 +46,7 @@ class StatusService:
     """System health monitoring service."""
 
     # ── Database ─────────────────────────────────────────
-    def check_database(self, db: Session) -> Dict[str, Any]:
+    def check_database(self, db: Session) -> dict[str, Any]:
         try:
             start = time.time()
             db.execute(text("SELECT 1"))
@@ -68,7 +68,7 @@ class StatusService:
             }
 
     # ── Redis (V2 — for caching + rate limiting) ─────────
-    def check_redis(self) -> Dict[str, Any]:
+    def check_redis(self) -> dict[str, Any]:
         """Check Redis connectivity (if configured)."""
         redis_url = getattr(settings, "REDIS_URL", None)
         if not redis_url:
@@ -109,7 +109,7 @@ class StatusService:
             }
 
     # ── Paystack Payment Gateway ─────────────────────────
-    def check_paystack(self) -> Dict[str, Any]:
+    def check_paystack(self) -> dict[str, Any]:
         try:
             import httpx
 
@@ -138,7 +138,7 @@ class StatusService:
             }
 
     # ── Termii SMS Gateway (V2 — replaces Firebase for OTP) ──
-    def check_termii(self) -> Dict[str, Any]:
+    def check_termii(self) -> dict[str, Any]:
         """Check Termii SMS API connectivity."""
         termii_key = getattr(settings, "TERMII_API_KEY", None)
         if not termii_key:
@@ -176,9 +176,7 @@ class StatusService:
             }
 
     # ── Generic module check (table query) ───────────────
-    def _check_module(
-        self, db: Session, name: str, model, description: str
-    ) -> Dict[str, Any]:
+    def _check_module(self, db: Session, name: str, model, description: str) -> dict[str, Any]:
         """Check if a module's table is queryable."""
         try:
             start = time.time()
@@ -200,32 +198,47 @@ class StatusService:
                 "error": str(e),
             }
 
-    def check_auth(self, db: Session) -> Dict[str, Any]:
+    def check_auth(self, db: Session) -> dict[str, Any]:
         from api.v1.models.users import User
+
         return self._check_module(db, "Authentication", User, "User authentication & authorization")
 
-    def check_bills(self, db: Session) -> Dict[str, Any]:
+    def check_bills(self, db: Session) -> dict[str, Any]:
         from api.v1.models.bills import Bill
-        return self._check_module(db, "Bills Management", Bill, "Bill creation and payment tracking")
 
-    def check_visitors(self, db: Session) -> Dict[str, Any]:
+        return self._check_module(
+            db, "Bills Management", Bill, "Bill creation and payment tracking"
+        )
+
+    def check_visitors(self, db: Session) -> dict[str, Any]:
         from api.v1.models.visitor_code import VisitorCode
-        return self._check_module(db, "Visitor Management", VisitorCode, "Visitor access and code generation")
 
-    def check_notifications(self, db: Session) -> Dict[str, Any]:
+        return self._check_module(
+            db, "Visitor Management", VisitorCode, "Visitor access and code generation"
+        )
+
+    def check_notifications(self, db: Session) -> dict[str, Any]:
         from api.v1.models.notification import Notification
+
         return self._check_module(db, "Notifications", Notification, "Push & in-app notifications")
 
-    def check_expenses(self, db: Session) -> Dict[str, Any]:
+    def check_expenses(self, db: Session) -> dict[str, Any]:
         from api.v1.models.expense import Expense
-        return self._check_module(db, "Expense Management", Expense, "Expense tracking and approvals")
 
-    def check_invoices(self, db: Session) -> Dict[str, Any]:
+        return self._check_module(
+            db, "Expense Management", Expense, "Expense tracking and approvals"
+        )
+
+    def check_invoices(self, db: Session) -> dict[str, Any]:
         from api.v1.models.invoice import Invoice
-        return self._check_module(db, "Invoice Management", Invoice, "Invoice generation and tracking")
 
-    def check_staff(self, db: Session) -> Dict[str, Any]:
+        return self._check_module(
+            db, "Invoice Management", Invoice, "Invoice generation and tracking"
+        )
+
+    def check_staff(self, db: Session) -> dict[str, Any]:
         from api.v1.models.staff import Staff
+
         return self._check_module(db, "Staff Management", Staff, "Estate staff administration")
 
     # ── Persistence ──────────────────────────────────────
@@ -234,7 +247,7 @@ class StatusService:
         db: Session,
         overall: str,
         overall_label: str,
-        services: List[Dict[str, Any]],
+        services: list[dict[str, Any]],
         uptime: float,
     ) -> SystemHealthCheck:
         """Persist health check snapshot."""
@@ -260,9 +273,7 @@ class StatusService:
         return record
 
     # ── History queries ──────────────────────────────────
-    def get_history(
-        self, db: Session, limit: int = 50, skip: int = 0
-    ) -> Dict[str, Any]:
+    def get_history(self, db: Session, limit: int = 50, skip: int = 0) -> dict[str, Any]:
         """Get paginated health check history."""
         total = db.query(SystemHealthCheck).count()
         records = (
@@ -292,15 +303,13 @@ class StatusService:
             ],
         }
 
-    def get_incidents(
-        self, db: Session, limit: int = 20, days: int = 30
-    ) -> Dict[str, Any]:
+    def get_incidents(self, db: Session, limit: int = 20, days: int = 30) -> dict[str, Any]:
         """Get recent incidents."""
-        since = datetime.now(timezone.utc) - timedelta(days=days)
+        since = datetime.now(UTC) - timedelta(days=days)
         records = (
             db.query(SystemHealthCheck)
             .filter(
-                SystemHealthCheck.has_incident == True,
+                SystemHealthCheck.has_incident,
                 SystemHealthCheck.created_at >= since,
             )
             .order_by(desc(SystemHealthCheck.created_at))
@@ -324,11 +333,9 @@ class StatusService:
             ],
         }
 
-    def get_daily_summary(
-        self, db: Session, days: int = 90
-    ) -> List[Dict[str, Any]]:
+    def get_daily_summary(self, db: Session, days: int = 90) -> list[dict[str, Any]]:
         """Daily uptime summary for uptime bar chart."""
-        since = datetime.now(timezone.utc) - timedelta(days=days)
+        since = datetime.now(UTC) - timedelta(days=days)
         records = (
             db.query(SystemHealthCheck)
             .filter(SystemHealthCheck.created_at >= since)
@@ -337,7 +344,7 @@ class StatusService:
         )
 
         # Group by date
-        daily: Dict[str, Dict[str, int]] = defaultdict(
+        daily: dict[str, dict[str, int]] = defaultdict(
             lambda: {"total_checks": 0, "incident_checks": 0}
         )
         for r in records:
@@ -348,7 +355,7 @@ class StatusService:
 
         result = []
         for i in range(days):
-            d = (datetime.now(timezone.utc) - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
+            d = (datetime.now(UTC) - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
             info = daily.get(d, {"total_checks": 0, "incident_checks": 0})
             total = info["total_checks"]
             incidents = info["incident_checks"]
@@ -363,21 +370,23 @@ class StatusService:
                 uptime_pct = round((1 - incidents / total) * 100, 2)
                 day_status = "incident" if uptime_pct < 100 else "operational"
 
-            result.append({
-                "date": d,
-                "status": day_status,
-                "uptime_pct": uptime_pct,
-                "total_checks": total,
-                "incident_checks": incidents,
-            })
+            result.append(
+                {
+                    "date": d,
+                    "status": day_status,
+                    "uptime_pct": uptime_pct,
+                    "total_checks": total,
+                    "incident_checks": incidents,
+                }
+            )
 
         return result
 
     # ── Aggregate: full status report ────────────────────
-    def get_full_status(self, db: Session) -> Dict[str, Any]:
+    def get_full_status(self, db: Session) -> dict[str, Any]:
         """Run all health checks, log, and return structured report."""
 
-        services: List[Dict[str, Any]] = [
+        services: list[dict[str, Any]] = [
             self.check_database(db),
             self.check_auth(db),
             self.check_bills(db),
@@ -416,7 +425,7 @@ class StatusService:
         return {
             "status": overall,
             "overall_label": overall_label,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "uptime_seconds": round(uptime, 2),
             "uptime_formatted": format_uptime(uptime),
             "environment": getattr(settings, "PYTHON_ENV", "development"),

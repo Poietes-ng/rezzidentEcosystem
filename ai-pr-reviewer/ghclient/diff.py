@@ -1,7 +1,10 @@
 """
 Fetches the changed files + diffs for a pull request.
+
 We deliberately send ONLY the diff (not the whole repo) to keep
-prompt size and API cost down.
+prompt size and API cost down. `pr.get_files()` returns every file
+touched across all commits in the PR — scoped to the PR only, never
+the wider codebase.
 """
 
 from github import Github
@@ -34,13 +37,18 @@ def _should_review(filename: str) -> bool:
     return True
 
 
-def get_changed_files(pr: PullRequest):
+def get_changed_files(pr: PullRequest) -> list[dict]:
     """
-    Returns a list of dicts: [{filename, status, patch, additions, deletions}, ...]
-    `patch` is the unified diff for that file (None for binary files).
+    Returns all files changed across all commits in the PR.
+    Scoped strictly to the PR — never touches the wider codebase.
     """
+    return _extract_files(pr.get_files())
+
+
+def _extract_files(file_iterable) -> list[dict]:
+    """Shared extraction logic for both PR files and commit files."""
     files = []
-    for f in pr.get_files():
+    for f in file_iterable:
         if not _should_review(f.filename):
             continue
         if f.patch is None:

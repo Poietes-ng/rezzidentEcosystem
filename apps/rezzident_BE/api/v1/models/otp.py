@@ -4,14 +4,15 @@ V2: Fixed Boolean import, added ESTATE_REGISTRATION purpose for Figma flow
 where estate holder enters code and registers phone number → OTP → access.
 """
 
-from sqlalchemy import Column, String, DateTime, Integer, Boolean, Enum
-from datetime import datetime
 import enum
+from datetime import UTC, datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class OTPPurpose(str, enum.Enum):
+class OTPPurpose(enum.StrEnum):
     REGISTRATION = "registration"
     LOGIN = "login"
     PIN_RESET = "pin_reset"
@@ -32,8 +33,7 @@ class OTP(BaseTableModel):
     is_used = Column(Boolean, default=False)
 
     def is_expired(self) -> bool:
-        from datetime import timezone
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at
 
     def is_max_attempts(self) -> bool:
         return self.attempts >= self.max_attempts

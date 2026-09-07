@@ -1,0 +1,46 @@
+name: Frontend CI Pipeline
+
+on:
+  push:
+    branches:
+      - "feature/**"
+      - "refactor/**"
+      - "fix/**"
+      - "chore/**"
+      - "release/**"
+      - "feat/**"
+  pull_request:
+    branches:
+      - "dev"
+
+jobs:
+  frontend:
+    name: CI (Lint, Test, & Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: lint/format with eslint & prettier
+        run: pnpm turbo run lint --filter=rezzident-fe
+
+      - name: test with vitest
+        run: pnpm turbo run test --filter=rezzident-fe
+
+      - name: build app
+        run: pnpm turbo run build --filter=rezzident-fe

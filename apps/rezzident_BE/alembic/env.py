@@ -7,12 +7,13 @@ Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+
+from sqlalchemy import engine_from_config, pool
+
 from alembic import context
+from api.db.database import Base
 from api.utils.settings import settings
 from api.v1.models import *  # noqa: F401, F403 — registers all models with Base
-from api.db.database import Base
 
 # This is the Alembic Config object
 config = context.config

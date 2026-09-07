@@ -7,7 +7,7 @@ the estate's stakeholders.
 Note: Not all estates use firms. Community-managed estates don't need this.
 """
 
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel

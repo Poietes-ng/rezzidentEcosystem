@@ -13,7 +13,7 @@ When management_type = "community":
   - Stakeholders are the elected community leaders
 """
 
-from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
@@ -37,11 +37,14 @@ class FirmAdmin(BaseTableModel):
 
     # ── V2: Which estate this admin is designated for ──
     designated_estate_id = Column(
-        String, nullable=True, index=True,
+        String,
+        nullable=True,
+        index=True,
         comment="Estate this firm admin is designated to manage",
     )
     is_primary_contact = Column(
-        Boolean, default=False,
+        Boolean,
+        default=False,
         comment="Primary contact for resident approvals",
     )
 

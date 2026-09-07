@@ -7,14 +7,13 @@ Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
 from contextvars import ContextVar
+
 from sqlalchemy.orm import Session, sessionmaker
+
 from api.db.database import get_db_engine
 
-
 # Thread-safe / async-safe tenant context
-current_tenant_schema: ContextVar[str] = ContextVar(
-    "current_tenant_schema", default="public"
-)
+current_tenant_schema: ContextVar[str] = ContextVar("current_tenant_schema", default="public")
 
 
 def get_tenant_session(tenant_schema: str) -> Session:
@@ -31,9 +30,7 @@ def get_tenant_session(tenant_schema: str) -> Session:
     """
     engine = get_db_engine()
     session_factory = sessionmaker(
-        bind=engine.execution_options(
-            schema_translate_map={None: tenant_schema}
-        )
+        bind=engine.execution_options(schema_translate_map={None: tenant_schema})
     )
     return session_factory()
 

@@ -320,9 +320,74 @@ cd packages/utils && npx vitest run
 
 ---
 
+## Manual Linting & Formatting
+
+While formatting and linting happen automatically on pre-commit, you can manually run the checks and auto-fix issues.
+
+### Frontend (`rezzident_FE`) & Mobile (`rezzident_MB`)
+
+Both the web frontend and mobile app use **ESLint** and **Prettier**.
+
+To run checks from the project root using Turborepo:
+
+```bash
+pnpm turbo run lint --filter=rezzident-fe
+pnpm turbo run lint --filter=rezzident-mb
+```
+
+**To auto-fix errors:**
+Navigate to the specific app directory and run the fix commands:
+
+```bash
+# For Frontend
+cd apps/rezzident_FE
+pnpm run lint --fix
+pnpm run format
+
+# For Mobile
+cd apps/rezzident_MB
+pnpm run lint --fix
+pnpm run format
+```
+
+### Backend (`rezzident_BE`)
+
+The backend is excluded from the monorepo tooling. It uses **Ruff** for linting and **Black** for formatting. You **must** run these commands inside the backend directory with the virtual environment active.
+
+```bash
+cd apps/rezzident_BE
+source venv/bin/activate
+
+# 1. Check for formatting and linting errors
+ruff check . && black --check .
+
+# 2. Auto-fix all possible errors and format the code
+ruff check --fix --unsafe-fixes . && black .
+```
+
+---
+
 ## Git Commit Rules & Automation
 
 We strictly follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for our commit messages. This ensures a readable Git history and enables automated changelog generation.
+
+### Branch Naming Rules
+
+To keep our repository organized, we enforce strict branch naming conventions that mirror our commit types:
+
+`type/kebab-case-description`
+
+- **`feat/`**: New features (e.g., `feat/auth-otp-screen`)
+- **`fix/`**: Bug fixes (e.g., `fix/phone-validation-bug`)
+- **`chore/`**: Tooling, dependencies, and configuration (e.g., `chore/add-eslint-mb`)
+- **`refactor/`**: Code restructuring (e.g., `refactor/extract-auth-hook`)
+- **`docs/`**: Documentation updates (e.g., `docs/api-readme`)
+- **`test/`**: Adding or modifying tests (e.g., `test/auth-middleware`)
+- **`perf/`**: Performance optimizations (e.g., `perf/optimize-queries`)
+- **`style/`**: Formatting changes (e.g., `style/format-json`)
+- **`ci/`**: CI/CD pipeline changes (e.g., `ci/fix-lint-workflow`)
+
+All branches should be created off of the `develop` branch.
 
 ### Conventional Commit Format
 

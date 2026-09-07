@@ -14,26 +14,25 @@ Reference: docs/architecture/08-pin-biometric-auth.md
 """
 
 import secrets
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Tuple, Dict, Any
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from fastapi import BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from api.v1.models.users import User, VerificationTier
-from api.v1.models.otp import OTP, OTPPurpose
-from api.v1.models.resident import Resident
+from api.loggers.app_logger import app_logger
 from api.utils.jwt_handler import (
-    create_token_for_user,
-    create_refresh_token,
-    verify_token,
-    verify_refresh_token,
     _remaining_ttl_seconds,
+    create_refresh_token,
+    create_token_for_user,
+    verify_refresh_token,
+    verify_token,
 )
 from api.utils.settings import settings
-from api.loggers.app_logger import app_logger
-
+from api.v1.models.otp import OTP, OTPPurpose
+from api.v1.models.resident import Resident
+from api.v1.models.users import User, VerificationTier
 
 # ── Crypto context for PIN / password hashing ──────────────────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -51,12 +50,14 @@ PIN_LOCKOUT_MINUTES = 30
 
 # ── Private helpers ────────────────────────────────────────────────────────────
 
+
 def _generate_otp() -> str:
     """Generate a cryptographically secure 6-digit OTP.
 
     Uses secrets.randbelow (CSPRNG) instead of random.randint.
     """
     return "".join([str(secrets.randbelow(10)) for _ in range(OTP_LENGTH)])
+
 
 def _generate_password() -> str:
     """Generate a password of 8-16 digits"""
@@ -84,9 +85,7 @@ def _deliver_otp(phone_number: str, otp_code: str) -> None:
     """
     if settings.PYTHON_ENV == "development":
         # DEV ONLY — visible in logs/app.log, never in API response
-        app_logger.info(
-            f"[DEV ONLY — OTP] Phone: {phone_number} | Code: {otp_code}"
-        )
+        app_logger.info(f"[DEV ONLY — OTP] Phone: {phone_number} | Code: {otp_code}")
         return
 
     # ── PRODUCTION: Termii SMS integration ──
@@ -113,6 +112,7 @@ def _deliver_otp(phone_number: str, otp_code: str) -> None:
 
 
 # ── AuthService ────────────────────────────────────────────────────────────────
+
 
 class AuthService:
     """Authentication business logic."""
@@ -142,7 +142,7 @@ class AuthService:
             Dict with message and expiry info (no OTP value).
         """
         # Rate limit: max 5 OTPs per phone per hour
-        one_hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
+        one_hour_ago = datetime.now(UTC) - timedelta(hours=1)
         recent_count = (
             db.query(OTP)
             .filter(
@@ -174,8 +174,7 @@ class AuthService:
             phone_number=phone_number,
             otp_hash=otp_hash,
             purpose=purpose,
-            expires_at=datetime.now(timezone.utc)
-            + timedelta(minutes=OTP_EXPIRY_MINUTES),
+            expires_at=datetime.now(UTC) + timedelta(minutes=OTP_EXPIRY_MINUTES),
         )
         db.add(otp_record)
         db.commit()
@@ -312,9 +311,7 @@ class AuthService:
             user.pin_attempts += 1
 
             if user.pin_attempts >= PIN_MAX_ATTEMPTS:
-                user.pin_locked_until = datetime.now(timezone.utc) + timedelta(
-                    minutes=PIN_LOCKOUT_MINUTES
-                )
+                user.pin_locked_until = datetime.now(UTC) + timedelta(minutes=PIN_LOCKOUT_MINUTES)
                 db.commit()
                 raise HTTPException(
                     status_code=status.HTTP_423_LOCKED,
@@ -334,7 +331,7 @@ class AuthService:
         # Success — reset lockout state
         user.pin_attempts = 0
         user.pin_locked_until = None
-        user.last_login = datetime.now(timezone.utc)
+        user.last_login = datetime.now(UTC)
         db.commit()
 
         return True
@@ -344,8 +341,8 @@ class AuthService:
     @staticmethod
     def generate_tokens(
         user: User,
-        estate_code: Optional[str] = None,
-        schema_name: Optional[str] = None,
+        estate_code: str | None = None,
+        schema_name: str | None = None,
     ) -> dict:
         """Generate access + refresh token pair for a user.
 
@@ -365,9 +362,7 @@ class AuthService:
             email=user.email,
             estate_id=estate_code,
             schema_name=schema_name,
-            verification_tier=(
-                user.verification_tier.value if user.verification_tier else None
-            ),
+            verification_tier=(user.verification_tier.value if user.verification_tier else None),
         )
 
         refresh_token = create_refresh_token(
@@ -395,7 +390,7 @@ class AuthService:
         full_name: str,
         pin: str,
         estate_code: str,
-    ) -> Tuple[User, dict]:
+    ) -> tuple[User, dict]:
         """Complete user registration after OTP verification.
 
         Steps:
@@ -424,11 +419,7 @@ class AuthService:
             )
 
         # CSV pre-verification check (Tier 1 = PRE_VERIFIED = full access)
-        csv_match = (
-            db.query(Resident)
-            .filter(Resident.phone_number == phone_number)
-            .first()
-        )
+        csv_match = db.query(Resident).filter(Resident.phone_number == phone_number).first()
 
         tier = VerificationTier.SELF_REGISTERED
         house_number = None
@@ -463,7 +454,7 @@ class AuthService:
         db: Session,
         phone_number: str,
         otp_code: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Verify OTP for login and check if user has a PIN set.
 
         Args:
@@ -490,7 +481,7 @@ class AuthService:
         db: Session,
         phone_number: str,
         pin: str,
-    ) -> Tuple[User, dict]:
+    ) -> tuple[User, dict]:
         """Verify PIN and issue tokens for login.
 
         Args:
@@ -518,7 +509,7 @@ class AuthService:
         return user, tokens
 
     @staticmethod
-    def serialize_user(user: User) -> Dict[str, Any]:
+    def serialize_user(user: User) -> dict[str, Any]:
         """Serialize a User object into a dict for API responses.
 
         Single source of truth for user serialization — prevents
@@ -538,9 +529,7 @@ class AuthService:
             "role": user.role.value,
             "house_number": user.house_number,
             "profile_image": user.profile_image,
-            "verification_tier": (
-                user.verification_tier.value if user.verification_tier else None
-            ),
+            "verification_tier": (user.verification_tier.value if user.verification_tier else None),
             "dashboard_tier": user.dashboard_tier,
             "is_primary_holder": user.is_primary_holder(),
         }
@@ -550,7 +539,7 @@ class AuthService:
         db: Session,
         redis,
         refresh_token_str: str,
-    ) -> Tuple[User, dict]:
+    ) -> tuple[User, dict]:
         """Exchange a refresh token for a new token pair.
 
         Implements refresh token rotation:
@@ -587,9 +576,7 @@ class AuthService:
                 ttl = _remaining_ttl_seconds(payload)
                 await blacklist_jti(redis, old_jti, ttl)
             except Exception:
-                app_logger.warning(
-                    "[JWT Refresh] Could not blacklist old JTI — Redis error."
-                )
+                app_logger.warning("[JWT Refresh] Could not blacklist old JTI — Redis error.")
 
         tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
         return user, tokens
@@ -598,7 +585,7 @@ class AuthService:
     async def invalidate_token(
         redis,
         token_str: str,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Invalidate a specific token by blacklisting its JTI.
 
         Used for explicit logout — pass access_token or refresh_token.
@@ -621,8 +608,6 @@ class AuthService:
                 ttl = _remaining_ttl_seconds(payload)
                 await blacklist_jti(redis, jti, ttl)
 
-            return {
-                "message": f"{token_type.capitalize()} token invalidated successfully."
-            }
+            return {"message": f"{token_type.capitalize()} token invalidated successfully."}
         except Exception:
             return {"message": "Logged out successfully."}

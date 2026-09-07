@@ -1,11 +1,10 @@
-//  @ts-check
-
+// @ts-check
 import { tanstackConfig } from '@tanstack/eslint-config'
 import boundaries from 'eslint-plugin-boundaries'
+import importX from 'eslint-plugin-import-x'
 
 export default [
   ...tanstackConfig,
-
   // ── Boundary enforcement: features/X cannot import from features/Y ──
   {
     plugins: {
@@ -21,37 +20,57 @@ export default [
       'boundaries/ignore': ['**/*.test.*', '**/*.spec.*'],
     },
     rules: {
-      // Features cannot import from other features — use shared instead
-      'boundaries/element-types': [
+      'boundaries/dependencies': [
         'error',
         {
           default: 'disallow',
-          rules: [
-            // shared → can import from shared only
-            { from: 'shared', allow: ['shared'] },
-            // feature → can import from shared + own feature
+          policies: [
             {
-              from: 'feature',
+              from: { element: { type: 'shared' } },
+              allow: [{ to: { element: { type: 'shared' } } }],
+            },
+            {
+              from: { element: { type: 'feature' } },
               allow: [
-                'shared',
-                ['feature', { feature: '${from.feature}' }],
+                { to: { element: { type: 'shared' } } },
+                {
+                  to: {
+                    element: {
+                      type: 'feature',
+                      captured: { feature: '{{from.feature}}' },
+                    },
+                  },
+                },
               ],
             },
-            // routes → can import from shared + any feature
-            { from: 'route', allow: ['shared', 'feature'] },
-            // app → can import from anything
-            { from: 'app', allow: ['shared', 'feature', 'route', 'app'] },
+            {
+              from: { element: { type: 'route' } },
+              allow: [
+                { to: { element: { type: 'shared' } } },
+                { to: { element: { type: 'feature' } } },
+              ],
+            },
+            {
+              from: { element: { type: 'app' } },
+              allow: [
+                { to: { element: { type: 'shared' } } },
+                { to: { element: { type: 'feature' } } },
+                { to: { element: { type: 'route' } } },
+                { to: { element: { type: 'app' } } },
+              ],
+            },
           ],
         },
       ],
     },
   },
-
-  // ── Existing rules ──
   {
+    plugins: {
+      'import-x': importX,
+    },
     rules: {
-      'import/no-cycle': 'warn',
-      'import/order': 'warn',
+      'import-x/no-cycle': 'warn',
+      'import-x/order': 'warn',
       'sort-imports': 'off',
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/require-await': 'off',
@@ -60,6 +79,6 @@ export default [
     },
   },
   {
-    ignores: ['eslint.config.js', 'prettier.config.js'],
+    ignores: ['eslint.config.js', 'prettier.config.js', 'tailwind.config.js', 'scripts/**', '.output/**', '.vinxi/**', 'dist/**'],
   },
 ]

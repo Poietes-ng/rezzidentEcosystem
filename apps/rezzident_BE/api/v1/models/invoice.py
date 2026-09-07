@@ -1,13 +1,14 @@
 """Invoice models — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class InvoiceStatus(str, enum.Enum):
+class InvoiceStatus(enum.StrEnum):
     DRAFT = "draft"
     SENT = "sent"
     PAID = "paid"
@@ -32,7 +33,9 @@ class Invoice(BaseTableModel):
 
     # Relationships
     items = relationship("InvoiceItem", back_populates="invoice", cascade="all, delete-orphan")
-    payments = relationship("InvoicePayment", back_populates="invoice", cascade="all, delete-orphan")
+    payments = relationship(
+        "InvoicePayment", back_populates="invoice", cascade="all, delete-orphan"
+    )
 
 
 class InvoiceItem(BaseTableModel):

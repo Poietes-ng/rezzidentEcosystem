@@ -91,6 +91,9 @@ def main():
     pr_number = int(os.environ["PR_NUMBER"])
 
     pr = get_pull_request(token, repo_full_name, pr_number)
+
+    # pr.get_files() returns every file touched across all commits in the PR
+    # — scoped to the PR only, never the wider codebase.
     changed_files = get_changed_files(pr)
 
     if not changed_files:
