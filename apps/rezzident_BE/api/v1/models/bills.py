@@ -11,14 +11,15 @@ PaymentLedger). Everything else about the Bill/ResidentBill/Payment flow is
 unchanged.
 """
 
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Enum, Integer, Boolean
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class BillStatus(str, enum.Enum):
+class BillStatus(enum.StrEnum):
     DRAFT = "draft"
     ACTIVE = "active"
     CLOSED = "closed"
@@ -37,7 +38,8 @@ class Bill(BaseTableModel):
     due_date = Column(DateTime(timezone=True), nullable=True)
     status = Column(Enum(BillStatus), default=BillStatus.ACTIVE, index=True)
     bill_type = Column(
-        String(50), nullable=True,
+        String(50),
+        nullable=True,
         comment="security_levy | electricity | ... | platform_subscription",
     )
     total_expected = Column(Integer, default=0)
@@ -45,24 +47,31 @@ class Bill(BaseTableModel):
 
     # ── V3: Platform billing ──
     is_platform_bill = Column(
-        Boolean, default=False, index=True,
+        Boolean,
+        default=False,
+        index=True,
         comment="True for bill_type='platform_subscription' — payments on "
-                "this bill settle 100% to the platform, bypassing the "
-                "estate's Paystack subaccount split entirely",
+        "this bill settle 100% to the platform, bypassing the "
+        "estate's Paystack subaccount split entirely",
     )
     source_type = Column(
-        String(50), nullable=True,
+        String(50),
+        nullable=True,
         comment="What generated this bill, e.g. 'subscription' | 'admin' | 'expense'",
     )
     source_id = Column(
-        String, nullable=True, index=True,
+        String,
+        nullable=True,
+        index=True,
         comment="ID of the source record, e.g. Subscription.id when "
-                "source_type='subscription' (public schema — no cross-schema FK)",
+        "source_type='subscription' (public schema — no cross-schema FK)",
     )
 
     # Relationships
     user = relationship("User", back_populates="bills")
-    resident_bills = relationship("ResidentBill", back_populates="bill", cascade="all, delete-orphan")
+    resident_bills = relationship(
+        "ResidentBill", back_populates="bill", cascade="all, delete-orphan"
+    )
 
     @classmethod
     def is_subscription_bill_type(cls, bill_type: str) -> bool:

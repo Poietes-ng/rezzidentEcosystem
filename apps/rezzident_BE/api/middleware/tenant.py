@@ -12,7 +12,6 @@ from starlette.requests import Request
 from api.db.tenant import current_tenant_schema
 from api.utils.jwt_handler import decode_access_token
 
-
 # Routes that don't require tenant context
 PUBLIC_PATHS = {
     "/",
@@ -29,6 +28,8 @@ PUBLIC_PATHS = {
     "/api/v1/auth/login/verify-pin",
     "/api/v1/auth/refresh",
     "/api/v1/webhooks/paystack",
+    # Fetched during unauthenticated estate registration flow
+    "/api/v1/estates/structure-templates",
 }
 
 

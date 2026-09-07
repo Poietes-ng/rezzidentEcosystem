@@ -5,6 +5,7 @@ If the client sends X-Request-ID, it's preserved; otherwise generated.
 """
 
 import uuid
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 

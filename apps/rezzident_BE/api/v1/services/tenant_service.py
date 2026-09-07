@@ -7,9 +7,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.db.database import engine
-from api.v1.models.estate import Estate
-from api.utils.estate_id import generate_estate_code, generate_schema_name
 from api.loggers.app_logger import app_logger
+from api.utils.estate_id import generate_estate_code, generate_schema_name
+from api.v1.models.estate import Estate
 
 
 class TenantService:
@@ -43,6 +43,7 @@ class TenantService:
         address: str,
         city: str = None,
         state: str = None,
+        local_government: str = None,
         management_type: str = "community",
     ) -> Estate:
         """Register a new estate — creates DB record + schema.
@@ -86,6 +87,7 @@ class TenantService:
             address=address,
             city=city,
             state=state,
+            local_government=local_government,
             management_type=management_type,
             status="active",
         )

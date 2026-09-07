@@ -72,3 +72,6 @@ kickoff/
 Board_structure.md
 reports/
 *.zip
+
+# ── Database ──
+*.db

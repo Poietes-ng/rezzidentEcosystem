@@ -1,11 +1,12 @@
 from arq.connections import RedisSettings
-from api.utils.settings import settings
+
 from api.utils.jobs import (
-    send_password_reset_email,
-    send_otp_sms,
     process_paystack_webhook,
-    migrate_all_tenants_job,
+    send_otp_sms,
+    send_password_reset_email,
 )
+from api.utils.settings import settings
+
 
 class WorkerSettings:
     functions = [

@@ -10,6 +10,7 @@
     "build:preview": "eas build --profile preview",
     "build:production": "eas build --profile production",
     "lint": "eslint . --ext .ts,.tsx",
+    "check": "tsc --noEmit",
     "test": "jest"
   },
   "jest": {
@@ -79,7 +80,6 @@
     "jest": "^29.7.0",
     "jest-expo": "^57.0.4",
     "prettier": "^3.4.2",
-    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   }

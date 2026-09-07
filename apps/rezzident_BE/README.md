@@ -84,21 +84,21 @@ rezzident_BE/
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Welcome / root |
-| GET | `/api/v1/healthz` | Liveness probe |
-| GET | `/api/v1/readyz` | Readiness probe (DB + Redis) |
-| POST | `/api/v1/auth/register/request-otp` | Send OTP for registration |
-| POST | `/api/v1/auth/register/verify-otp` | Verify OTP |
-| POST | `/api/v1/auth/register/set-pin` | Complete registration |
-| POST | `/api/v1/auth/login/request-otp` | Send OTP for login |
-| POST | `/api/v1/auth/login/verify-otp` | Verify login OTP |
-| POST | `/api/v1/auth/login/verify-pin` | Verify PIN → get tokens |
-| POST | `/api/v1/auth/refresh` | Refresh access token |
-| POST | `/api/v1/auth/logout` | Logout (blacklist tokens) |
-| GET | `/api/v1/auth/me` | Current user profile |
-| POST | `/api/v1/webhooks/paystack` | Paystack payment webhook |
+| Method | Endpoint                            | Description                  |
+| ------ | ----------------------------------- | ---------------------------- |
+| GET    | `/`                                 | Welcome / root               |
+| GET    | `/api/v1/healthz`                   | Liveness probe               |
+| GET    | `/api/v1/readyz`                    | Readiness probe (DB + Redis) |
+| POST   | `/api/v1/auth/register/request-otp` | Send OTP for registration    |
+| POST   | `/api/v1/auth/register/verify-otp`  | Verify OTP                   |
+| POST   | `/api/v1/auth/register/set-pin`     | Complete registration        |
+| POST   | `/api/v1/auth/login/request-otp`    | Send OTP for login           |
+| POST   | `/api/v1/auth/login/verify-otp`     | Verify login OTP             |
+| POST   | `/api/v1/auth/login/verify-pin`     | Verify PIN → get tokens      |
+| POST   | `/api/v1/auth/refresh`              | Refresh access token         |
+| POST   | `/api/v1/auth/logout`               | Logout (blacklist tokens)    |
+| GET    | `/api/v1/auth/me`                   | Current user profile         |
+| POST   | `/api/v1/webhooks/paystack`         | Paystack payment webhook     |
 
 ## Architecture
 
@@ -124,11 +124,26 @@ See `.env.example` for the complete list of required environment variables.
 - **Type checking**: mypy
 - **API response**: `{status_code, success, message, data}`
 
+### Manual Linting & Formatting (Auto-Fix)
+
+To manually check for code issues without modifying files:
+
+```bash
+ruff check . && black --check .
+```
+
+To **automatically fix** all safe and unsafe linting errors, and apply standard formatting, run:
+
+```bash
+ruff check --fix --unsafe-fixes . && black .
+```
+
 ## 🎨 Interactive Model Flowchart & Automation
 
 Rezzident includes an interactive visual animated flowchart of all backend database models, foreign keys, relationships, and system workflows at `models_interactive_flowchart.html`.
 
 ### 🔄 Automatic Flowchart Updates
+
 Whenever you add, modify, or delete models in `api/v1/models/`:
 
 1. **Git Pre-Commit Hook** (Automatic):
@@ -142,4 +157,3 @@ Whenever you add, modify, or delete models in `api/v1/models/`:
    ```bash
    python scripts/generate_model_flowchart.py
    ```
-

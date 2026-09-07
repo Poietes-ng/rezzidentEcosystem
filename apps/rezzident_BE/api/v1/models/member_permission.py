@@ -6,7 +6,7 @@ A primary holder can grant/revoke specific actions for their managed members.
 Reference: docs/architecture/06-managed-members.md
 """
 
-from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
