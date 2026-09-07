@@ -1,14 +1,6 @@
 name: Mobile CI Pipeline
 
 on:
-  push:
-    branches:
-      - "feature/**"
-      - "refactor/**"
-      - "fix/**"
-      - "chore/**"
-      - "release/**"
-      - "feat/**"
   pull_request:
     branches:
       - "dev"

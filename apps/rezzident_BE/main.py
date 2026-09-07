@@ -16,13 +16,11 @@ Reference: docs/architecture/10-security-architecture.md, 17-owasp-rate-limiting
 """
 
 import os
-import re
 import secrets
 import sys
 import time
 from collections import defaultdict
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, status
@@ -34,21 +32,26 @@ from sqlalchemy.exc import IntegrityError
 from starlette.middleware.sessions import SessionMiddleware
 
 
-def ensure_secret_key():
-    """Auto-generate SECRET_KEY in .env on startup if it's the placeholder."""
-    env_path = Path(__file__).resolve().parent / ".env"
-    if env_path.exists():
-        content = env_path.read_text()
-        if "CHANGE_ME_generate_64_byte_hex_key" in content:
-            new_key = secrets.token_hex(64)
-            # Replace placeholder with new key
-            new_content = re.sub(
-                r"SECRET_KEY=CHANGE_ME_generate_64_byte_hex_key", f"SECRET_KEY={new_key}", content
+def ensure_secret_key() -> None:
+    """Validate SECRET_KEY is set to a real value at startup.
+
+    Writing to .env at runtime is unsafe in containerised environments
+    (read-only filesystems, non-root users).  Secrets must be injected
+    via environment variables or a secrets manager before the app starts.
+    """
+    placeholder = "CHANGE_ME_generate_64_byte_hex_key"
+    secret_key = os.environ.get("SECRET_KEY", placeholder)
+    if secret_key == placeholder or not secret_key:
+        # In development, auto-generate an in-memory key so the server
+        # can still start without manual .env setup.
+        if os.environ.get("PYTHON_ENV", "development") == "development":
+            os.environ["SECRET_KEY"] = secrets.token_hex(64)
+        else:
+            raise RuntimeError(
+                "SECRET_KEY is not set or is still the placeholder value. "
+                "Inject a real secret via environment variable before starting "
+                "the application in production."
             )
-            env_path.write_text(new_content)
-            # Inject into current env so pydantic-settings picks it up
-            os.environ["SECRET_KEY"] = new_key
-            app_logger.info("✅ Auto-generated new SECRET_KEY in .env")
 
 
 # Run before settings are imported

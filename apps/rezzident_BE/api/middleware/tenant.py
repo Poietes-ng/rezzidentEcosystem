@@ -28,6 +28,8 @@ PUBLIC_PATHS = {
     "/api/v1/auth/login/verify-pin",
     "/api/v1/auth/refresh",
     "/api/v1/webhooks/paystack",
+    # Fetched during unauthenticated estate registration flow
+    "/api/v1/estates/structure-templates",
 }
 
 
