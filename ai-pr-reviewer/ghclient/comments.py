@@ -92,7 +92,7 @@ def post_review(pr: PullRequest, review: dict) -> None:
                 f"Suggestion: {issue.get('suggestion', 'N/A')}"
             )
 
-    severities_present = {i["severity"] for i in issues}
+    severities_present = {i.get("severity") for i in issues if i.get("severity")}
     event = (
         "REQUEST_CHANGES"
         if "Critical" in severities_present or "High" in severities_present
