@@ -81,8 +81,15 @@ def post_review(pr: PullRequest, review: dict) -> None:
                 "body": _format_body(issue),
             })
         except KeyError:
+            # Build the fallback string safely — do NOT call _format_body()
+            # here because it uses dict subscript access and would raise
+            # the same KeyError we just caught.
+            emoji = SEVERITY_EMOJI.get(issue.get("severity", ""), "⚪")
             pre_fallback.append(
-                f"- {issue.get('file', '?')}:{issue.get('line', '?')} — {_format_body(issue)}"
+                f"- {issue.get('file', '?')}:{issue.get('line', '?')} — "
+                f"{emoji} **{issue.get('severity', '?')} — {issue.get('title', '?')}** "
+                f"{issue.get('description', '')} "
+                f"Suggestion: {issue.get('suggestion', 'N/A')}"
             )
 
     severities_present = {i["severity"] for i in issues}

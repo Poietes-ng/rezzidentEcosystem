@@ -1,7 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AppLayout } from '../../shared/components/layout/AppLayout'
-import { AppNotFound } from '../../shared/components/layout/AppNotFound'
-import { AppErrorBoundary } from '../../shared/components/layout/AppErrorBoundary'
+import { AppLayout, AppNotFound, AppErrorBoundary } from '../../shared/components/layout'
 
 export const Route = createFileRoute('/app')({
   component: AppLayout,

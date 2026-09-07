@@ -5,7 +5,7 @@ interface AppErrorBoundaryProps {
   error: Error
 }
 
-export function AppErrorBoundary({ error }: AppErrorBoundaryProps) {
+export function AppErrorBoundary({ error }: AppErrorBoundaryProps): React.JSX.Element {
   const router = useRouter()
   const isForbidden =
     error.message.includes('403') || error.message.toLowerCase().includes('forbidden')

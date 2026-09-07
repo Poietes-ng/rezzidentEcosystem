@@ -1,6 +1,6 @@
 import { ErrorStateComponent } from '../ui/ErrorStateComponent'
 
-export function AppNotFound() {
+export function AppNotFound(): React.JSX.Element {
   return (
     <ErrorStateComponent
       statusCode="404"
