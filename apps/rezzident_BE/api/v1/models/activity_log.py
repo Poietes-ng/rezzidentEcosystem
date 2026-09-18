@@ -9,16 +9,16 @@ V2 enhancements over V1:
 This is append-only. Never update or delete entries.
 """
 
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Index
+import enum
+
+from sqlalchemy import Column, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
-from datetime import datetime
-import enum
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class ActivityType(str, enum.Enum):
+class ActivityType(enum.StrEnum):
     """Activity categories — V1 compatibility + V2 extensions.
 
     Note: The DB column stores plain strings, so new types can be

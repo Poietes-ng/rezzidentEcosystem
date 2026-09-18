@@ -4,7 +4,7 @@ CORRECTED: Connected to PlatformUser with proper relationships.
 Tracks all platform-level actions across all estates.
 """
 
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -18,10 +18,14 @@ class PlatformAuditLog(BaseTableModel):
 
     # ── Actor ──
     actor_id = Column(
-        String, ForeignKey("platform_users.id"), nullable=False, index=True,
+        String,
+        ForeignKey("platform_users.id"),
+        nullable=False,
+        index=True,
     )
     actor_type = Column(
-        String(20), nullable=False,
+        String(20),
+        nullable=False,
         comment="platform_admin | platform_super_admin | system",
     )
 
@@ -31,7 +35,8 @@ class PlatformAuditLog(BaseTableModel):
 
     # ── Target ──
     resource_type = Column(
-        String(50), nullable=True,
+        String(50),
+        nullable=True,
         comment="estate | subscription | stakeholder | platform_user",
     )
     resource_id = Column(String, nullable=True)

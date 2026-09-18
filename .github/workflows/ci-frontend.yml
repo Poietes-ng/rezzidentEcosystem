@@ -1,0 +1,67 @@
+name: Frontend CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - "dev"
+    paths:
+      # ── Frontend app source ─────────────────────────────────────────────────
+      # Catches all FE TypeScript/TSX, CSS, config, Dockerfile, and assets.
+      - "apps/rezzident_FE/**"
+
+      # ── Shared workspace packages ───────────────────────────────────────────
+      # FE imports from all 4 packages (design-tokens, shared-types,
+      # api-client, utils). A change in any package may break FE.
+      - "packages/**"
+
+      # ── Root workspace & build config ──────────────────────────────────────
+      # pnpm-lock.yaml    — lockfile; frozen install fails on mismatch
+      # package.json      — root scripts / overrides
+      # pnpm-workspace.yaml — defines which packages exist in the graph
+      # turbo.json        — pipeline config (build, lint, test tasks)
+      # tsconfig.json     — base TypeScript config extended by FE
+      - "pnpm-lock.yaml"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "tsconfig.json"
+
+      # ── This workflow file itself ───────────────────────────────────────────
+      - ".github/workflows/ci-frontend.yml"
+
+      # ── What intentionally does NOT trigger frontend CI ────────────────────
+      # docs/**, *.md, Makefile, docker-compose.yml, .env.example,
+      # infrastructure/**, .github/ISSUE_TEMPLATE/**, PULL_REQUEST_TEMPLATE/**,
+      # ai-pr-reviewer/**, apps/rezzident_BE/**, apps/rezzident_MB/**
+
+jobs:
+  frontend:
+    name: CI (Lint, Test, & Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: "22.x"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: lint/format with eslint & prettier
+        run: pnpm turbo run lint --filter=rezzident-fe
+
+      - name: test with vitest
+        run: pnpm turbo run test --filter=rezzident-fe
+
+      - name: build app
+        run: pnpm turbo run build --filter=rezzident-fe

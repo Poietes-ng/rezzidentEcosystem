@@ -18,8 +18,8 @@ message content and templates.
 
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
-from api.utils.settings import settings
 from api.loggers.app_logger import app_logger
+from api.utils.settings import settings
 
 
 def _get_mail_config() -> ConnectionConfig:
@@ -47,9 +47,7 @@ async def send_email(to: str, subject: str, body_html: str) -> None:
     called from a background task, see api/v1/services/estate_service.py).
     """
     if settings.PYTHON_ENV == "development":
-        app_logger.info(
-            f"[DEV — Email] To: {to} | Subject: {subject}\n{body_html}"
-        )
+        app_logger.info(f"[DEV — Email] To: {to} | Subject: {subject}\n{body_html}")
         return
 
     if not settings.MAIL_USERNAME or not settings.MAIL_FROM:

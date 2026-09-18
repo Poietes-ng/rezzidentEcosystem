@@ -12,26 +12,24 @@ All business logic lives in AuthService — routes are thin wrappers:
 Reference: docs/architecture/08-pin-biometric-auth.md
 """
 
+import redis.asyncio as aioredis
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from api.db.database import get_db
 from api.db.redis import get_redis
-from api.utils.success_response import success_response
 from api.utils.jwt_handler import get_current_user
-from api.v1.models.users import User
+from api.utils.success_response import success_response
 from api.v1.models.otp import OTPPurpose
+from api.v1.models.users import User
 from api.v1.schemas.auth import (
-    RequestOTPSchema,
-    VerifyOTPSchema,
-    SetPINSchema,
-    VerifyPINSchema,
     RefreshTokenSchema,
+    RequestOTPSchema,
+    SetPINSchema,
+    VerifyOTPSchema,
+    VerifyPINSchema,
 )
 from api.v1.services.auth import AuthService
-
-import redis.asyncio as aioredis
-
 
 auth = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -39,6 +37,7 @@ auth = APIRouter(prefix="/auth", tags=["Authentication"])
 # ═══════════════════════════════════════════════
 # REGISTRATION FLOW
 # ═══════════════════════════════════════════════
+
 
 @auth.post("/register/request-otp", status_code=status.HTTP_200_OK)
 async def register_request_otp(
@@ -108,6 +107,7 @@ async def register_set_pin(
 # LOGIN FLOW
 # ═══════════════════════════════════════════════
 
+
 @auth.post("/login/request-otp", status_code=status.HTTP_200_OK)
 async def login_request_otp(
     body: RequestOTPSchema,
@@ -174,6 +174,7 @@ async def login_verify_pin(
 # TOKEN MANAGEMENT
 # ═══════════════════════════════════════════════
 
+
 @auth.post("/refresh", status_code=status.HTTP_200_OK)
 async def refresh_token(
     body: RefreshTokenSchema,
@@ -225,6 +226,7 @@ async def logout_with_token(
 # ═══════════════════════════════════════════════
 # USER INFO
 # ═══════════════════════════════════════════════
+
 
 @auth.get("/me", status_code=status.HTTP_200_OK)
 async def get_me(current_user: User = Depends(get_current_user)):

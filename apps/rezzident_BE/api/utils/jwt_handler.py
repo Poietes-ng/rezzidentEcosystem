@@ -9,21 +9,19 @@ Mirrors estate_management_BE jwt_handler.py with V2 additions:
 
 Reference: docs/architecture/08-pin-biometric-auth.md
 """
-import jwt
-import uuid
-from jwt.exceptions import PyJWTError, InvalidTokenError, ExpiredSignatureError 
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict
 
- 
-from fastapi import HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import uuid
+from datetime import UTC, datetime, timedelta
+
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 from sqlalchemy.orm import Session
 
-from api.utils.config import SECRET_KEY, ALGORITHM
-from api.utils.settings import settings
 from api.db.database import get_db
-
+from api.utils.config import ALGORITHM, SECRET_KEY
+from api.utils.settings import settings
 
 # Security scheme for Bearer token
 security = HTTPBearer()
@@ -36,7 +34,7 @@ def _generate_jti() -> str:
 
 def create_access_token(
     data: dict,
-    expires_delta: Optional[timedelta] = None,
+    expires_delta: timedelta | None = None,
 ) -> str:
     """Create JWT access token with JTI.
 
@@ -52,11 +50,9 @@ def create_access_token(
     """
     to_encode = data.copy()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + (
-        expires_delta
-        if expires_delta
-        else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta if expires_delta else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
     to_encode.update(
@@ -75,12 +71,12 @@ def create_token_for_user(
     user_id: str,
     phone_number: str,
     role: str,
-    house_number: Optional[str] = None,
-    email: Optional[str] = None,
-    estate_id: Optional[str] = None,
-    schema_name: Optional[str] = None,
-    verification_tier: Optional[str] = None,
-    expires_delta: Optional[timedelta] = None,
+    house_number: str | None = None,
+    email: str | None = None,
+    estate_id: str | None = None,
+    schema_name: str | None = None,
+    verification_tier: str | None = None,
+    expires_delta: timedelta | None = None,
 ) -> str:
     """Helper to create access token with V2 multi-tenant claims.
 
@@ -132,7 +128,7 @@ def create_refresh_token(data: dict) -> str:
         Encoded JWT refresh token string.
     """
     to_encode = data.copy()
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(days=settings.JWT_REFRESH_EXPIRY)
 
     to_encode.update(
@@ -146,7 +142,8 @@ def create_refresh_token(data: dict) -> str:
 
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_token(token: str) -> Dict:
+
+def verify_token(token: str) -> dict:
     """Verify and decode JWT token (sync — no Redis check).
 
     Use get_current_user() for authenticated routes; this function
@@ -178,7 +175,7 @@ def verify_token(token: str) -> Dict:
         )
 
 
-def decode_access_token(token: str) -> Optional[Dict]:
+def decode_access_token(token: str) -> dict | None:
     """Decode JWT access token without raising exceptions.
 
     Used by TenantMiddleware to extract schema without failing on
@@ -201,7 +198,7 @@ def decode_access_token(token: str) -> Optional[Dict]:
         return None
 
 
-def verify_refresh_token(token: str) -> Dict:
+def verify_refresh_token(token: str) -> dict:
     """Verify refresh token and ensure it's the correct type.
 
     Args:
@@ -232,7 +229,7 @@ def verify_refresh_token(token: str) -> Dict:
         )
 
 
-def _remaining_ttl_seconds(payload: Dict) -> int:
+def _remaining_ttl_seconds(payload: dict) -> int:
     """Calculate remaining TTL in seconds for a token.
 
     Used when blacklisting: we only need to keep the JTI entry in Redis
@@ -245,7 +242,7 @@ def _remaining_ttl_seconds(payload: Dict) -> int:
         Remaining seconds (minimum 1, to avoid zero-TTL edge case).
     """
     exp = payload.get("exp", 0)
-    now = int(datetime.now(timezone.utc).timestamp())
+    now = int(datetime.now(UTC).timestamp())
     remaining = exp - now
     return max(remaining, 1)
 
@@ -269,8 +266,8 @@ async def get_current_user(
     Raises:
         HTTPException: If authentication fails or token is blacklisted.
     """
-    from api.v1.models.users import User
     from api.db.redis import get_redis_pool, is_jti_blacklisted
+    from api.v1.models.users import User
 
     token = credentials.credentials
 
@@ -311,6 +308,7 @@ async def get_current_user(
         except Exception:
             # Redis error — log and continue (fail open)
             from api.loggers.app_logger import app_logger
+
             app_logger.warning("[JWT] Redis blacklist check failed — skipping.")
 
     # Get user from database
@@ -324,9 +322,7 @@ async def get_current_user(
         )
 
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user account"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user account")
 
     # Verify token role matches database role (prevents role escalation after role change)
     if token_role and user.role.value != token_role:
@@ -352,7 +348,5 @@ async def get_current_active_user(current_user=Depends(get_current_user)):
         HTTPException: If user is inactive.
     """
     if not current_user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user account"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user account")
     return current_user

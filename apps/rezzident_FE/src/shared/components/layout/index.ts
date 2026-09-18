@@ -1,7 +1,8 @@
-export { AppLayout } from './AppLayout'
-export { AppNotFound } from './AppNotFound'
+// Barrel index for shared layout components
 export { AppErrorBoundary } from './AppErrorBoundary'
 export { AppFrame } from './AppFrame'
+export { AppLayout } from './AppLayout'
+export { AppNotFound } from './AppNotFound'
 export { BottomNavigation } from './BottomNavigation'
 export { DevelopmentBanner } from './DevelopmentBanner'
 export { Footer } from './Footer'

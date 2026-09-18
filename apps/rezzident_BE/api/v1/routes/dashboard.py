@@ -11,23 +11,22 @@ Endpoints:
 - GET  /dashboard/profile           — User profile (any authenticated user)
 """
 
-from fastapi import APIRouter, Depends, status, Query
-from sqlalchemy.orm import Session
 from datetime import datetime
 
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.orm import Session
+
 from api.db.database import get_db
-from api.utils.success_response import success_response
-from api.utils.jwt_handler import get_current_user
 from api.utils.auth_dependencies import (
     require_admin,
-    require_super_admin,
-    require_roles,
     require_financial_access,
     require_security_access,
+    require_super_admin,
 )
+from api.utils.jwt_handler import get_current_user
+from api.utils.success_response import success_response
 from api.v1.models.users import User
 from api.v1.services.dashboard_service import dashboard_service
-
 
 dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
@@ -36,12 +35,13 @@ dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 # GENERIC — any authenticated user
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/summary",
     status_code=status.HTTP_200_OK,
     summary="Get dashboard summary for authenticated user",
 )
-def get_dashboard_summary(
+async def get_dashboard_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -58,12 +58,13 @@ def get_dashboard_summary(
 # RESIDENT
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/resident",
     status_code=status.HTTP_200_OK,
     summary="Resident Dashboard",
 )
-def get_resident_dashboard(
+async def get_resident_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -81,12 +82,13 @@ def get_resident_dashboard(
 # ADMIN
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/admin",
     status_code=status.HTTP_200_OK,
     summary="Admin Dashboard — All Admin Roles",
 )
-def get_admin_dashboard(
+async def get_admin_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
@@ -105,7 +107,7 @@ def get_admin_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Super Admin Dashboard",
 )
-def get_superadmin_dashboard(
+async def get_superadmin_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_super_admin),
 ):
@@ -123,12 +125,13 @@ def get_superadmin_dashboard(
 # SECURITY
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/admin/security",
     status_code=status.HTTP_200_OK,
     summary="Security Dashboard",
 )
-def get_security_dashboard(
+async def get_security_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_security_access),
 ):
@@ -146,12 +149,13 @@ def get_security_dashboard(
 # TREASURER
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/admin/treasurer",
     status_code=status.HTTP_200_OK,
     summary="Treasurer Dashboard",
 )
-def get_treasurer_dashboard(
+async def get_treasurer_dashboard(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_financial_access),
 ):
@@ -170,7 +174,7 @@ def get_treasurer_dashboard(
     status_code=status.HTTP_200_OK,
     summary="Transaction volume chart data",
 )
-def get_transaction_volume(
+async def get_transaction_volume(
     year: int = Query(default=None, description="Year (defaults to current)"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
@@ -192,12 +196,13 @@ def get_transaction_volume(
 # STAFF REPORTS
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/staff/reports",
     status_code=status.HTTP_200_OK,
     summary="Staff Reports — All Staff Members",
 )
-def get_staff_reports(
+async def get_staff_reports(
     current_user: User = Depends(require_admin),
 ):
     """Reports accessible to all admin/staff roles."""
@@ -213,12 +218,13 @@ def get_staff_reports(
 # PROFILE — any authenticated user
 # ══════════════════════════════════════════════════════
 
+
 @dashboard.get(
     "/profile",
     status_code=status.HTTP_200_OK,
     summary="User Profile",
 )
-def get_user_profile(
+async def get_user_profile(
     current_user: User = Depends(get_current_user),
 ):
     """Current user profile for any authenticated role."""

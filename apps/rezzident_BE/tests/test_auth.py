@@ -6,13 +6,10 @@ Tests follow the auth flow documented in docs/architecture/08-pin-biometric-auth
   Session:      /me, /refresh, /logout
 """
 
-import pytest
-from unittest.mock import patch
-
-
 # ══════════════════════════════════════════════════════
 # REGISTRATION FLOW
 # ══════════════════════════════════════════════════════
+
 
 class TestRegistrationRequestOTP:
     """POST /api/v1/auth/register/request-otp"""
@@ -60,7 +57,6 @@ class TestRegistrationRequestOTP:
 class TestRegistrationSetPIN:
     """POST /api/v1/auth/register/set-pin"""
 
-
     def test_duplicate_registration_rejected(self, client, registered_user, test_phone, test_pin):
         """Cannot register same phone number twice."""
         resp = client.post(
@@ -79,6 +75,7 @@ class TestRegistrationSetPIN:
 # ══════════════════════════════════════════════════════
 # LOGIN FLOW
 # ══════════════════════════════════════════════════════
+
 
 class TestLoginVerifyPIN:
     """POST /api/v1/auth/login/verify-pin"""
@@ -116,10 +113,10 @@ class TestLoginVerifyPIN:
                 assert resp.status_code == 423
 
 
-
 # ══════════════════════════════════════════════════════
 # TOKEN MANAGEMENT
 # ══════════════════════════════════════════════════════
+
 
 class TestTokenRefresh:
     """POST /api/v1/auth/refresh"""
@@ -147,7 +144,6 @@ class TestTokenRefresh:
 
 class TestGetMe:
     """GET /api/v1/auth/me"""
-
 
     def test_get_me_without_token(self, client):
         """Returns 403 without Authorization header."""

@@ -41,6 +41,7 @@ export function useJoinEstate() {
           }
         })
         .catch((err) => {
+          // eslint-disable-next-line no-console
           console.error('Camera access denied or unavailable', err)
         })
     }

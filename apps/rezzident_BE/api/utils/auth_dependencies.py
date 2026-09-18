@@ -3,22 +3,21 @@
 Mirrors estate_management_BE auth_dependencies.py pattern with V2 additions.
 """
 
-from functools import wraps
-from typing import List
-from fastapi import HTTPException, status, Depends
+from fastapi import Depends, HTTPException, status
 
 from api.utils.jwt_handler import get_current_user
+from api.utils.user_roles import RolePermissions
 from api.v1.models.users import User, UserRole
-from api.utils.user_roles import RolePermissions, RoleHierarchy
 
 
-def require_roles(allowed_roles: List[UserRole]):
+def require_roles(allowed_roles: list[UserRole]):
     """FastAPI dependency that restricts access to specified roles.
 
     Usage:
         @router.get("/admin/users", dependencies=[Depends(require_roles([UserRole.ADMIN]))])
         async def list_users(): ...
     """
+
     def role_checker(current_user: User = Depends(get_current_user)):
         if current_user.role not in allowed_roles:
             raise HTTPException(
@@ -26,6 +25,7 @@ def require_roles(allowed_roles: List[UserRole]):
                 detail="You do not have permission to perform this action.",
             )
         return current_user
+
     return role_checker
 
 

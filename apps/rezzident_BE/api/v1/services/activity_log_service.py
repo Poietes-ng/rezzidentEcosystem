@@ -15,23 +15,22 @@ Usage across the app:
 """
 
 import json
-from typing import Optional, List
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func, desc, and_, or_
-from fastapi import HTTPException, status
 
-from api.v1.models.activity_log import ActivityLog, ActivityType
+from fastapi import HTTPException, status
+from sqlalchemy import desc, func, or_
+from sqlalchemy.orm import Session, joinedload
+
+from api.loggers.app_logger import app_logger
+from api.v1.models.activity_log import ActivityLog
 from api.v1.models.users import User
 from api.v1.schemas.activity_log import (
-    ActivityLogItem,
     ActivityLogDetail,
-    PaginatedActivityLogsResponse,
+    ActivityLogItem,
     ActivitySummaryStats,
+    PaginatedActivityLogsResponse,
     UserBasicInfo,
-    SeverityLevel,
 )
-from api.loggers.app_logger import app_logger
 
 
 class ActivityLogService:
@@ -44,17 +43,17 @@ class ActivityLogService:
     def log_activity(
         self,
         db: Session,
-        user_id: Optional[str],
+        user_id: str | None,
         activity_type: str,
         action: str,
         description: str,
-        target_type: Optional[str] = None,
-        target_id: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        metadata: Optional[dict] = None,
+        target_type: str | None = None,
+        target_id: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        metadata: dict | None = None,
         severity: str = "info",
-    ) -> Optional[ActivityLog]:
+    ) -> ActivityLog | None:
         """Core method to log any activity. NEVER raises — silently fails.
 
         Args:
@@ -105,145 +104,233 @@ class ActivityLogService:
     # ══════════════════════════════════════════════════════
 
     # ── Auth ──
-    def log_user_login(self, db: Session, user_id: str,
-                       ip_address: Optional[str] = None,
-                       user_agent: Optional[str] = None):
+    def log_user_login(
+        self,
+        db: Session,
+        user_id: str,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ):
         """Log successful login."""
         user = db.query(User).filter(User.id == user_id).first()
         name = user.full_name if user else "Unknown"
         return self.log_activity(
-            db, user_id, "user_login", "Signed In",
+            db,
+            user_id,
+            "user_login",
+            "Signed In",
             f"{name} signed in",
-            ip_address=ip_address, user_agent=user_agent,
+            ip_address=ip_address,
+            user_agent=user_agent,
         )
 
-    def log_pin_locked(self, db: Session, user_id: str, ip_address: Optional[str] = None):
+    def log_pin_locked(self, db: Session, user_id: str, ip_address: str | None = None):
         """Log PIN lockout (V2)."""
         return self.log_activity(
-            db, user_id, "pin_locked", "Locked",
+            db,
+            user_id,
+            "pin_locked",
+            "Locked",
             "Account locked after too many PIN attempts",
-            ip_address=ip_address, severity="warning",
+            ip_address=ip_address,
+            severity="warning",
         )
 
     # ── Bills & Payments ──
-    def log_bill_created(self, db: Session, user_id: str,
-                         bill_title: str, amount: float, bill_id: str):
+    def log_bill_created(
+        self, db: Session, user_id: str, bill_title: str, amount: float, bill_id: str
+    ):
         return self.log_activity(
-            db, user_id, "bill_created", "Created",
+            db,
+            user_id,
+            "bill_created",
+            "Created",
             f"Created bill '{bill_title}' for ₦{amount:,.2f}",
-            target_type="Bill", target_id=bill_id,
+            target_type="Bill",
+            target_id=bill_id,
         )
 
-    def log_payment_received(self, db: Session, user_id: str,
-                             amount: float, reference: str, payment_id: str):
+    def log_payment_received(
+        self, db: Session, user_id: str, amount: float, reference: str, payment_id: str
+    ):
         return self.log_activity(
-            db, user_id, "payment_received", "Received",
+            db,
+            user_id,
+            "payment_received",
+            "Received",
             f"Payment of ₦{amount:,.2f} received (ref: {reference})",
-            target_type="Payment", target_id=payment_id,
+            target_type="Payment",
+            target_id=payment_id,
         )
 
-    def log_invoice_created(self, db: Session, user_id: str,
-                            invoice_number: str, resident_identifier: str, bill_id: str):
+    def log_invoice_created(
+        self, db: Session, user_id: str, invoice_number: str, resident_identifier: str, bill_id: str
+    ):
         return self.log_activity(
-            db, user_id, "invoice_created", "Created",
+            db,
+            user_id,
+            "invoice_created",
+            "Created",
             f"Created invoice #{invoice_number} for Resident {resident_identifier}",
-            target_type="Bill", target_id=bill_id,
+            target_type="Bill",
+            target_id=bill_id,
         )
 
     # ── Visitors ──
-    def log_visitor_code_generated(self, db: Session, user_id: str,
-                                   visitor_name: str, code: str, code_id: str):
+    def log_visitor_code_generated(
+        self, db: Session, user_id: str, visitor_name: str, code: str, code_id: str
+    ):
         return self.log_activity(
-            db, user_id, "visitor_code", "Generated",
+            db,
+            user_id,
+            "visitor_code",
+            "Generated",
             f"Generated visitor code {code} for {visitor_name}",
-            target_type="VisitorCode", target_id=code_id,
+            target_type="VisitorCode",
+            target_id=code_id,
         )
 
-    def log_visitor_arrival(self, db: Session, user_id: str,
-                            visitor_name: str, code: str, code_id: str):
+    def log_visitor_arrival(
+        self, db: Session, user_id: str, visitor_name: str, code: str, code_id: str
+    ):
         return self.log_activity(
-            db, user_id, "visitor_arrival", "Checked In",
+            db,
+            user_id,
+            "visitor_arrival",
+            "Checked In",
             f"Visitor {visitor_name} arrived with code {code}",
-            target_type="VisitorCode", target_id=code_id,
+            target_type="VisitorCode",
+            target_id=code_id,
         )
 
-    def log_visitor_departure(self, db: Session, user_id: str,
-                              visitor_name: str, code: str, code_id: str,
-                              duration_minutes: int):
+    def log_visitor_departure(
+        self,
+        db: Session,
+        user_id: str,
+        visitor_name: str,
+        code: str,
+        code_id: str,
+        duration_minutes: int,
+    ):
         return self.log_activity(
-            db, user_id, "visitor_departure", "Checked Out",
+            db,
+            user_id,
+            "visitor_departure",
+            "Checked Out",
             f"Visitor {visitor_name} departed after {duration_minutes}min (code {code})",
-            target_type="VisitorCode", target_id=code_id,
+            target_type="VisitorCode",
+            target_id=code_id,
         )
 
     # ── Staff ──
-    def log_staff_created(self, db: Session, creator_id: str,
-                          staff_name: str, staff_role: str, staff_user_id: str):
+    def log_staff_created(
+        self, db: Session, creator_id: str, staff_name: str, staff_role: str, staff_user_id: str
+    ):
         return self.log_activity(
-            db, creator_id, "staff_created", "Created",
+            db,
+            creator_id,
+            "staff_created",
+            "Created",
             f"Created staff account for {staff_name} ({staff_role})",
-            target_type="User", target_id=staff_user_id,
+            target_type="User",
+            target_id=staff_user_id,
         )
 
     # ── Expenses ──
-    def log_expense_created(self, db: Session, user_id: str,
-                            title: str, amount: float, expense_id: str):
+    def log_expense_created(
+        self, db: Session, user_id: str, title: str, amount: float, expense_id: str
+    ):
         return self.log_activity(
-            db, user_id, "expense_created", "Created",
+            db,
+            user_id,
+            "expense_created",
+            "Created",
             f"Created expense '{title}' for ₦{amount:,.2f}",
-            target_type="Expense", target_id=expense_id,
+            target_type="Expense",
+            target_id=expense_id,
         )
 
-    def log_expense_approved(self, db: Session, user_id: str,
-                             title: str, expense_id: str):
+    def log_expense_approved(self, db: Session, user_id: str, title: str, expense_id: str):
         return self.log_activity(
-            db, user_id, "expense_approved", "Approved",
+            db,
+            user_id,
+            "expense_approved",
+            "Approved",
             f"Approved expense '{title}'",
-            target_type="Expense", target_id=expense_id,
+            target_type="Expense",
+            target_id=expense_id,
         )
 
     # ── V2 NEW: Verification ──
-    def log_verification_submitted(self, db: Session, user_id: str,
-                                   tier: str, verification_id: str):
+    def log_verification_submitted(
+        self, db: Session, user_id: str, tier: str, verification_id: str
+    ):
         return self.log_activity(
-            db, user_id, "verification_submitted", "Submitted",
+            db,
+            user_id,
+            "verification_submitted",
+            "Submitted",
             f"Submitted verification for tier: {tier}",
-            target_type="Verification", target_id=verification_id,
+            target_type="Verification",
+            target_id=verification_id,
         )
 
-    def log_verification_approved(self, db: Session, user_id: str,
-                                  resident_name: str, tier: str, verification_id: str):
+    def log_verification_approved(
+        self, db: Session, user_id: str, resident_name: str, tier: str, verification_id: str
+    ):
         return self.log_activity(
-            db, user_id, "verification_approved", "Approved",
+            db,
+            user_id,
+            "verification_approved",
+            "Approved",
             f"Approved {resident_name}'s verification for {tier}",
-            target_type="Verification", target_id=verification_id,
+            target_type="Verification",
+            target_id=verification_id,
         )
 
     # ── V2 NEW: Roles & Permissions ──
-    def log_role_changed(self, db: Session, admin_id: str,
-                         target_name: str, old_role: str, new_role: str, target_user_id: str):
+    def log_role_changed(
+        self,
+        db: Session,
+        admin_id: str,
+        target_name: str,
+        old_role: str,
+        new_role: str,
+        target_user_id: str,
+    ):
         return self.log_activity(
-            db, admin_id, "role_changed", "Changed",
+            db,
+            admin_id,
+            "role_changed",
+            "Changed",
             f"Changed {target_name}'s role from {old_role} to {new_role}",
-            target_type="User", target_id=target_user_id,
+            target_type="User",
+            target_id=target_user_id,
             severity="warning",
         )
 
     # ── V2 NEW: Estate Management ──
-    def log_estate_created(self, db: Session, user_id: str,
-                           estate_name: str, estate_id: str):
+    def log_estate_created(self, db: Session, user_id: str, estate_name: str, estate_id: str):
         return self.log_activity(
-            db, user_id, "estate_created", "Created",
+            db,
+            user_id,
+            "estate_created",
+            "Created",
             f"Created estate: {estate_name}",
-            target_type="Estate", target_id=estate_id,
+            target_type="Estate",
+            target_id=estate_id,
             severity="critical",
         )
 
     # ── V2 NEW: Financial ──
-    def log_subaccount_created(self, db: Session, user_id: str,
-                               estate_name: str, subaccount_code: str):
+    def log_subaccount_created(
+        self, db: Session, user_id: str, estate_name: str, subaccount_code: str
+    ):
         return self.log_activity(
-            db, user_id, "subaccount_created", "Created",
+            db,
+            user_id,
+            "subaccount_created",
+            "Created",
             f"Created Paystack subaccount for {estate_name}: {subaccount_code}",
             severity="critical",
         )
@@ -256,11 +343,11 @@ class ActivityLogService:
         self,
         db: Session,
         current_user: User,
-        activity_type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        date_from: Optional[datetime] = None,
-        date_to: Optional[datetime] = None,
-        search: Optional[str] = None,
+        activity_type: str | None = None,
+        user_id: str | None = None,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        search: str | None = None,
         limit: int = 20,
         skip: int = 0,
     ) -> PaginatedActivityLogsResponse:
@@ -297,12 +384,7 @@ class ActivityLogService:
         total = query.count()
         pages = (total + limit - 1) // limit if total > 0 else 0
 
-        activities = (
-            query.order_by(desc(ActivityLog.created_at))
-            .limit(limit)
-            .offset(skip)
-            .all()
-        )
+        activities = query.order_by(desc(ActivityLog.created_at)).limit(limit).offset(skip).all()
 
         items = []
         for a in activities:
@@ -318,7 +400,11 @@ class ActivityLogService:
                     timestamp=a.created_at,
                     user_name=user_name,
                     user_role=user_role,
-                    activity_type=a.activity_type if isinstance(a.activity_type, str) else a.activity_type.value,
+                    activity_type=(
+                        a.activity_type
+                        if isinstance(a.activity_type, str)
+                        else a.activity_type.value
+                    ),
                     action=a.action,
                     description=a.description,
                     target_type=a.target_type,
@@ -365,14 +451,22 @@ class ActivityLogService:
                 id=activity.user.id,
                 full_name=activity.user.full_name,
                 phone_number=activity.user.phone_number,
-                role=activity.user.role.value if hasattr(activity.user.role, "value") else str(activity.user.role),
+                role=(
+                    activity.user.role.value
+                    if hasattr(activity.user.role, "value")
+                    else str(activity.user.role)
+                ),
             )
 
         return ActivityLogDetail(
             id=activity.id,
             timestamp=activity.created_at,
             user=user_info,
-            activity_type=activity.activity_type if isinstance(activity.activity_type, str) else activity.activity_type.value,
+            activity_type=(
+                activity.activity_type
+                if isinstance(activity.activity_type, str)
+                else activity.activity_type.value
+            ),
             action=activity.action,
             description=activity.description,
             target_type=activity.target_type,
@@ -383,9 +477,7 @@ class ActivityLogService:
             created_at=activity.created_at,
         )
 
-    def get_activity_summary(
-        self, db: Session, current_user: User
-    ) -> ActivitySummaryStats:
+    def get_activity_summary(self, db: Session, current_user: User) -> ActivitySummaryStats:
         """Get summary statistics."""
         base = db.query(ActivityLog)
 
@@ -416,7 +508,9 @@ class ActivityLogService:
         )
         top_types = [
             {
-                "type": t.activity_type if isinstance(t.activity_type, str) else t.activity_type.value,
+                "type": (
+                    t.activity_type if isinstance(t.activity_type, str) else t.activity_type.value
+                ),
                 "count": t.count,
             }
             for t in top_types_query
@@ -437,8 +531,7 @@ class ActivityLogService:
                 .all()
             )
             most_active = [
-                {"user_name": u.full_name or "Unknown", "count": u.count}
-                for u in top_users
+                {"user_name": u.full_name or "Unknown", "count": u.count} for u in top_users
             ]
 
         return ActivitySummaryStats(
