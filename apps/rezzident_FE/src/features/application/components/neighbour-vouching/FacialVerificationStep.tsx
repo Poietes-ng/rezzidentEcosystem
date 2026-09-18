@@ -38,7 +38,7 @@ export function FacialVerificationStep({
   const startCamera = () => {
     stopActiveStream()
     try {
-      navigator.mediaDevices
+      navigator.mediaDevices?
         .getUserMedia({ video: { facingMode: 'user' } })
         .then((stream) => {
           if (!isMountedRef.current) {
