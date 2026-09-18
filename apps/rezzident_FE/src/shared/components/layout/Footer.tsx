@@ -10,7 +10,7 @@ export function Footer(): React.JSX.Element {
         <div className="flex justify-center space-x-6 md:order-2">
           <a href="#" className="hover:text-actionDark text-gray-400">
             <span className="sr-only">Website</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+            <span className="material-symbols-outlined" !text-[20px]>
               language
             </span>
           </a>
