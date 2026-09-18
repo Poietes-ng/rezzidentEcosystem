@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { NeighbourCard } from './NeighbourCard'
-import type { NeighbourVouch } from './neighbour-vouching.types'
+import type { NeighbourVouch } from '../../types/neighbour-vouching.types'
 import { Button } from '#/shared/components/ui'
 
 export interface VouchingStatusStepProps {

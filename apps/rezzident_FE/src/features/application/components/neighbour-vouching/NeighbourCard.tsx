@@ -1,5 +1,5 @@
 import React from 'react'
-import type { NeighbourVouch } from './neighbour-vouching.types'
+import type { NeighbourVouch } from '../../types/neighbour-vouching.types'
 import { cn } from '#/shared/utils/cn'
 
 export interface NeighbourCardProps {
