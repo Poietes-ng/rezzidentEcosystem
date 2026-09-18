@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { Button } from '../../../shared/components/ui/button'
-import { Input } from '../../../shared/components/ui/input'
+import type React from 'react'
+import { Button, Input } from '#/shared/components/ui'
 
-export function LoginScreen() {
+export function LoginScreen(): React.JSX.Element {
   return (
     <div className="flex h-full w-full flex-col bg-white">
       {/* Header */}
@@ -22,16 +22,26 @@ export function LoginScreen() {
       {/* Form */}
       <div className="flex-1 px-6 pt-4">
         <div className="mb-6">
-          <label className="font-dmsans text-label text-actionDark mb-2 block">Email Address</label>
-          <Input type="email" placeholder="e.g. name@example.com" />
+          <label
+            htmlFor="login-email"
+            className="font-dmsans text-label text-actionDark mb-2 block"
+          >
+            Email Address
+          </label>
+          <Input id="login-email" type="email" placeholder="e.g. name@example.com" />
         </div>
 
         <div className="mb-8">
-          <label className="font-dmsans text-label text-actionDark mb-2 block">Password</label>
-          <Input type="password" placeholder="••••••••" />
+          <label
+            htmlFor="login-password"
+            className="font-dmsans text-label text-actionDark mb-2 block"
+          >
+            Password
+          </label>
+          <Input id="login-password" type="password" placeholder="••••••••" />
           <div className="mt-4 text-right">
             <Link
-              to="/app/forgot-password"
+              to="/app/welcome"
               className="font-dmsans text-body-small text-actionDark font-medium hover:underline"
             >
               Forgot password?

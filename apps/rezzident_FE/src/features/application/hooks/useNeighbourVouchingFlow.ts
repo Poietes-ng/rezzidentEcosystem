@@ -1,7 +1,11 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { Variants } from 'framer-motion'
-import type { NeighbourVouch, VouchingFlowStep, VouchingState } from './neighbour-vouching.types'
+import type {
+  NeighbourVouch,
+  VouchingFlowStep,
+  VouchingState,
+} from '../types/neighbour-vouching.types'
 
 // High quality, reliable avatars matching the screenshots
 const AMARA_AVATAR =

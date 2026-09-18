@@ -1,7 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { Button } from '#/shared/components/ui/button'
+import type React from 'react'
+import { Button } from '#/shared/components/ui'
 
-export function HeroSection() {
+export function HeroSection(): React.JSX.Element {
   return (
     <section className="relative overflow-hidden bg-white pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pb-32">
       <div className="mx-auto flex max-w-7xl flex-col items-center px-6 text-center lg:px-8">
