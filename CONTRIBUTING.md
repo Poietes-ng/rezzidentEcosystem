@@ -26,40 +26,75 @@
 
 ## Prerequisites
 
-| Tool    | Version  | Check               | Install                                                |
-| ------- | -------- | ------------------- | ------------------------------------------------------ |
-| Node.js | ≥ 20.0.0 | `node -v`           | [nodejs.org](https://nodejs.org)                       |
-| pnpm    | ≥ 9.15.0 | `pnpm -v`           | `corepack enable pnpm`                                 |
-| Python  | ≥ 3.11   | `python3 --version` | [python.org](https://www.python.org)                   |
-| Docker  | Latest   | `docker --version`  | [docker.com](https://www.docker.com)                   |
-| Git     | Latest   | `git --version`     | `brew install git`, [git-scm.com](https://git-scm.com) |
+| Tool              | Version   | Check                    | Install                                                |
+| ----------------- | --------- | ------------------------ | ------------------------------------------------------ |
+| Docker            | ≥ 24.0    | `docker --version`       | [docker.com](https://www.docker.com)                   |
+| Docker Compose    | ≥ 2.20    | `docker compose version` | Bundled with Docker Desktop                            |
+| Node.js           | ≥ 20.0.0  | `node -v`                | [nodejs.org](https://nodejs.org)                       |
+| pnpm              | ≥ 9.15.0  | `pnpm -v`                | `corepack enable pnpm`                                 |
+| Python            | ≥ 3.11    | `python3 --version`      | [python.org](https://www.python.org)                   |
+| Git               | Latest    | `git --version`          | `brew install git`, [git-scm.com](https://git-scm.com) |
 
 ## Clone and Install
+
+### Option A — Docker (recommended, full stack)
+
+Runs the entire stack with a single command. No local Python or Node setup required.
 
 ```bash
 # 1. Clone the monorepo
 git clone https://github.com/poietesltd/rezzidentEcosystem.git
 cd rezzidentEcosystem
 
-# 2. Install Node.js dependencies (FE, MB, packages)
+# 2. Copy and fill in environment variables
+cp .env.example .env
+cp apps/rezzident_BE/.env.example apps/rezzident_BE/.env
+# Open both files and fill in the required secrets
+
+# 3. Start the full stack
+make up           # or: docker compose up
+
+# Services will be available at:
+#   Frontend  → http://127.0.0.1:3000
+#   API       → http://127.0.0.1:7001
+#   API docs  → http://127.0.0.1:7001/docs
+#   MinIO     → http://127.0.0.1:9001
+
+# 4. Run migrations + seed (first time only)
+make migrate/seed
+```
+
+### Option B — Local dev (without Docker)
+
+For working on a single app without rebuilding Docker images.
+
+```bash
+# 1. Clone and install Node deps
+git clone https://github.com/poietesltd/rezzidentEcosystem.git
+cd rezzidentEcosystem
 pnpm install
 
-# 3. Start infrastructure (PostgreSQL, Redis, MinIO)
-pnpm infra:up
-
-# 4. Set up the backend (Python)
+# 2. Set up the backend Python venv
 cd apps/rezzident_BE
 python3 -m venv venv
 source venv/bin/activate    # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
-cp .env.sample .env         # Fill in your local values
+cp .env.example .env        # Fill in your local values
 cd ../..
 
-# 5. Verify everything works
-pnpm dev:web        # FE on http://localhost:3000
-pnpm test:be        # Backend tests
+# 3. Start the backend (spins up db + redis via Docker automatically)
+make dev/be       # API on http://127.0.0.1:7001
+
+# 4. Start the frontend or mobile separately
+make dev/fe       # FE on http://127.0.0.1:3000
+make dev/mb       # Mobile (Expo)
+
+# 5. Run backend tests
+make test/be
 ```
+
+Run `make help` at any time to see all available targets.
 
 ## Your Editor
 
@@ -159,18 +194,21 @@ We use **Conventional Commits**. Every commit message follows this format:
 
 ## Scopes
 
-| Scope         | What It Covers                   |
-| ------------- | -------------------------------- |
-| `fe`          | Frontend app                     |
-| `be` or `api` | Backend app                      |
-| `mb`          | Mobile app                       |
-| `utils`       | packages/utils                   |
-| `types`       | packages/shared-types            |
-| `tokens`      | packages/design-tokens           |
-| `infra`       | infrastructure/                  |
-| `deps`        | Dependency updates               |
-| `ci`          | GitHub Actions workflows         |
-| `auth`        | Authentication feature (any app) |
+| Scope         | What It Covers                                     |
+| ------------- | -------------------------------------------------- |
+| `fe`          | Frontend app                                       |
+| `be` or `api` | Backend app                                        |
+| `mb`          | Mobile app                                         |
+| `utils`       | packages/utils                                     |
+| `types`       | packages/shared-types                              |
+| `tokens`      | packages/design-tokens                             |
+| `docker`      | docker-compose.yml, Dockerfiles                    |
+| `makefile`    | Makefile                                           |
+| `infra`       | infrastructure/, EC2, nginx (production config)    |
+| `deps`        | Dependency updates                                 |
+| `ci`          | GitHub Actions workflows                           |
+| `github`      | Issue/PR templates, CODEOWNERS, Dependabot         |
+| `auth`        | Authentication feature (any app)                   |
 
 ## Bad vs Good
 
@@ -194,16 +232,20 @@ We use **Conventional Commits**. Every commit message follows this format:
 
 ```
 [ ] Your code runs locally without errors
-[ ] You ran the linter and fixed errors:
-    - **FE:** `cd apps/rezzident_FE && pnpm run lint --fix && pnpm run format`
-    - **MB:** `cd apps/rezzident_MB && pnpm run lint --fix && pnpm run format`
-    - **BE:** `cd apps/rezzident_BE && ruff check --fix --unsafe-fixes . && black .`
+[ ] You ran the linter and fixed all errors:
+    make lint/fe      # Frontend
+    make lint/mb      # Mobile
+    make lint/be      # Backend (ruff + black --check)
+[ ] You auto-formatted:
+    make format/fe
+    make format/be    # ruff --fix + black
 [ ] You ran existing tests:
-    - pnpm --filter @rezzident/utils test
-    - pnpm test:be
+    make test/be
+    pnpm --filter @rezzident/utils test
 [ ] You wrote tests for new logic (if applicable)
 [ ] You didn't commit .env, secrets, or node_modules
 [ ] Your branch is up to date with develop
+[ ] For DevOps/infra PRs: use ?template=devops.md when opening the PR
 ```
 
 ## PR Title
@@ -400,11 +442,21 @@ alembic downgrade -1
 ## Running Backend Locally
 
 ```bash
-cd apps/rezzident_BE
-source venv/bin/activate
-python main.py                           # Dev server on :7001
-python -m pytest tests/ -v               # Run tests
-ruff check . && black --check .          # Lint + format check
+# Recommended — starts db + redis via Docker automatically
+make dev/be
+# Equivalent to:
+docker compose up -d db redis
+cd apps/rezzident_BE && ./venv/bin/uvicorn main:app --reload --port 7001
+
+# Tests and linting
+make test/be                             # pytest -v
+make lint/be                             # ruff check + black --check
+make format/be                           # ruff --fix + black
+
+# Database
+make migrate                             # alembic upgrade head
+make seed                                # seed estate structure templates
+make shell/db                            # psql shell in db container
 ```
 
 ---
@@ -499,24 +551,29 @@ cd packages/utils && npx vitest run
 
 # 10. Infrastructure Changes
 
-Infrastructure changes require **extra caution**. A bad Nginx config takes down all 3 apps.
+Infrastructure changes require **extra caution**. A bad config can take down all 3 apps.
 
 ## What Counts as Infrastructure
 
-- `infrastructure/docker-compose.yml`
-- `infrastructure/nginx/`
+- `docker-compose.yml` (root — local dev stack)
+- `Makefile`
 - `Dockerfile` (in any app)
+- `infrastructure/` (production nginx, EC2 config)
 - `.github/workflows/`
 - `.github/dependabot.yml`
+- `.github/CODEOWNERS`
 - `turbo.json`
 - `pnpm-workspace.yaml`
 
 ## Rules for Infrastructure PRs
 
 1. **Always get DevOps lead review** (@CodewithSegNet).
-2. **Test locally with Docker** before pushing.
-3. **Document what changed and why** in the PR description.
-4. **Never change production configs in the same PR as staging.**
+2. **Test locally with `docker compose up`** before pushing.
+3. **Use the DevOps PR template** — add `?template=devops.md` when opening the PR.
+4. **Document what changed and why** in the PR description, including a rollback plan.
+5. **Never change production configs in the same PR as local/staging configs.**
+6. **Pin all Docker image tags.** No `:latest`. Dependabot will keep them current.
+7. **No hardcoded secrets.** All credentials go in `.env` and are documented in `.env.example`.
 
 ---
 
@@ -561,20 +618,24 @@ pnpm --filter rezzident-fe test        # Frontend (when tests exist)
 
 # 12. What NOT to Do
 
-| ❌ Never Do This                              | ✅ Do This Instead                                     |
-| --------------------------------------------- | ------------------------------------------------------ |
-| Commit `.env` files                           | Use `.env.sample` with placeholder values              |
-| Push to `main` directly                       | Open a PR to `develop`                                 |
-| Use `any` in TypeScript                       | Use `unknown` and narrow the type                      |
-| Write 500+ line PRs                           | Split into logical chunks                              |
-| Skip code review                              | Every PR needs at least 1 approval                     |
-| Install packages globally                     | Use `npx` or add to project `devDependencies`          |
-| Copy-paste code between FE and MB             | Move it to a shared package                            |
-| Hardcode API URLs                             | Use environment variables                              |
-| Ignore CI failures                            | Fix them before merging                                |
-| Use `console.log` for debugging in production | Use proper error handling and Sentry                   |
-| Commit `node_modules`                         | It's in `.gitignore` for a reason                      |
-| Edit `routeTree.gen.ts`                       | It's auto-generated. Your changes will be overwritten. |
+| ❌ Never Do This                              | ✅ Do This Instead                                                     |
+| --------------------------------------------- | ---------------------------------------------------------------------- |
+| Commit `.env` files                           | Use `.env.example` with placeholder values                             |
+| Push to `main` directly                       | Open a PR to `develop`                                                 |
+| Use `any` in TypeScript                       | Use `unknown` and narrow the type                                      |
+| Write 500+ line PRs                           | Split into logical chunks                                              |
+| Skip code review                              | Every PR needs at least 1 approval                                     |
+| Install packages globally                     | Use `npx` or add to project `devDependencies`                          |
+| Copy-paste code between FE and MB             | Move it to a shared package                                            |
+| Hardcode API URLs or secrets                  | Use environment variables, documented in `.env.example`                |
+| Ignore CI failures                            | Fix them before merging                                                |
+| Use `console.log` for debugging in production | Use proper error handling and the observability stack                  |
+| Commit `node_modules`                         | It's in `.gitignore` for a reason                                      |
+| Edit `routeTree.gen.ts`                       | It's auto-generated. Your changes will be overwritten.                 |
+| Use `:latest` Docker image tags               | Pin to a specific version — Dependabot keeps them current              |
+| Run the runner stage as root in a Dockerfile  | Add `USER node` (or `USER nonroot`) before `CMD`                       |
+| Use mutable action tags in workflows (`@v4`)  | Pin to commit SHA — Dependabot manages updates via `github-actions`    |
+| `cd apps/... && pnpm lint`                    | `make lint/fe`, `make lint/be`, `make lint/mb` from repo root          |
 
 ---
 
