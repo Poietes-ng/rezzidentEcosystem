@@ -1,12 +1,12 @@
-import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { StepProgress, ServerDowntimeError } from "#/shared/components/ui";
-import { TOTAL_STEPS } from "./useNeighbourVouchingFlow";
+import React from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { TOTAL_STEPS } from './useNeighbourVouchingFlow'
+import { StepProgress, ServerDowntimeError } from '#/shared/components/ui'
 
 export interface NeighbourVouchingHeaderProps {
-  currentStepNumber: number | null;
-  serverDowntime: boolean;
-  onBack: () => void;
+  currentStepNumber: number | null
+  serverDowntime: boolean
+  onBack: () => void
 }
 
 export function NeighbourVouchingHeader({
@@ -15,7 +15,7 @@ export function NeighbourVouchingHeader({
   onBack,
 }: NeighbourVouchingHeaderProps): React.JSX.Element {
   return (
-    <div className="relative shrink-0 bg-white z-10">
+    <div className="relative z-10 shrink-0 bg-white">
       <AnimatePresence mode="wait">
         {serverDowntime ? (
           <motion.div
@@ -23,7 +23,7 @@ export function NeighbourVouchingHeader({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className="px-6 pt-4 pb-2"
           >
             <ServerDowntimeError />
@@ -41,7 +41,7 @@ export function NeighbourVouchingHeader({
             <button
               type="button"
               onClick={onBack}
-              className="mb-4 flex h-6 w-6 items-center justify-start text-actionDark transition-opacity hover:opacity-75 focus-visible:outline-none"
+              className="text-actionDark mb-4 flex h-6 w-6 items-center justify-start transition-opacity hover:opacity-75 focus-visible:outline-none"
               aria-label="Go back"
             >
               <span className="material-symbols-outlined text-[24px]">chevron_left</span>
@@ -59,5 +59,5 @@ export function NeighbourVouchingHeader({
         )}
       </AnimatePresence>
     </div>
-  );
+  )
 }

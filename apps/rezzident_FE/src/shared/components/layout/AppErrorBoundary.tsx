@@ -1,12 +1,12 @@
-import type React from 'react'
-import type { ErrorComponentProps } from '@tanstack/react-router'
 import { useRouter } from '@tanstack/react-router'
+import type { ErrorComponentProps } from '@tanstack/react-router'
+import type React from 'react'
 import { ErrorStateComponent } from '#/shared/components/ui'
 
 export function AppErrorBoundary({ error, reset }: ErrorComponentProps): React.JSX.Element {
   const router = useRouter()
   const isForbidden =
-    error?.message?.includes('403') || error?.message?.toLowerCase().includes('forbidden')
+    error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
 
   if (isForbidden) {
     return (
@@ -29,7 +29,7 @@ export function AppErrorBoundary({ error, reset }: ErrorComponentProps): React.J
       icon="error"
       actionText="Try Again"
       onAction={() => {
-        reset?.()
+        reset()
         router.invalidate()
       }}
     />

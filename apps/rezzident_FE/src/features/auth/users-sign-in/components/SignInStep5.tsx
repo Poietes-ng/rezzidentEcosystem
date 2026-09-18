@@ -1,7 +1,7 @@
 import type React from 'react'
-import { Button } from '#/shared/components/ui'
-import { cn } from '../../../../shared/utils/cn'
 import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
+import { Button } from '#/shared/components/ui'
+import { cn } from '#/shared/utils/cn'
 
 interface Props {
   join: UseJoinEstateReturn

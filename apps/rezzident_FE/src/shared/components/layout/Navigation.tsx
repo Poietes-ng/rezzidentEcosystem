@@ -1,5 +1,5 @@
-import type React from 'react'
 import { Link } from '@tanstack/react-router'
+import type React from 'react'
 import { Button } from '#/shared/components/ui'
 
 export function Navigation(): React.JSX.Element {

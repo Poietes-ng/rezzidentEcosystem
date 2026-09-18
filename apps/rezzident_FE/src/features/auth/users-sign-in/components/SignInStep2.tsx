@@ -1,6 +1,6 @@
 import type React from 'react'
-import { Button, Input } from '#/shared/components/ui'
 import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
+import { Button, Input } from '#/shared/components/ui'
 
 interface Props {
   join: UseJoinEstateReturn

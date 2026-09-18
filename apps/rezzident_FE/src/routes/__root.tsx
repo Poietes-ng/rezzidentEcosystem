@@ -177,8 +177,7 @@ export const Route = createRootRoute({
   ),
   errorComponent: ({ error }) => {
     const isForbidden =
-      error?.message?.includes('403') ||
-      error?.message?.toLowerCase().includes('forbidden')
+      error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
     if (isForbidden) {
       return (
         <ErrorStateComponent
