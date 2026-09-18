@@ -1,7 +1,7 @@
 import type React from 'react'
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import { useRouter } from '@tanstack/react-router'
-import { ErrorStateComponent } from '../ui/ErrorStateComponent'
+import { ErrorStateComponent } from '#/shared/components/ui'
 
 export function AppErrorBoundary({ error, reset }: ErrorComponentProps): React.JSX.Element {
   const router = useRouter()

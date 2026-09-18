@@ -1,5 +1,5 @@
 import type React from 'react'
-import { ErrorStateComponent } from '../ui/ErrorStateComponent'
+import { ErrorStateComponent } from '#/shared/components/ui'
 
 export function AppNotFound(): React.JSX.Element {
   return (
