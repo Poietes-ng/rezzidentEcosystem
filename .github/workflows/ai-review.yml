@@ -27,6 +27,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Gemini keys — tried in order on 429 rate-limit.
+          # Add more keys by creating GEMINI_API_KEY_5, _6, etc. in GitHub Secrets
+          # (no code changes needed — main.py discovers them automatically).
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
+          GEMINI_API_KEY_4: ${{ secrets.GEMINI_API_KEY_4 }}
           NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
