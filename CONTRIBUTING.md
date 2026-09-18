@@ -146,7 +146,9 @@ We follow a strict branch naming convention that matches our commit types. Every
 1. **Never push directly to `main` or `develop`**. Always use a PR.
 2. **Create feature branches from `develop`**, not from `main`.
 3. **Keep branches short-lived.** A branch open for more than 5 days is a problem.
-4. **Delete branches after merge.** GitHub does this automatically if you enable it.
+4. **Delete branches after merge.** Since we don't use auto-delete, you should manually clean up your branches once your PR is merged.
+   - Remote: Click the "Delete branch" button in the merged PR on GitHub.
+   - Local: `git checkout develop && git pull && git branch -d feat/your-feature-name`
 
 ## How to Create a Branch
 
