@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "#/shared/components/ui/button";
-import { PinInput } from "#/shared/components/ui/pin-input";
+import { Button, PinInput } from "#/shared/components/ui";
 import { cn } from "#/shared/utils/cn";
 
 export const MOCK_VALID_OTP = "1234";

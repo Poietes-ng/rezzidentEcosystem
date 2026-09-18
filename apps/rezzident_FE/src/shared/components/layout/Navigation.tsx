@@ -1,7 +1,8 @@
+import type React from 'react'
 import { Link } from '@tanstack/react-router'
-import { Button } from '#/shared/components/ui/button'
+import { Button } from '#/shared/components/ui'
 
-export function Navigation() {
+export function Navigation(): React.JSX.Element {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">

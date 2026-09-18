@@ -1,7 +1,6 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { StepProgress } from "#/shared/components/ui/step-progress";
-import { ServerDowntimeError } from "#/shared/components/ui/server-downtime-error";
+import { StepProgress, ServerDowntimeError } from "#/shared/components/ui";
 import { TOTAL_STEPS } from "./useNeighbourVouchingFlow";
 
 export interface NeighbourVouchingHeaderProps {

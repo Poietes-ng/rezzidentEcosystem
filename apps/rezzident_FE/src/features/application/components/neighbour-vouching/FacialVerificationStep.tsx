@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "#/shared/components/ui/button";
+import { Button } from "#/shared/components/ui";
 import { ViewfinderFrame } from "./ViewfinderFrame";
 import { cn } from "#/shared/utils/cn";
 

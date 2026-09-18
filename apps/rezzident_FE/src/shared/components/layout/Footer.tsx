@@ -1,6 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import type React from 'react';
+import { Link } from '@tanstack/react-router';
 
-export function Footer() {
+export function Footer(): React.JSX.Element {
   const currentYear = new Date().getFullYear();
   
   return (

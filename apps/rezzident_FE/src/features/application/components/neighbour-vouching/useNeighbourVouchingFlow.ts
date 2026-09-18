@@ -62,7 +62,23 @@ export const slideVariants: Variants = {
   }),
 };
 
-export function useNeighbourVouchingFlow() {
+export interface UseNeighbourVouchingFlowReturn {
+  state: VouchingState;
+  setState: React.Dispatch<React.SetStateAction<VouchingState>>;
+  direction: number;
+  currentStepNumber: number | null;
+  currentNeighbours: NeighbourVouch[];
+  topToast: string | null;
+  serverDowntime: boolean;
+  setServerDowntime: React.Dispatch<React.SetStateAction<boolean>>;
+  goToStep: (nextStep: VouchingFlowStep, dir?: number) => void;
+  handleBack: () => void;
+  handleRefreshStatus: () => void;
+  handleFinish: () => void;
+  showToast: (message: string) => void;
+}
+
+export function useNeighbourVouchingFlow(): UseNeighbourVouchingFlowReturn {
   const navigate = useNavigate();
 
   // Direction tracker for transitions: 1 = forward, -1 = backward

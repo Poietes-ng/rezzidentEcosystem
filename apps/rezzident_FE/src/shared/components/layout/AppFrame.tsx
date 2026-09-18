@@ -13,7 +13,7 @@ export function AppFrame({
   className,
   withTopSafeArea = true,
   withBottomSafeArea = true,
-}: AppFrameProps) {
+}: AppFrameProps): React.JSX.Element {
   return (
     <div className="flex h-dvh w-full items-center justify-center bg-white">
       <div
