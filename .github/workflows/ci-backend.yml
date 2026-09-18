@@ -4,6 +4,26 @@ on:
   pull_request:
     branches:
       - "dev"
+    paths:
+      # ── Backend source ──────────────────────────────────────────────────────
+      # Catches all Python source, requirements.txt, alembic migrations, tests,
+      # Dockerfile, and any other file inside the BE app directory.
+      - "apps/rezzident_BE/**"
+
+      # ── Node workspace (pnpm runs in CI before Python setup) ────────────────
+      # The CI installs pnpm deps first. Lock file or root package.json changes
+      # can break that step even if no Python file changed.
+      - "pnpm-lock.yaml"
+      - "package.json"
+
+      # ── This workflow file itself ───────────────────────────────────────────
+      # Always re-run if someone edits the CI config to validate the change.
+      - ".github/workflows/ci-backend.yml"
+
+      # ── What intentionally does NOT trigger backend CI ──────────────────────
+      # docs/**, *.md, Makefile, docker-compose.yml, .env.example,
+      # infrastructure/**, .github/ISSUE_TEMPLATE/**, PULL_REQUEST_TEMPLATE/**,
+      # ai-pr-reviewer/**, apps/rezzident_FE/**, apps/rezzident_MB/**, packages/**
 
 jobs:
   Backend_lint:
