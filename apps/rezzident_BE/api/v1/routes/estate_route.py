@@ -18,12 +18,11 @@ from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from api.db.database import get_db
-from api.utils.success_response import success_response
 from api.utils.jwt_handler import get_current_user
+from api.utils.success_response import success_response
 from api.v1.models.users import User
 from api.v1.schemas.estate import EstateRegisterSchema
 from api.v1.services.estate_service import EstateService
-
 
 estates = APIRouter(prefix="/estates", tags=["Estates"])
 
@@ -31,6 +30,7 @@ estates = APIRouter(prefix="/estates", tags=["Estates"])
 # ═══════════════════════════════════════════════
 # ESTATE REGISTRATION (creates per-tenant schema)
 # ═══════════════════════════════════════════════
+
 
 @estates.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_estate(
@@ -71,6 +71,7 @@ async def register_estate(
 # ESTATE LOOKUP (by estate_code — for residents joining)
 # ═══════════════════════════════════════════════
 
+
 @estates.get("/lookup/{estate_code}", status_code=status.HTTP_200_OK)
 async def lookup_estate(
     estate_code: str,
@@ -99,6 +100,7 @@ async def lookup_estate(
 # ═══════════════════════════════════════════════
 # ESTATE INFO (authenticated — for members)
 # ═══════════════════════════════════════════════
+
 
 @estates.get("/me", status_code=status.HTTP_200_OK)
 async def get_my_estate(
@@ -130,15 +132,18 @@ async def get_my_estate(
 # LIST ESTATE STRUCTURE TEMPLATES
 # ═══════════════════════════════════════════════
 
+
 @estates.get("/structure-templates", status_code=status.HTTP_200_OK)
 async def list_structure_templates(
-    levels: int = None,         # Filter by level count
-    category: str = None,       # Filter by category
+    levels: int = None,  # Filter by level count
+    category: str = None,  # Filter by category
     db: Session = Depends(get_db),
 ):
     """List available estate structure templates for registration form."""
     templates = EstateService.list_structure_templates(
-        db=db, levels=levels, category=category,
+        db=db,
+        levels=levels,
+        category=category,
     )
 
     return success_response(

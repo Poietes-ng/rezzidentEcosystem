@@ -5,14 +5,11 @@ Reference: docs/architecture/08-pin-biometric-auth.md
 """
 
 import re
-from typing import Optional
-
 
 # ── Phone Number ──
 
-NIGERIAN_PHONE_REGEX = re.compile(
-    r"^(\+234|0)(70|80|81|90|91|80|70)\d{8}$"
-)
+NIGERIAN_PHONE_REGEX = re.compile(r"^(\+234|0)(70|80|81|90|91|80|70)\d{8}$")
+
 
 def validate_phone_number(phone: str) -> str:
     """Validate and normalize Nigerian phone number to +234 format.
@@ -37,10 +34,25 @@ def validate_phone_number(phone: str) -> str:
 # ── PIN ──
 
 BLOCKED_PINS = {
-    "0000", "1111", "2222", "3333", "4444",
-    "5555", "6666", "7777", "8888", "9999",
-    "1234", "4321", "1122", "2233", "3344",
-    "0123", "3210", "9876", "6789",
+    "0000",
+    "1111",
+    "2222",
+    "3333",
+    "4444",
+    "5555",
+    "6666",
+    "7777",
+    "8888",
+    "9999",
+    "1234",
+    "4321",
+    "1122",
+    "2233",
+    "3344",
+    "0123",
+    "3210",
+    "9876",
+    "6789",
 }
 
 
@@ -71,9 +83,7 @@ def validate_pin(pin: str) -> str:
 
 # ── Email ──
 
-EMAIL_REGEX = re.compile(
-    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-)
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 
 def validate_email(email: str) -> str:

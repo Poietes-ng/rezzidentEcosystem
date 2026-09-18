@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import redis.asyncio as aioredis
 from fastapi import Request
-from api.utils.settings import settings
-from api.loggers.app_logger import app_logger
 
+from api.loggers.app_logger import app_logger
+from api.utils.settings import settings
 
 # ── Pool singleton ─────────────────────────────────────────────────────────────
 # Created once during lifespan startup, stored on app.state.redis.
@@ -58,7 +58,8 @@ def get_redis_pool() -> aioredis.Redis | None:
 
 # ── FastAPI dependency ─────────────────────────────────────────────────────────
 
-async def get_redis(request: Request) -> "aioredis.Redis | None":
+
+async def get_redis(request: Request) -> aioredis.Redis | None:
     """FastAPI dependency — yields the Redis client from app.state.
 
     Returns None if Redis is not available (e.g., during tests or after

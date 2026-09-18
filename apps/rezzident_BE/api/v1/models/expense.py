@@ -1,13 +1,14 @@
 """Expense models — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class ExpenseStatus(str, enum.Enum):
+class ExpenseStatus(enum.StrEnum):
     DRAFT = "draft"
     PENDING_APPROVAL = "pending_approval"
     APPROVED = "approved"
@@ -15,13 +16,13 @@ class ExpenseStatus(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
-class ExpensePaymentStatus(str, enum.Enum):
+class ExpensePaymentStatus(enum.StrEnum):
     UNPAID = "unpaid"
     PARTIALLY_PAID = "partially_paid"
     PAID = "paid"
 
 
-class ApprovalStatus(str, enum.Enum):
+class ApprovalStatus(enum.StrEnum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -44,7 +45,9 @@ class Expense(BaseTableModel):
 
     # Relationships
     items = relationship("ExpenseItem", back_populates="expense", cascade="all, delete-orphan")
-    approvals = relationship("ExpenseApproval", back_populates="expense", cascade="all, delete-orphan")
+    approvals = relationship(
+        "ExpenseApproval", back_populates="expense", cascade="all, delete-orphan"
+    )
 
 
 class ExpenseItem(BaseTableModel):

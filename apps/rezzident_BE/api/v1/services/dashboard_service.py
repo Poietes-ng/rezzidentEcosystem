@@ -12,39 +12,40 @@ via SQLAlchemy's schema_translate_map.
 Reference: docs/architecture/13-database-schema.md
 """
 
-from datetime import datetime, timedelta, timezone
-from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, extract
-from fastapi import HTTPException, status
-from typing import Optional, List, Dict, Any
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
-from api.v1.models.users import User, UserRole
-from api.v1.models.estate import Estate
+from fastapi import HTTPException, status
+from sqlalchemy import extract, func
+from sqlalchemy.orm import Session
+
+from api.loggers.app_logger import app_logger
+from api.v1.models.activity_log import ActivityLog
 from api.v1.models.bills import Bill
-from api.v1.models.resident_bill import ResidentBill, ResidentBillStatus
+from api.v1.models.estate import Estate
+from api.v1.models.expense import Expense
 from api.v1.models.payment import Payment
+from api.v1.models.resident_bill import ResidentBill, ResidentBillStatus
+from api.v1.models.users import User, UserRole
 from api.v1.models.visitor_code import VisitorCode
 from api.v1.models.visitor_history import Visitor
-from api.v1.models.activity_log import ActivityLog
-from api.v1.models.expense import Expense
 from api.v1.schemas.dashboard import (
-    EstateResponse,
-    EstateLocationResponse,
-    UserSummary,
-    OutstandingBillItem,
-    ResidentSummaryStats,
-    ResidentDashboardResponse,
-    UserDistribution,
-    AdminSummaryStats,
-    RevenueStats,
     AdminDashboardResponse,
-    SecuritySummaryStats,
-    SecurityDashboardResponse,
-    TreasurerSummaryStats,
-    TreasurerDashboardResponse,
+    AdminSummaryStats,
+    EstateLocationResponse,
+    EstateResponse,
     MonthlyTransactionItem,
+    OutstandingBillItem,
+    ResidentDashboardResponse,
+    ResidentSummaryStats,
+    RevenueStats,
+    SecurityDashboardResponse,
+    SecuritySummaryStats,
+    TreasurerDashboardResponse,
+    TreasurerSummaryStats,
+    UserDistribution,
+    UserSummary,
 )
-from api.loggers.app_logger import app_logger
 
 
 class DashboardService:
@@ -98,12 +99,10 @@ class DashboardService:
     # RESIDENT DASHBOARD
     # ══════════════════════════════════════════════════════
 
-    def get_resident_dashboard(
-        self, db: Session, current_user: User
-    ) -> ResidentDashboardResponse:
+    def get_resident_dashboard(self, db: Session, current_user: User) -> ResidentDashboardResponse:
         """Get complete resident dashboard."""
         try:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
 
             estate = self._get_estate_info(db, current_user)
             user_summary = self._get_user_summary(current_user)
@@ -113,8 +112,8 @@ class DashboardService:
                 db.query(VisitorCode)
                 .filter(
                     VisitorCode.user_id == current_user.id,
-                    VisitorCode.is_active == True,
-                    VisitorCode.is_used == False,
+                    VisitorCode.is_active,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -145,11 +144,13 @@ class DashboardService:
                 .join(ResidentBill, Bill.id == ResidentBill.bill_id)
                 .filter(
                     ResidentBill.user_id == current_user.id,
-                    ResidentBill.payment_status.in_([
-                        ResidentBillStatus.UNPAID,
-                        ResidentBillStatus.PENDING,
-                        ResidentBillStatus.DECLINED,
-                    ]),
+                    ResidentBill.payment_status.in_(
+                        [
+                            ResidentBillStatus.UNPAID,
+                            ResidentBillStatus.PENDING,
+                            ResidentBillStatus.DECLINED,
+                        ]
+                    ),
                 )
                 .scalar()
                 or 0.0
@@ -191,9 +192,7 @@ class DashboardService:
                 detail=f"Error fetching dashboard: {str(e)}",
             )
 
-    def _get_outstanding_bills(
-        self, db: Session, user: User
-    ) -> List[OutstandingBillItem]:
+    def _get_outstanding_bills(self, db: Session, user: User) -> list[OutstandingBillItem]:
         """Get outstanding bills for a resident."""
         try:
             from api.v1.models.bills import PaymentStatus
@@ -203,11 +202,13 @@ class DashboardService:
                 .join(Bill, Bill.id == ResidentBill.bill_id)
                 .filter(
                     ResidentBill.user_id == user.id,
-                    ResidentBill.payment_status.in_([
-                        ResidentBillStatus.UNPAID,
-                        ResidentBillStatus.PENDING,
-                        ResidentBillStatus.DECLINED,
-                    ]),
+                    ResidentBill.payment_status.in_(
+                        [
+                            ResidentBillStatus.UNPAID,
+                            ResidentBillStatus.PENDING,
+                            ResidentBillStatus.DECLINED,
+                        ]
+                    ),
                     Bill.status != PaymentStatus.CANCELLED,
                 )
                 .order_by(Bill.due_date.asc())
@@ -217,7 +218,7 @@ class DashboardService:
             items = []
             for rb in resident_bills:
                 bill = rb.bill
-                if bill.due_date and bill.due_date < datetime.now(timezone.utc):
+                if bill.due_date and bill.due_date < datetime.now(UTC):
                     status_display = "Overdue"
                 elif rb.payment_status == ResidentBillStatus.PENDING:
                     status_display = "Pending"
@@ -239,9 +240,7 @@ class DashboardService:
         except Exception:
             return []
 
-    def _get_recent_visitors(
-        self, db: Session, user: User, limit: int = 5
-    ) -> List[dict]:
+    def _get_recent_visitors(self, db: Session, user: User, limit: int = 5) -> list[dict]:
         """Get recent visitor activity for resident."""
         try:
             visitors = (
@@ -257,7 +256,9 @@ class DashboardService:
                     "visitor_name": v.visitor_name,
                     "time_of_visit": v.time_of_visit.isoformat() if v.time_of_visit else None,
                     "actual_arrival": v.actual_arrival.isoformat() if v.actual_arrival else None,
-                    "actual_departure": v.actual_departure.isoformat() if v.actual_departure else None,
+                    "actual_departure": (
+                        v.actual_departure.isoformat() if v.actual_departure else None
+                    ),
                 }
                 for v in visitors
             ]
@@ -268,11 +269,12 @@ class DashboardService:
         """Count unread notifications."""
         try:
             from api.v1.models.notification import Notification
+
             return (
                 db.query(Notification)
                 .filter(
                     Notification.user_id == user.id,
-                    Notification.is_read == False,
+                    Notification.is_read == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                 )
                 .count()
             )
@@ -283,9 +285,7 @@ class DashboardService:
     # ADMIN DASHBOARD
     # ══════════════════════════════════════════════════════
 
-    def get_admin_dashboard(
-        self, db: Session, current_user: User
-    ) -> AdminDashboardResponse:
+    def get_admin_dashboard(self, db: Session, current_user: User) -> AdminDashboardResponse:
         """Full admin dashboard with estate-wide metrics."""
         try:
             estate = self._get_estate_info(db, current_user)
@@ -298,20 +298,14 @@ class DashboardService:
             revenue = self._get_revenue_stats(db)
 
             # ── Summary stats ──
-            today_start = datetime.now(timezone.utc).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
+            today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
             week_start = today_start - timedelta(days=today_start.weekday())
 
             activities_today = (
-                db.query(ActivityLog)
-                .filter(ActivityLog.created_at >= today_start)
-                .count()
+                db.query(ActivityLog).filter(ActivityLog.created_at >= today_start).count()
             )
             activities_week = (
-                db.query(ActivityLog)
-                .filter(ActivityLog.created_at >= week_start)
-                .count()
+                db.query(ActivityLog).filter(ActivityLog.created_at >= week_start).count()
             )
 
             approved_count = (
@@ -324,7 +318,7 @@ class DashboardService:
             active_visitors = (
                 db.query(VisitorCode)
                 .filter(
-                    VisitorCode.is_used == True,
+                    VisitorCode.is_used,
                     VisitorCode.actual_arrival.isnot(None),
                     VisitorCode.actual_departure.is_(None),
                 )
@@ -374,10 +368,12 @@ class DashboardService:
                 UserRole.SECRETARY,
                 UserRole.TREASURER,
             ]
-            admins = db.query(User).filter(User.role.in_(admin_roles), User.is_active == True).count()
-            residents = db.query(User).filter(User.role == UserRole.RESIDENT, User.is_active == True).count()
-            staff = db.query(User).filter(User.role == UserRole.STAFF, User.is_active == True).count()
-            security = db.query(User).filter(User.role == UserRole.SECURITY, User.is_active == True).count()
+            admins = db.query(User).filter(User.role.in_(admin_roles), User.is_active).count()
+            residents = (
+                db.query(User).filter(User.role == UserRole.RESIDENT, User.is_active).count()
+            )
+            staff = db.query(User).filter(User.role == UserRole.STAFF, User.is_active).count()
+            security = db.query(User).filter(User.role == UserRole.SECURITY, User.is_active).count()
 
             return UserDistribution(
                 admins=admins,
@@ -403,10 +399,12 @@ class DashboardService:
                 db.query(func.coalesce(func.sum(Bill.amount), 0))
                 .join(ResidentBill, Bill.id == ResidentBill.bill_id)
                 .filter(
-                    ResidentBill.payment_status.in_([
-                        ResidentBillStatus.UNPAID,
-                        ResidentBillStatus.PENDING,
-                    ])
+                    ResidentBill.payment_status.in_(
+                        [
+                            ResidentBillStatus.UNPAID,
+                            ResidentBillStatus.PENDING,
+                        ]
+                    )
                 )
                 .scalar()
                 or 0
@@ -430,21 +428,22 @@ class DashboardService:
         except Exception:
             return RevenueStats()
 
-    def _get_recent_activities(self, db: Session, limit: int = 10) -> List[dict]:
+    def _get_recent_activities(self, db: Session, limit: int = 10) -> list[dict]:
         """Get recent activity log entries for admin dashboard."""
         try:
             activities = (
-                db.query(ActivityLog)
-                .order_by(ActivityLog.created_at.desc())
-                .limit(limit)
-                .all()
+                db.query(ActivityLog).order_by(ActivityLog.created_at.desc()).limit(limit).all()
             )
             return [
                 {
                     "id": a.id,
                     "timestamp": a.created_at.isoformat() if a.created_at else None,
                     "user_name": a.user_display_name,
-                    "activity_type": a.activity_type if isinstance(a.activity_type, str) else a.activity_type.value,
+                    "activity_type": (
+                        a.activity_type
+                        if isinstance(a.activity_type, str)
+                        else a.activity_type.value
+                    ),
                     "action": a.action,
                     "description": a.description,
                 }
@@ -457,12 +456,10 @@ class DashboardService:
     # SECURITY DASHBOARD
     # ══════════════════════════════════════════════════════
 
-    def get_security_dashboard(
-        self, db: Session, current_user: User
-    ) -> SecurityDashboardResponse:
+    def get_security_dashboard(self, db: Session, current_user: User) -> SecurityDashboardResponse:
         """Gate security dashboard."""
         try:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
             estate = self._get_estate_info(db, current_user)
             user_summary = self._get_user_summary(current_user)
@@ -471,8 +468,8 @@ class DashboardService:
             active_codes = (
                 db.query(VisitorCode)
                 .filter(
-                    VisitorCode.is_active == True,
-                    VisitorCode.is_used == False,
+                    VisitorCode.is_active,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.estimated_departure > now,
                 )
                 .count()
@@ -489,18 +486,14 @@ class DashboardService:
             )
 
             # Visitors today
-            visitors_today = (
-                db.query(Visitor)
-                .filter(Visitor.actual_arrival >= today_start)
-                .count()
-            )
+            visitors_today = db.query(Visitor).filter(Visitor.actual_arrival >= today_start).count()
 
             # Pending arrivals (codes generated for today, not yet arrived)
             pending_arrivals = (
                 db.query(VisitorCode)
                 .filter(
-                    VisitorCode.is_active == True,
-                    VisitorCode.is_used == False,
+                    VisitorCode.is_active,
+                    VisitorCode.is_used == False,  # noqa: E712 — SQLAlchemy requires == not `is`
                     VisitorCode.time_of_visit >= today_start,
                     VisitorCode.time_of_visit < today_start + timedelta(days=1),
                 )
@@ -543,15 +536,10 @@ class DashboardService:
                 detail=f"Error fetching security dashboard: {str(e)}",
             )
 
-    def _get_recent_gate_log(self, db: Session, limit: int = 20) -> List[dict]:
+    def _get_recent_gate_log(self, db: Session, limit: int = 20) -> list[dict]:
         """Recent arrivals and departures for gate security."""
         try:
-            visitors = (
-                db.query(Visitor)
-                .order_by(Visitor.created_at.desc())
-                .limit(limit)
-                .all()
-            )
+            visitors = db.query(Visitor).order_by(Visitor.created_at.desc()).limit(limit).all()
             return [
                 {
                     "id": v.id,
@@ -559,12 +547,14 @@ class DashboardService:
                     "phone_number": v.phone_number,
                     "time_of_visit": v.time_of_visit.isoformat() if v.time_of_visit else None,
                     "actual_arrival": v.actual_arrival.isoformat() if v.actual_arrival else None,
-                    "actual_departure": v.actual_departure.isoformat() if v.actual_departure else None,
+                    "actual_departure": (
+                        v.actual_departure.isoformat() if v.actual_departure else None
+                    ),
                     "reason": v.reason_for_visit,
                     "status": (
-                        "departed" if v.actual_departure
-                        else "checked_in" if v.actual_arrival
-                        else "pending"
+                        "departed"
+                        if v.actual_departure
+                        else "checked_in" if v.actual_arrival else "pending"
                     ),
                 }
                 for v in visitors
@@ -587,7 +577,7 @@ class DashboardService:
             revenue = self._get_revenue_stats(db)
 
             # Overdue bills
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             overdue_count = (
                 db.query(Bill)
                 .filter(
@@ -599,11 +589,7 @@ class DashboardService:
             )
 
             # Pending expense approvals
-            pending_approvals = (
-                db.query(Expense)
-                .filter(Expense.status == "pending")
-                .count()
-            )
+            pending_approvals = db.query(Expense).filter(Expense.status == "pending").count()
 
             summary = TreasurerSummaryStats(
                 total_collected=revenue.total_collections,
@@ -637,14 +623,22 @@ class DashboardService:
                 detail=f"Error fetching treasurer dashboard: {str(e)}",
             )
 
-    def _get_monthly_transactions(
-        self, db: Session, year: int
-    ) -> List[MonthlyTransactionItem]:
+    def _get_monthly_transactions(self, db: Session, year: int) -> list[MonthlyTransactionItem]:
         """Monthly transaction volume for chart."""
         try:
             months = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December",
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
             ]
 
             bills_by_month = dict(
@@ -695,7 +689,7 @@ class DashboardService:
         except Exception:
             return []
 
-    def _get_recent_payments(self, db: Session, limit: int = 10) -> List[dict]:
+    def _get_recent_payments(self, db: Session, limit: int = 10) -> list[dict]:
         """Recent successful payments."""
         try:
             payments = (
@@ -722,9 +716,7 @@ class DashboardService:
     # ADMIN CHART — Transaction Volume by Year
     # ══════════════════════════════════════════════════════
 
-    def get_transaction_volume(
-        self, db: Session, year: int
-    ) -> Dict[str, Any]:
+    def get_transaction_volume(self, db: Session, year: int) -> dict[str, Any]:
         """Monthly transaction volume for admin chart."""
         monthly = self._get_monthly_transactions(db, year)
         return {
@@ -747,14 +739,13 @@ class DashboardService:
             "email": current_user.email,
             "is_active": current_user.is_active,
             "profile_image": current_user.profile_image,
-            "verification_tier": current_user.verification_tier.value if current_user.verification_tier else None,
+            "verification_tier": (
+                current_user.verification_tier.value if current_user.verification_tier else None
+            ),
             "last_login": current_user.last_login.isoformat() if current_user.last_login else None,
         }
 
-
-    def get_smart_dashboard(
-        self, db: Session, current_user: User
-    ) -> Dict[str, Any]:
+    def get_smart_dashboard(self, db: Session, current_user: User) -> dict[str, Any]:
         """Route to the correct dashboard based on user role.
 
         Returns a tuple of (message, data_dict) so the route stays thin.
@@ -784,7 +775,7 @@ class DashboardService:
 
         return {"message": message, "data": data.model_dump()}
 
-    def get_staff_reports(self, current_user: User) -> Dict[str, Any]:
+    def get_staff_reports(self, current_user: User) -> dict[str, Any]:
         """Available reports for staff/admin users.
 
         Returns structured report metadata. In the future this

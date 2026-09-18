@@ -1,7 +1,8 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
 from sqlalchemy import desc
+from sqlalchemy.orm import Session
 
 from api.utils.success_response import success_response
 
@@ -11,8 +12,8 @@ def paginated_response(
     model,
     skip: int,
     limit: int,
-    join: Optional[Any] = None,
-    filters: Optional[Dict[str, Any]] = None,
+    join: Any | None = None,
+    filters: dict[str, Any] | None = None,
 ):
     """Custom response for pagination.
 
@@ -59,9 +60,7 @@ def paginated_response(
     elif filters and join is not None:
         for attr, value in filters.items():
             if value is not None:
-                query = query.filter(
-                    getattr(getattr(join, "columns"), attr).like(f"%{value}%")
-                )
+                query = query.filter(getattr(join.columns, attr).like(f"%{value}%"))
 
     total = query.count()
     results = query.order_by(desc(model.created_at)).offset(skip).limit(limit).all()

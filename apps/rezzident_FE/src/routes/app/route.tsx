@@ -1,8 +1,5 @@
-import { Outlet, createFileRoute, useLocation } from '@tanstack/react-router'
-import { AppFrame } from '../../shared/components/layout/AppFrame'
-import { HomeIndicator } from '../../shared/components/layout/HomeIndicator'
-
-import { ErrorStateComponent } from '../../shared/components/ui/ErrorStateComponent'
+import { createFileRoute } from '@tanstack/react-router'
+import { AppLayout, AppNotFound, AppErrorBoundary } from '../../shared/components/layout'
 
 export const Route = createFileRoute('/app')({
   component: AppLayout,

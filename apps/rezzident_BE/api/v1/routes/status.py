@@ -7,16 +7,14 @@ Endpoints:
 - GET  /status/daily     — Daily uptime summary for chart
 """
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from api.db.database import get_db
-from api.utils.success_response import success_response
-from api.utils.jwt_handler import get_current_user
 from api.utils.auth_dependencies import require_admin
+from api.utils.success_response import success_response
 from api.v1.models.users import User
 from api.v1.services.status_service import status_service
-
 
 status_router = APIRouter(prefix="/status", tags=["System Status"])
 

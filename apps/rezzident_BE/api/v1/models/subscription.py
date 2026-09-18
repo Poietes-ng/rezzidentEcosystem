@@ -21,7 +21,9 @@ that explicitly wants to pay the subscription itself instead of billing
 residents. Default for every estate is "resident_billing".
 """
 
-from sqlalchemy import Column, String, Float, DateTime, Integer, Boolean
+from datetime import UTC
+
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 
 from api.v1.models.base_model import BaseTableModel
@@ -34,40 +36,50 @@ class Subscription(BaseTableModel):
 
     # ── Who owns this subscription ──
     entity_type = Column(
-        String(20), nullable=False, index=True,
+        String(20),
+        nullable=False,
+        index=True,
         comment="estate | firm",
     )
     entity_id = Column(String, nullable=False, index=True)
 
     # ── Plan Details ──
     plan = Column(
-        String(50), nullable=False,
+        String(50),
+        nullable=False,
         comment="trial | basic | standard | premium | enterprise",
     )
     status = Column(
-        String(20), default="trial", index=True,
+        String(20),
+        default="trial",
+        index=True,
         comment="trial | active | past_due | expired | cancelled",
     )
 
     # ── V3: Who actually pays for this ──
     funding_source = Column(
-        String(20), default="resident_billing", nullable=False,
+        String(20),
+        default="resident_billing",
+        nullable=False,
         comment="resident_billing (default) | direct — direct means the "
-                "estate/firm itself is charged instead of splitting the "
-                "cost across residents via a Bill",
+        "estate/firm itself is charged instead of splitting the "
+        "cost across residents via a Bill",
     )
 
     # ── V3: Current billing-cycle bill (tenant schema — no cross-schema FK) ──
     current_cycle_bill_id = Column(
-        String, nullable=True, index=True,
+        String,
+        nullable=True,
+        index=True,
         comment="Bill.id (tenant schema, bill_type='platform_subscription') "
-                "generated for the active billing cycle",
+        "generated for the active billing cycle",
     )
     current_cycle_start = Column(DateTime(timezone=True), nullable=True)
     current_cycle_due_date = Column(
-        DateTime(timezone=True), nullable=True,
+        DateTime(timezone=True),
+        nullable=True,
         comment="Mirrors the cycle Bill's due_date — when residents must "
-                "have finished paying this cycle",
+        "have finished paying this cycle",
     )
 
     # ── Dates ──
@@ -84,21 +96,25 @@ class Subscription(BaseTableModel):
 
     amount_ngn = Column(Float, nullable=True)
     billing_cycle = Column(
-        String(20), default="monthly",
+        String(20),
+        default="monthly",
         comment="monthly | quarterly | yearly",
     )
 
     # ── Plan Features / Limits ──
     max_houses = Column(
-        Integer, nullable=True,
+        Integer,
+        nullable=True,
         comment="Max houses allowed on this plan (null = unlimited)",
     )
     max_staff = Column(
-        Integer, nullable=True,
+        Integer,
+        nullable=True,
         comment="Max staff accounts allowed",
     )
     features = Column(
-        JSONB, nullable=True,
+        JSONB,
+        nullable=True,
         comment='Enabled features: {"chat": true, "vote": true, "expenses": false}',
     )
 
@@ -118,8 +134,9 @@ class Subscription(BaseTableModel):
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        from datetime import datetime, timezone
-        return datetime.now(timezone.utc) > self.expires_at
+        from datetime import datetime
+
+        return datetime.now(UTC) > self.expires_at
 
     @property
     def is_resident_funded(self) -> bool:
@@ -144,9 +161,9 @@ class Subscription(BaseTableModel):
         Call this whenever the linked cycle Bill's totals change (e.g. after
         a ResidentBill payment webhook updates total_paid).
         """
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
 
         if not self.is_resident_funded:
             return self.status  # direct funding_source keeps its own status flow
