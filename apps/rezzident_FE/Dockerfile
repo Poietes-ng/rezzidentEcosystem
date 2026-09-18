@@ -55,8 +55,12 @@ RUN npm install -g serve@14
 
 WORKDIR /app
 
-COPY --from=build /app/apps/rezzident_FE/dist ./dist
+# Copy dist owned by the built-in non-root 'node' user (uid 1000)
+COPY --from=build --chown=node:node /app/apps/rezzident_FE/dist ./dist
 
 EXPOSE 3000
+
+# Run as non-root — node:alpine ships with a 'node' user for exactly this purpose
+USER node
 
 CMD ["serve", "-s", "dist", "-l", "3000"]
