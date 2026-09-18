@@ -10,15 +10,11 @@ export function Footer(): React.JSX.Element {
         <div className="flex justify-center space-x-6 md:order-2">
           <a href="#" className="hover:text-actionDark text-gray-400">
             <span className="sr-only">Website</span>
-            <span className="material-symbols-outlined" !text-[20px]>
-              language
-            </span>
+            <span className="material-symbols-outlined text-[20px]">language</span>
           </a>
           <a href="#" className="hover:text-actionDark text-gray-400">
             <span className="sr-only">Social</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
-              forum
-            </span>
+            <span className="material-symbols-outlined text-[20px]">forum</span>
           </a>
         </div>
         <div className="mt-8 flex flex-col items-center gap-4 text-center text-xs leading-5 text-gray-500 md:order-1 md:mt-0 md:flex-row md:text-left">

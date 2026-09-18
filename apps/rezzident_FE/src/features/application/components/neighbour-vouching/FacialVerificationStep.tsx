@@ -37,30 +37,37 @@ export function FacialVerificationStep({
 
   const startCamera = () => {
     stopActiveStream()
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'user' } })
-      .then((stream) => {
-        if (!isMountedRef.current) {
-          stream.getTracks().forEach((track) => track.stop())
-          return
-        }
-        streamRef.current = stream
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          videoRef.current.onloadedmetadata = () => {
-            if (isMountedRef.current) setCameraReady(true)
+    try {
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: 'user' } })
+        .then((stream) => {
+          if (!isMountedRef.current) {
+            stream.getTracks().forEach((track) => track.stop())
+            return
           }
-        }
-        setTimeout(() => {
-          if (isMountedRef.current) setCameraReady(true)
-        }, 500)
-      })
-      .catch(() => {
-        // Camera access denied/unavailable in environment - graceful fallback
-        setTimeout(() => {
-          if (isMountedRef.current) setCameraReady(true)
-        }, 600)
-      })
+          streamRef.current = stream
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream
+            videoRef.current.onloadedmetadata = () => {
+              if (isMountedRef.current) setCameraReady(true)
+            }
+          }
+          setTimeout(() => {
+            if (isMountedRef.current) setCameraReady(true)
+          }, 500)
+        })
+        .catch(() => {
+          // Camera access denied/unavailable in environment - graceful fallback
+          setTimeout(() => {
+            if (isMountedRef.current) setCameraReady(true)
+          }, 600)
+        })
+    } catch {
+      // Synchronous failure if mediaDevices is undefined in non-secure context
+      setTimeout(() => {
+        if (isMountedRef.current) setCameraReady(true)
+      }, 500)
+    }
   }
 
   // Attempt to open front camera if available, fallback gracefully if not
