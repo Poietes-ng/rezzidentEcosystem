@@ -15,7 +15,6 @@ Required env vars:
   GEMINI_API_KEY      - First free-tier Gemini key (primary Gemini key)
   GEMINI_API_KEY_2    - Second Gemini key (optional, tried on 429)
   GEMINI_API_KEY_3    - Third Gemini key  (optional, tried on 429)
-  GEMINI_API_KEY_4    - Fourth Gemini key (optional, tried on 429)
   NVIDIA_API_KEY      - NVIDIA NIM key (last-resort fallback)
   GITHUB_REPOSITORY   - "owner/repo", provided automatically by Actions
   PR_NUMBER           - The pull request number (see workflow file)
