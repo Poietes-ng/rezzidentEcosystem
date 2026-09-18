@@ -12,6 +12,7 @@
 - [Interactive Model Flowchart & Architecture Visualizer](#interactive-model-flowchart--architecture-visualizer)
 - [Documentation & Markdown Tools](#documentation--markdown-tools)
 - [Getting Started](#getting-started)
+- [Makefile Reference](#makefile-reference)
 - [Testing](#testing)
 - [Git Commit Rules & Automation](#git-commit-rules--automation)
 - [GitHub Templates & Workflows](#github-templates--workflows)
@@ -162,80 +163,150 @@ The Rezzident ecosystem is a **Turborepo monorepo** using **pnpm** workspaces.
 
 ### Prerequisites
 
-- **Node.js** ≥ 20
-- **pnpm** ≥ 9 (`npm install -g pnpm`)
-- **Python** ≥ 3.11 (for Backend)
-- **Docker** (for infrastructure services: PostgreSQL, Redis)
+- **Docker** ≥ 24 + **Docker Compose** ≥ 2.20 — required for the full-stack dev environment
+- **Node.js** ≥ 20 + **pnpm** ≥ 9 — required for frontend, mobile, and shared packages
+- **Python** ≥ 3.11 + **venv** — required for backend local dev (without Docker)
 
-### 1. Install Dependencies
+---
 
-Run this at the root of the project to install all dependencies for frontend, mobile, and shared packages:
+### Option A — Docker (recommended, full stack)
+
+Runs every service (API, frontend, database, Redis, MinIO, migrations, seeds)
+with a single command. No local Python or Node setup required.
+
+**1. Copy and fill in environment variables**
+
+```bash
+cp .env.example .env                         # root-level compose vars
+cp apps/rezzident_BE/.env.example apps/rezzident_BE/.env  # backend vars
+# Open both files and fill in the required secrets
+```
+
+**2. Start the full stack**
+
+```bash
+docker compose up
+# Or with make:
+make up
+```
+
+This starts all services in the correct order and runs database migrations +
+seeds automatically on first boot. Once healthy:
+
+| Service | URL |
+|---|---|
+| **Frontend** | `http://127.0.0.1:3000` |
+| **API** | `http://127.0.0.1:7001` |
+| **API docs** | `http://127.0.0.1:7001/docs` |
+| **MinIO console** | `http://127.0.0.1:9001` |
+
+**3. Re-run migrations or seeds manually**
+
+```bash
+make migrate        # alembic upgrade head
+make seed           # seed estate structure templates (idempotent)
+make migrate/seed   # both in sequence
+```
+
+**4. Useful compose commands**
+
+```bash
+make ps             # container status
+make logs           # tail all logs
+make logs/api       # tail API logs only
+make down           # stop + remove containers (volumes preserved)
+make down/v         # ⚠ stop + delete volumes (destructive)
+```
+
+See [Makefile Reference](#makefile-reference) for the full list.
+
+---
+
+### Option B — Local dev (without Docker)
+
+For working on a single app without rebuilding Docker images.
+Requires a local Python venv and pnpm.
+
+**1. Install JS dependencies**
 
 ```bash
 pnpm install
 ```
 
-For the backend (Python):
+**2. Set up the Python venv**
 
 ```bash
 cd apps/rezzident_BE
-python -m venv .venv && source .venv/bin/activate
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Start Infrastructure (Docker)
-
-Spin up PostgreSQL, Redis, and observability services:
+**3. Start the backend** (spins up `db` and `redis` via Docker automatically)
 
 ```bash
-pnpm run infra:up
-# Or directly: docker compose -f infrastructure/docker-compose.yml up -d
+make dev/be
+# Equivalent to:
+docker compose up -d db redis
+cd apps/rezzident_BE && ./venv/bin/uvicorn main:app --reload --port 7001
 ```
 
-### 3. Start the Entire Ecosystem
+API runs on `http://127.0.0.1:7001`.
 
-To spin up all apps concurrently using Turborepo:
-
-```bash
-pnpm run dev
-```
-
-This starts:
-
-- **Backend** (FastAPI) on `http://localhost:8000`
-- **Frontend** (Vite) on `http://localhost:3000`
-- **Mobile** (Expo) on `http://localhost:8082`
-
-### 4. Start Apps Individually
-
-If you want to work on a specific app without starting the others:
-
-**Backend (FastAPI)**:
+**4. Start apps individually**
 
 ```bash
-cd apps/rezzident_BE && python main.py
-```
+make dev/fe          # frontend dev server → http://127.0.0.1:3000
+make dev/mb          # mobile dev server  → Expo
 
-**Frontend (React/TanStack Start)**:
-
-```bash
+# Or with pnpm directly:
 pnpm run dev:web
-# OR: pnpm --filter rezzident-fe run dev
+pnpm run dev:mobile
 ```
 
-**Mobile (Expo React Native)**:
+For the mobile app, after starting press:
+- `i` → iOS Simulator
+- `a` → Android Emulator
+- `w` → Web browser
+- Scan QR → Physical device (Expo Go)
+
+---
+
+## Makefile Reference
+
+All common operations are available via `make`. Run `make help` to list everything:
 
 ```bash
-pnpm run dev:mobile
-# OR: pnpm --filter rezzident-mb run dev
+make help
 ```
 
-To open the mobile app on a specific platform after starting:
-
-- Press `i` → iOS Simulator
-- Press `a` → Android Emulator
-- Press `w` → Web browser
-- Scan QR code → Physical device (Expo Go)
+| Group | Target | Description |
+|---|---|---|
+| **Docker** | `make up` | Start all services detached |
+| | `make up/build` | Rebuild images then start |
+| | `make down` | Stop containers (volumes preserved) |
+| | `make down/v` | Stop + delete volumes ⚠ |
+| | `make ps` | Container status |
+| | `make logs` | Tail all logs |
+| | `make logs/api` | Tail API logs |
+| | `make rebuild/api` | Rebuild and restart API + worker |
+| | `make rebuild/web` | Rebuild and restart web |
+| **Database** | `make migrate` | Run Alembic migrations |
+| | `make seed` | Seed estate structure templates |
+| | `make migrate/seed` | Migrate then seed |
+| | `make shell/db` | Open psql in db container |
+| **Local dev** | `make dev/be` | Backend with hot-reload |
+| | `make dev/fe` | Frontend dev server |
+| | `make dev/mb` | Mobile dev server |
+| **Test** | `make test` | All tests (turbo) |
+| | `make test/be` | Backend pytest |
+| | `make test/fe` | Frontend Vitest |
+| | `make test/mb` | Mobile Jest |
+| **Lint** | `make lint` | All apps (turbo) |
+| | `make lint/be` | ruff + black --check |
+| **Format** | `make format` | All apps (turbo) |
+| | `make format/be` | ruff --fix + black |
+| **Build** | `make build` | All apps (turbo) |
+| | `make clean` | Remove build artefacts |
 
 ---
 
@@ -461,12 +532,13 @@ Create structured issues directly from GitHub's **Issues → New Issue** page. A
 
 PRs use role-specific templates. Append the template name to the PR URL:
 
-| Template | URL Parameter           | Use For            |
-| -------- | ----------------------- | ------------------ |
-| Default  | _(auto-selected)_       | General PRs        |
-| Backend  | `?template=backend.md`  | API/model changes  |
-| Frontend | `?template=frontend.md` | Web UI changes     |
-| Mobile   | `?template=mobile.md`   | Mobile app changes |
+| Template | URL Parameter           | Use For                               |
+| -------- | ----------------------- | ------------------------------------- |
+| Default  | _(auto-selected)_       | General PRs                           |
+| Backend  | `?template=backend.md`  | API/model changes                     |
+| Frontend | `?template=frontend.md` | Web UI changes                        |
+| Mobile   | `?template=mobile.md`   | Mobile app changes                    |
+| DevOps   | `?template=devops.md`   | Docker, CI/CD, infra, scripts         |
 
 **How to use**: When creating a PR, add the template query parameter to the URL:
 

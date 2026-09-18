@@ -5,6 +5,13 @@ docker:
   copy_only_needed_files: true
 
 ci:
+  # Actions MUST be pinned to full commit SHAs, not mutable tags like @v4.
+  # A compromised @v4 tag could execute arbitrary code in CI.
+  # Humans do NOT manage these manually — Dependabot handles SHA updates
+  # automatically via .github/dependabot.yml (package-ecosystem: github-actions).
+  # Format required: uses: owner/action@<full-sha> # vX
+  # Flag any PR that uses @vX, @main, or @latest WITHOUT a SHA pin.
+  # Do NOT flag Dependabot PRs that bump one pinned SHA to another pinned SHA.
   pin_action_versions: true
   no_secrets_in_workflow_files: true
   use_environment_variables_for_config: true
@@ -12,3 +19,4 @@ ci:
 infrastructure:
   no_hardcoded_ips_or_ports: true
   use_health_checks: true
+
