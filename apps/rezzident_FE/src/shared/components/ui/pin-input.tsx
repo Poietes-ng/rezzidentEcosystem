@@ -21,7 +21,7 @@ export function PinInput({
   error = false,
   disabled = false,
   autoFocus = false,
-}: PinInputProps) {
+}: PinInputProps): React.JSX.Element {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
