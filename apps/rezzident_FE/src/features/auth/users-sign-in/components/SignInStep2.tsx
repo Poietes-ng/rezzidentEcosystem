@@ -1,12 +1,12 @@
-import { Button } from '../../../../shared/components/ui/button'
-import { Input } from '../../../../shared/components/ui/input'
-import type { UseJoinEstateReturn } from '../useJoinEstate'
+import type React from 'react'
+import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
+import { Button, Input } from '#/shared/components/ui'
 
 interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step2PersonalDetails({ join }: Props) {
+export function Step2PersonalDetails({ join }: Props): React.JSX.Element {
   const {
     displayStep,
     totalSteps,

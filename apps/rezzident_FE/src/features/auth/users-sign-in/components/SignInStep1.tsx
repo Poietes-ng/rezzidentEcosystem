@@ -1,12 +1,13 @@
-import { Button } from '../../../../shared/components/ui/button'
-import { Input } from '../../../../shared/components/ui/input'
-import type { UseJoinEstateReturn } from '../useJoinEstate'
+import { Link } from '@tanstack/react-router'
+import type React from 'react'
+import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
+import { Button, Input } from '#/shared/components/ui'
 
 interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step1EstateId({ join }: Props) {
+export function Step1EstateId({ join }: Props): React.JSX.Element {
   const { displayStep, totalSteps, estateId, setEstateId, handleNext, isStepValid } = join
 
   return (
@@ -47,12 +48,12 @@ export function Step1EstateId({ join }: Props) {
       </Button>
 
       <div className="mb-8 text-center">
-        <a
-          href="#"
-          className="text-actionDark text-[13px] font-bold underline decoration-gray-300 underline-offset-4"
+        <Link
+          to="/app/vouch"
+          className="text-actionDark text-[13px] font-bold underline decoration-gray-300 underline-offset-4 transition-opacity hover:opacity-80"
         >
           I don't have my estate ID
-        </a>
+        </Link>
       </div>
 
       <div className="mt-auto flex flex-col gap-4">

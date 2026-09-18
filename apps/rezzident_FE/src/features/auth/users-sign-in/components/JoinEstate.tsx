@@ -5,8 +5,9 @@ import { Step3Otp } from './SignInStep3'
 import { Step4Address } from './SignInStep4'
 import { Step5FacialCapture } from './SignInStep5'
 import { Step6PinSetup } from './SignInStep6'
+import type React from 'react'
 
-export function JoinEstateFlow() {
+export function JoinEstateFlow(): React.JSX.Element {
   const join = useJoinEstate()
   const { internalStep, displayStep, totalSteps, handleBack } = join
 

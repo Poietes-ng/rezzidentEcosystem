@@ -1,29 +1,37 @@
 import { useRouter } from '@tanstack/react-router'
-import { ErrorStateComponent } from '../ui'
+import type { ErrorComponentProps } from '@tanstack/react-router'
+import type React from 'react'
+import { ErrorStateComponent } from '#/shared/components/ui'
 
-interface AppErrorBoundaryProps {
-  error: Error
-}
-
-export function AppErrorBoundary({ error }: AppErrorBoundaryProps): React.JSX.Element {
+export function AppErrorBoundary({ error, reset }: ErrorComponentProps): React.JSX.Element {
   const router = useRouter()
   const isForbidden =
     error.message.includes('403') || error.message.toLowerCase().includes('forbidden')
 
+  if (isForbidden) {
+    return (
+      <ErrorStateComponent
+        statusCode="403"
+        title="Access Denied"
+        description="You do not have permission to view this screen."
+        icon="lock"
+        actionText="Go Back"
+        actionLink="/app/welcome"
+      />
+    )
+  }
+
   return (
     <ErrorStateComponent
-      statusCode={isForbidden ? '403' : '500'}
-      title={isForbidden ? 'Access Denied' : 'App Error'}
-      description={
-        isForbidden
-          ? 'You do not have permission to view this screen.'
-          : 'Something went wrong while loading this screen.'
-      }
-      icon={isForbidden ? 'lock' : 'error'}
-      actionText={isForbidden ? 'Go Back' : 'Try Again'}
-      {...(isForbidden
-        ? { actionLink: '/app/welcome' }
-        : { onAction: () => router.invalidate() })}
+      statusCode="500"
+      title="App Error"
+      description="Something went wrong while loading this screen."
+      icon="error"
+      actionText="Try Again"
+      onAction={() => {
+        reset()
+        router.invalidate()
+      }}
     />
   )
 }

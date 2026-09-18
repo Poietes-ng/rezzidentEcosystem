@@ -65,7 +65,7 @@ npm run dev
 ### Available Scripts
 
 | Command                   | Description                                 |
-| ---------------------------| ---------------------------------------------|
+| ------------------------- | ------------------------------------------- |
 | `npm run dev`             | Start development server on port 3000       |
 | `npm run build`           | Build for production                        |
 | `npm run preview`         | Preview the production build                |
@@ -217,6 +217,7 @@ const HeroSection = () => {
 ```
 
 Arrow functions are fine for:
+
 - Inline callbacks: `onClick={() => setOpen(true)}`
 - Array methods: `items.map((item) => <li key={item.id}>{item.name}</li>)`
 - Small internal helpers within a component
@@ -307,21 +308,24 @@ function SignInForm() {
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
-  useEffect(() => { /* validation */ }, [email, password])
-  
+
+  useEffect(() => {
+    /* validation */
+  }, [email, password])
+
   const handleSubmit = async () => {
     setIsSubmitting(true)
     // ...20 lines of submit logic
   }
-  
+
   return <form>...</form>
 }
 
 // ✅ After — logic extracted into a hook
 function SignInForm() {
-  const { email, setEmail, password, setPassword, errors, isSubmitting, handleSubmit } = useAuthForm()
-  
+  const { email, setEmail, password, setPassword, errors, isSubmitting, handleSubmit } =
+    useAuthForm()
+
   return <form onSubmit={handleSubmit}>...</form>
 }
 ```
@@ -336,11 +340,7 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // ...state logic
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  )
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 
 // Custom hook with error boundary
@@ -371,12 +371,14 @@ export function useTheme(): ThemeContextValue {
 ```tsx
 import { cn } from '#/shared/utils/cn'
 
-<button className={cn(
-  "rounded-full px-6 py-3 text-sm font-semibold transition-all",
-  variant === 'primary' && "bg-[#FF6730] text-white hover:bg-[#e55a28]",
-  variant === 'secondary' && "border border-gray-200 text-gray-900 hover:bg-gray-50",
-  disabled && "opacity-50 cursor-not-allowed"
-)}>
+;<button
+  className={cn(
+    'rounded-full px-6 py-3 text-sm font-semibold transition-all',
+    variant === 'primary' && 'bg-[#FF6730] text-white hover:bg-[#e55a28]',
+    variant === 'secondary' && 'border border-gray-200 text-gray-900 hover:bg-gray-50',
+    disabled && 'cursor-not-allowed opacity-50',
+  )}
+>
   {children}
 </button>
 ```
@@ -385,14 +387,14 @@ import { cn } from '#/shared/utils/cn'
 
 Use our brand colours consistently:
 
-| Colour | Hex | Usage |
-|--------|-----|-------|
-| Primary Orange | `#FF6730` | CTAs, links, accents |
-| Primary Yellow | `#FDC60A` | Secondary CTAs, highlights |
-| Dark Text | `#1A1A1A` | Headings, primary text |
-| Muted Text | `#818181` | Descriptions, secondary text |
-| Background | `#FFFFFF` | Page background |
-| Light BG | `#FAFAFA` | Card backgrounds, sections |
+| Colour         | Hex       | Usage                        |
+| -------------- | --------- | ---------------------------- |
+| Primary Orange | `#FF6730` | CTAs, links, accents         |
+| Primary Yellow | `#FDC60A` | Secondary CTAs, highlights   |
+| Dark Text      | `#1A1A1A` | Headings, primary text       |
+| Muted Text     | `#818181` | Descriptions, secondary text |
+| Background     | `#FFFFFF` | Page background              |
+| Light BG       | `#FAFAFA` | Card backgrounds, sections   |
 
 #### No inline styles unless animating
 
@@ -408,10 +410,71 @@ Use our brand colours consistently:
 <div style={{ padding: '16px', fontSize: '14px', color: '#818181' }}>
 ```
 
+### Import Ordering
+
+This project enforces two ESLint import order rules:
+
+- `import/order` (**error**, from `@tanstack/eslint-config`) — type imports must come **after** value imports
+- `import-x/order` (**warning**, configured in `eslint.config.js`) — externals before locals, type group last
+
+**The required order is: value imports first (externals → locals), then type imports last (externals → locals).**
+
+```tsx
+// ✅ Correct
+import { useState } from 'react' // value, external
+import { useNavigate } from '@tanstack/react-router' // value, external
+import { MyUtil } from '../utils' // value, local
+import type React from 'react' // type, external  ← LAST
+import type { MyType } from '../types' // type, local     ← LAST
+
+// ❌ Wrong — type imports mixed with or before value imports
+import type React from 'react'
+import { useState } from 'react'
+import { MyUtil } from '../utils'
+import type { MyType } from '../types'
+```
+
+> [!IMPORTANT]
+> Do **not** flag `import type React from 'react'` appearing at the bottom of the import block — this is the **correct and required** position per the `import/order` error rule. Moving it before local value imports will introduce an `import/order` error.
+
+### Browser API Guards (`navigator.mediaDevices`)
+
+TypeScript's `lib.dom.d.ts` types declare `navigator.mediaDevices` as `MediaDevices` (non-nullable). Any optional chain (`?.`) or `if` guard on it will trigger `@typescript-eslint/no-unnecessary-condition`.
+
+**The correct pattern is to call `.getUserMedia()` directly and handle errors in `.catch()`:**
+
+```ts
+// ✅ Correct — TypeScript types it as non-nullable; .catch() handles denial
+navigator.mediaDevices
+  .getUserMedia({ video: { facingMode: 'user' } })
+  .then((stream) => { /* ... */ })
+  .catch((err) => { /* access denied or unavailable */ })
+
+// ❌ Wrong — triggers @typescript-eslint/no-unnecessary-condition
+if (navigator.mediaDevices) { ... }
+navigator.mediaDevices?.getUserMedia(...)
+```
+
+Wrap the call in a `try/catch` if synchronous failures are also possible (e.g., non-secure HTTP contexts):
+
+```ts
+try {
+  navigator.mediaDevices
+    .getUserMedia({ video: { facingMode: 'user' } })
+    .then(...)
+    .catch(...)
+} catch {
+  // Fallback for environments where mediaDevices throws synchronously
+}
+```
+
+> [!IMPORTANT]
+> Do **not** flag direct `navigator.mediaDevices.getUserMedia()` calls as unsafe. Optional chaining (`?.`) and `if` guards on `navigator.mediaDevices` are **ESLint errors** in this project, not safety improvements.
+
 ### File Naming Conventions
 
 | Type           | Convention                                      | Example                              |
-| ----------------| -------------------------------------------------| --------------------------------------|
+| -------------- | ----------------------------------------------- | ------------------------------------ |
 | Components     | `PascalCase.tsx`                                | `HeroSection.tsx`                    |
 | Hooks          | `camelCase.ts` (starts with `use`)              | `useAuth.ts`                         |
 | Context        | `PascalCase.tsx` (ends with `Context`)          | `ThemeContext.tsx`                   |
@@ -440,16 +503,16 @@ We use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Types
 
-| Type | When to use |
-|------|------------|
-| `feat` | A new feature |
-| `fix` | A bug fix |
+| Type       | When to use                                             |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | A new feature                                           |
+| `fix`      | A bug fix                                               |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `style` | CSS/formatting changes (no logic change) |
-| `docs` | Documentation changes |
-| `test` | Adding or updating tests |
-| `chore` | Build tooling, dependency updates, config changes |
-| `perf` | Performance improvement |
+| `style`    | CSS/formatting changes (no logic change)                |
+| `docs`     | Documentation changes                                   |
+| `test`     | Adding or updating tests                                |
+| `chore`    | Build tooling, dependency updates, config changes       |
+| `perf`     | Performance improvement                                 |
 
 ### Scope
 
@@ -484,6 +547,7 @@ git checkout -b feat/your-feature-name upstream/main
 ```
 
 Branch naming:
+
 - `feat/description` — new feature
 - `fix/description` — bug fix
 - `refactor/description` — refactoring
@@ -589,9 +653,11 @@ export function PricingPage({ plans }: PricingPageProps) {
 
 function PricingCard({ plan }: { plan: PricingPlan }) {
   return (
-    <div className={cn("rounded-2xl border p-6", plan.isPopular && "border-[#FF6730]")}>
+    <div className={cn('rounded-2xl border p-6', plan.isPopular && 'border-[#FF6730]')}>
       <h3>{plan.name}</h3>
-      <p>${plan.price}/{plan.interval}</p>
+      <p>
+        ${plan.price}/{plan.interval}
+      </p>
     </div>
   )
 }
@@ -693,12 +759,14 @@ interface BadgeProps {
 
 export function Badge({ children, variant = 'default' }: BadgeProps) {
   return (
-    <span className={cn(
-      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-      variant === 'default' && "bg-gray-100 text-gray-800",
-      variant === 'success' && "bg-green-100 text-green-800",
-      variant === 'warning' && "bg-yellow-100 text-yellow-800",
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        variant === 'default' && 'bg-gray-100 text-gray-800',
+        variant === 'success' && 'bg-green-100 text-green-800',
+        variant === 'warning' && 'bg-yellow-100 text-yellow-800',
+      )}
+    >
       {children}
     </span>
   )
@@ -711,10 +779,7 @@ export function Badge({ children, variant = 'default' }: BadgeProps) {
 // src/shared/hooks/useClickOutside.ts
 import { useEffect, type RefObject } from 'react'
 
-export function useClickOutside(
-  ref: RefObject<HTMLElement | null>,
-  handler: () => void,
-) {
+export function useClickOutside(ref: RefObject<HTMLElement | null>, handler: () => void) {
   useEffect(() => {
     function handleClick(event: MouseEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) {
@@ -812,7 +877,7 @@ import { SignInForm } from './SignInForm'
 describe('SignInForm', () => {
   it('renders email and password fields', () => {
     render(<SignInForm />)
-    
+
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
   })
@@ -820,11 +885,11 @@ describe('SignInForm', () => {
   it('submits with valid credentials', async () => {
     const user = userEvent.setup()
     render(<SignInForm />)
-    
+
     await user.type(screen.getByLabelText(/email/i), 'test@example.com')
     await user.type(screen.getByLabelText(/password/i), 'password123')
     await user.click(screen.getByRole('button', { name: /sign in/i }))
-    
+
     // Assert expected behavior
   })
 })
@@ -878,4 +943,4 @@ If something in this guide is unclear or you're unsure where code should go, ope
 
 ---
 
-*Last updated: July 2026*
+_Last updated: July 2026_

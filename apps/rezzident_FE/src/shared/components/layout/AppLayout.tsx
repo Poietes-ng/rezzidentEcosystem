@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from '@tanstack/react-router'
 import { AppFrame } from './AppFrame'
 import { HomeIndicator } from './HomeIndicator'
+import type React from 'react'
 
 export function AppLayout(): React.JSX.Element {
   const location = useLocation()

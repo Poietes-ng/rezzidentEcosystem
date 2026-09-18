@@ -13,7 +13,7 @@ export function AppFrame({
   className,
   withTopSafeArea = true,
   withBottomSafeArea = true,
-}: AppFrameProps) {
+}: AppFrameProps): React.JSX.Element {
   return (
     <div className="flex h-dvh w-full items-center justify-center bg-white">
       <div
@@ -24,7 +24,7 @@ export function AppFrame({
           className
         )}
       >
-        <div className="flex-1 overflow-y-auto px-0 hide-scrollbar">
+        <div className="flex flex-1 flex-col min-h-0 overflow-hidden px-0 hide-scrollbar">
           {children}
         </div>
       </div>

@@ -1,13 +1,12 @@
-import { Button } from '../../../../shared/components/ui/button'
-import { Switch } from '../../../../shared/components/ui/switch'
-import { PinInput } from '../../../../shared/components/ui/pin-input'
-import type { UseJoinEstateReturn } from '../useJoinEstate'
+import type React from 'react'
+import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
+import { Button, Switch, PinInput } from '#/shared/components/ui'
 
 interface Props {
   join: UseJoinEstateReturn
 }
 
-export function Step6PinSetup({ join }: Props) {
+export function Step6PinSetup({ join }: Props): React.JSX.Element {
   const {
     displayStep,
     totalSteps,

@@ -1,6 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
-import { Navigation } from '#/shared/components/layout/Navigation'
-import Footer from '#/shared/components/layout/Footer'
+import { Navigation, Footer } from '#/shared/components/layout'
 
 export const Route = createFileRoute('/(public)')({
   component: PublicLayout,
