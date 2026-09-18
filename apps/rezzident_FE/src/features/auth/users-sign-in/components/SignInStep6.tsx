@@ -1,7 +1,5 @@
 import type React from 'react'
-import { Button } from '../../../../shared/components/ui/button'
-import { Switch } from '../../../../shared/components/ui/switch'
-import { PinInput } from '../../../../shared/components/ui/pin-input'
+import { Button, Switch, PinInput } from '#/shared/components/ui'
 import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
 
 interface Props {

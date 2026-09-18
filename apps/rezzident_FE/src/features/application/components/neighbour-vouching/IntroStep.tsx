@@ -41,7 +41,7 @@ export function IntroStep({ onStart, onBack }: IntroStepProps): React.JSX.Elemen
         {/* ── Centered Badge Graphic ── */}
         <div className="flex justify-center py-2">
           <img
-            src="/assets/Vouch.svg"
+            src="/assets/vouch.svg"
             alt="Neighbour Vouching Badge"
             className="h-[140px] w-[140px] object-contain"
           />

@@ -1,6 +1,5 @@
 import type React from 'react'
-import { Button } from '../../../../shared/components/ui/button'
-import { PinInput } from '../../../../shared/components/ui/pin-input'
+import { Button, PinInput } from '#/shared/components/ui'
 import { cn } from '../../../../shared/utils/cn'
 import type { UseJoinEstateReturn } from '../hooks/useJoinEstate'
 

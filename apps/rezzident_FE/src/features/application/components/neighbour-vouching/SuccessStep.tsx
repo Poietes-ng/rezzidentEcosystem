@@ -12,7 +12,7 @@ export function SuccessStep({ onSetupPin }: SuccessStepProps): React.JSX.Element
         {/* ── Success Checkmark Icon Badge ── */}
         <div className="relative mb-6 flex items-center justify-center">
           <img
-            src="/assets/Success_Circle.svg"
+            src="/assets/success-circle.svg"
             alt="Success"
             className="h-24 w-24 object-contain"
           />
