@@ -27,7 +27,7 @@ email-validator==2.3.0
 fastapi==0.115.6
 fastapi-mail==1.4.2
 fastapi_guard==7.8.2
-filelock==3.32.4
+filelock==4.0.0
 flake8==7.3.0
 frozenlist==1.8.0
 greenlet==3.5.5
