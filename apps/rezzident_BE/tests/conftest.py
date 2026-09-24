@@ -17,9 +17,12 @@ from unittest.mock import patch as _patch
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, event
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import NullPool
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import sessionmaker
+
+
 
 _guard_patcher = _patch("guard.SecurityMiddleware", lambda app, **kw: app)
 _guard_patcher.start()
@@ -38,8 +41,8 @@ def _compile_jsonb_sqlite(type_, compiler, **kw):
 
 # ── In-memory SQLite for tests ────────────────────────────────────────────────
 TEST_DATABASE_URL = "sqlite:///./test.db"
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+test_engine = create_async_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+TestSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
 # SQLite doesn't support schemas — intercept schema creation
@@ -51,15 +54,15 @@ def _set_sqlite_pragma(dbapi_conn, connection_record):
 
 
 @pytest.fixture(scope="function")
-def db_session():
+async def db_session():
     """Create a fresh database session for each test."""
-    Base.metadata.create_all(bind=test_engine)
-    session = TestSessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=test_engine)
+    await Base.metadata.create_all(bind=test_engine)
+    async with TestSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+            await Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture(scope="function")
@@ -73,19 +76,19 @@ def mock_redis():
     - is_jti_blacklisted() → always False
     """
     with (
-        patch("api.db.redis.get_redis", return_value=AsyncMock()) as mock_get,
-        patch("api.db.redis.get_redis_pool", return_value=None),
-        patch("api.db.redis.blacklist_jti", new_callable=AsyncMock),
-        patch("api.db.redis.is_jti_blacklisted", new_callable=AsyncMock, return_value=False),
+        patch("api.utils.redis.get_redis", return_value=AsyncMock()) as mock_get,
+        patch("api.utils.redis.get_redis_pool", return_value=None),
+        patch("api.utils.redis.blacklist_jti", new_callable=AsyncMock),
+        patch("api.utils.redis.is_jti_blacklisted", new_callable=AsyncMock, return_value=False),
     ):
         yield mock_get
 
 
 @pytest.fixture(scope="function")
-def client(db_session, mock_redis):
+async def client(db_session, mock_redis):
     """Create a test client with overridden DB dependency and mocked Redis."""
 
-    def override_get_db():
+    async def override_get_db():
         try:
             yield db_session
         finally:
