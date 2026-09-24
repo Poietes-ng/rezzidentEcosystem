@@ -1,10 +1,10 @@
-import { cn } from "../../utils/cn";
+import { cn } from '../../utils/cn'
 
 export interface StepProgressProps {
-  currentStep: number;
-  totalSteps: number;
-  className?: string;
-  showLabel?: boolean;
+  currentStep: number
+  totalSteps: number
+  className?: string
+  showLabel?: boolean
 }
 
 export function StepProgress({
@@ -13,26 +13,23 @@ export function StepProgress({
   className,
   showLabel = true,
 }: StepProgressProps) {
-  const percentage = Math.min(
-    100,
-    Math.max(0, Math.round((currentStep / totalSteps) * 100))
-  );
+  const percentage = Math.min(100, Math.max(0, Math.round((currentStep / totalSteps) * 100)))
 
   return (
-    <div className={cn("flex w-full flex-col gap-3", className)}>
+    <div className={cn('gap-web-lg flex w-full flex-col', className)}>
       {/* Full-width progress bar */}
-      <div className="relative h-[4px] w-full overflow-hidden rounded-full bg-stoneEdge/40">
+      <div className="bg-stoneEdge/40 relative h-[4px] w-full overflow-hidden rounded-full">
         <div
-          className="absolute left-0 top-0 h-full rounded-full bg-actionDark transition-all duration-500 ease-out"
+          className="bg-actionDark absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>
       {/* Label */}
       {showLabel && (
-        <span className="font-dmsans text-[11px] font-medium uppercase tracking-wider text-slateGray">
+        <span className="font-dmsans text-warmGray text-[14px] font-medium tracking-wider uppercase">
           Step {currentStep} of {totalSteps}
         </span>
       )}
     </div>
-  );
+  )
 }
