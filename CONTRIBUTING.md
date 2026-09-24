@@ -26,14 +26,14 @@
 
 ## Prerequisites
 
-| Tool              | Version   | Check                    | Install                                                |
-| ----------------- | --------- | ------------------------ | ------------------------------------------------------ |
-| Docker            | ≥ 24.0    | `docker --version`       | [docker.com](https://www.docker.com)                   |
-| Docker Compose    | ≥ 2.20    | `docker compose version` | Bundled with Docker Desktop                            |
-| Node.js           | ≥ 20.0.0  | `node -v`                | [nodejs.org](https://nodejs.org)                       |
-| pnpm              | ≥ 9.15.0  | `pnpm -v`                | `corepack enable pnpm`                                 |
-| Python            | ≥ 3.11    | `python3 --version`      | [python.org](https://www.python.org)                   |
-| Git               | Latest    | `git --version`          | `brew install git`, [git-scm.com](https://git-scm.com) |
+| Tool           | Version  | Check                    | Install                                                |
+| -------------- | -------- | ------------------------ | ------------------------------------------------------ |
+| Docker         | ≥ 24.0   | `docker --version`       | [docker.com](https://www.docker.com)                   |
+| Docker Compose | ≥ 2.20   | `docker compose version` | Bundled with Docker Desktop                            |
+| Node.js        | ≥ 20.0.0 | `node -v`                | [nodejs.org](https://nodejs.org)                       |
+| pnpm           | ≥ 9.15.0 | `pnpm -v`                | `corepack enable pnpm`                                 |
+| Python         | ≥ 3.11   | `python3 --version`      | [python.org](https://www.python.org)                   |
+| Git            | Latest   | `git --version`          | `brew install git`, [git-scm.com](https://git-scm.com) |
 
 ## Clone and Install
 
@@ -196,21 +196,21 @@ We use **Conventional Commits**. Every commit message follows this format:
 
 ## Scopes
 
-| Scope         | What It Covers                                     |
-| ------------- | -------------------------------------------------- |
-| `fe`          | Frontend app                                       |
-| `be` or `api` | Backend app                                        |
-| `mb`          | Mobile app                                         |
-| `utils`       | packages/utils                                     |
-| `types`       | packages/shared-types                              |
-| `tokens`      | packages/design-tokens                             |
-| `docker`      | docker-compose.yml, Dockerfiles                    |
-| `makefile`    | Makefile                                           |
-| `infra`       | infrastructure/, EC2, nginx (production config)    |
-| `deps`        | Dependency updates                                 |
-| `ci`          | GitHub Actions workflows                           |
-| `github`      | Issue/PR templates, CODEOWNERS, Dependabot         |
-| `auth`        | Authentication feature (any app)                   |
+| Scope         | What It Covers                                  |
+| ------------- | ----------------------------------------------- |
+| `fe`          | Frontend app                                    |
+| `be` or `api` | Backend app                                     |
+| `mb`          | Mobile app                                      |
+| `utils`       | packages/utils                                  |
+| `types`       | packages/shared-types                           |
+| `tokens`      | packages/design-tokens                          |
+| `docker`      | docker-compose.yml, Dockerfiles                 |
+| `makefile`    | Makefile                                        |
+| `infra`       | infrastructure/, EC2, nginx (production config) |
+| `deps`        | Dependency updates                              |
+| `ci`          | GitHub Actions workflows                        |
+| `github`      | Issue/PR templates, CODEOWNERS, Dependabot      |
+| `auth`        | Authentication feature (any app)                |
 
 ## Bad vs Good
 
@@ -379,6 +379,17 @@ kebab-case.tsx      → Route files (join-estate.tsx)
 UPPER_CASE.ts       → Constants (if standalone file)
 *.test.ts           → Tests (next to the file they test)
 ```
+
+## Generating Routes
+
+We use TanStack Router with file-based routing. The `routeTree.gen.ts` file is automatically generated.
+To generate or update the route tree after adding or modifying a route file, run:
+
+```bash
+pnpm --filter rezzident-fe run generate-routes
+```
+
+_(Never edit `routeTree.gen.ts` manually)_
 
 ---
 
@@ -620,24 +631,24 @@ pnpm --filter rezzident-fe test        # Frontend (when tests exist)
 
 # 12. What NOT to Do
 
-| ❌ Never Do This                              | ✅ Do This Instead                                                     |
-| --------------------------------------------- | ---------------------------------------------------------------------- |
-| Commit `.env` files                           | Use `.env.example` with placeholder values                             |
-| Push to `main` directly                       | Open a PR to `develop`                                                 |
-| Use `any` in TypeScript                       | Use `unknown` and narrow the type                                      |
-| Write 500+ line PRs                           | Split into logical chunks                                              |
-| Skip code review                              | Every PR needs at least 1 approval                                     |
-| Install packages globally                     | Use `npx` or add to project `devDependencies`                          |
-| Copy-paste code between FE and MB             | Move it to a shared package                                            |
-| Hardcode API URLs or secrets                  | Use environment variables, documented in `.env.example`                |
-| Ignore CI failures                            | Fix them before merging                                                |
-| Use `console.log` for debugging in production | Use proper error handling and the observability stack                  |
-| Commit `node_modules`                         | It's in `.gitignore` for a reason                                      |
-| Edit `routeTree.gen.ts`                       | It's auto-generated. Your changes will be overwritten.                 |
-| Use `:latest` Docker image tags               | Pin to a specific version — Dependabot keeps them current              |
-| Run the runner stage as root in a Dockerfile  | Add `USER node` (or `USER nonroot`) before `CMD`                       |
-| Use mutable action tags in workflows (`@v4`)  | Pin to commit SHA — Dependabot manages updates via `github-actions`    |
-| `cd apps/... && pnpm lint`                    | `make lint/fe`, `make lint/be`, `make lint/mb` from repo root          |
+| ❌ Never Do This                              | ✅ Do This Instead                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------- |
+| Commit `.env` files                           | Use `.env.example` with placeholder values                          |
+| Push to `main` directly                       | Open a PR to `develop`                                              |
+| Use `any` in TypeScript                       | Use `unknown` and narrow the type                                   |
+| Write 500+ line PRs                           | Split into logical chunks                                           |
+| Skip code review                              | Every PR needs at least 1 approval                                  |
+| Install packages globally                     | Use `npx` or add to project `devDependencies`                       |
+| Copy-paste code between FE and MB             | Move it to a shared package                                         |
+| Hardcode API URLs or secrets                  | Use environment variables, documented in `.env.example`             |
+| Ignore CI failures                            | Fix them before merging                                             |
+| Use `console.log` for debugging in production | Use proper error handling and the observability stack               |
+| Commit `node_modules`                         | It's in `.gitignore` for a reason                                   |
+| Edit `routeTree.gen.ts`                       | It's auto-generated. Your changes will be overwritten.              |
+| Use `:latest` Docker image tags               | Pin to a specific version — Dependabot keeps them current           |
+| Run the runner stage as root in a Dockerfile  | Add `USER node` (or `USER nonroot`) before `CMD`                    |
+| Use mutable action tags in workflows (`@v4`)  | Pin to commit SHA — Dependabot manages updates via `github-actions` |
+| `cd apps/... && pnpm lint`                    | `make lint/fe`, `make lint/be`, `make lint/mb` from repo root       |
 
 ---
 
