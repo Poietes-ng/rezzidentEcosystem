@@ -3,8 +3,8 @@
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy import text, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import engine
 from api.loggers.app_logger import app_logger
@@ -16,7 +16,7 @@ class TenantService:
     """Manages PostgreSQL schemas for multi-tenant isolation."""
 
     @staticmethod
-    def create_tenant_schema(schema_name: str) -> bool:
+    async def create_tenant_schema(schema_name: str) -> bool:
         """Create a new PostgreSQL schema for an estate.
 
         Creates the schema and all tenant tables within it
@@ -28,22 +28,22 @@ class TenantService:
         Returns:
             True if successful.
         """
-        with engine.connect() as conn:
+        async with engine.connect() as conn:
             # Create the schema
-            conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}"'))
-            conn.commit()
+            await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}"'))
+            await conn.commit()
             app_logger.info(f"Created schema: {schema_name}")
 
         return True
 
     @staticmethod
-    def register_estate(
-        db: Session,
+    async def register_estate(
+        db: AsyncSession,
         name: str,
         address: str,
-        city: str = None,
-        state: str = None,
-        local_government: str = None,
+        city: str | None = None,
+        state: str | None = None,
+        local_government: str | None = None,
         management_type: str = "community",
     ) -> Estate:
         """Register a new estate — creates DB record + schema.
@@ -68,7 +68,9 @@ class TenantService:
         # Generate unique code (retry on collision)
         for _ in range(10):
             estate_code = generate_estate_code(name)
-            existing = db.query(Estate).filter(Estate.estate_code == estate_code).first()
+            query = select(Estate).where(Estate.estate_code == estate_code)
+            result = await db.execute(query)
+            existing = result.scalars().first()
             if not existing:
                 break
         else:
@@ -77,7 +79,7 @@ class TenantService:
         schema_name = generate_schema_name(estate_code)
 
         # Create PostgreSQL schema
-        TenantService.create_tenant_schema(schema_name)
+        await TenantService.create_tenant_schema(schema_name)
 
         # Create estate record
         estate = Estate(
@@ -93,18 +95,18 @@ class TenantService:
         )
 
         db.add(estate)
-        db.commit()
-        db.refresh(estate)
+        await db.commit()
+        await db.refresh(estate)
 
         app_logger.info(f"Estate registered: {name} ({estate_code}) -> {schema_name}")
 
         return estate
 
     @staticmethod
-    def schema_exists(schema_name: str) -> bool:
+    async def schema_exists(schema_name: str) -> bool:
         """Check if a schema exists in PostgreSQL."""
-        with engine.connect() as conn:
-            result = conn.execute(
+        async with engine.connect() as conn:
+            result = await conn.execute(
                 text(
                     "SELECT schema_name FROM information_schema.schemata "
                     "WHERE schema_name = :schema"

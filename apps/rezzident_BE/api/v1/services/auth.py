@@ -557,7 +557,7 @@ class AuthService:
         Raises:
             HTTPException: If token is invalid or user not found.
         """
-        from api.db.redis import blacklist_jti
+        from api.utils.redis_client import blacklist_jti
 
         payload = verify_refresh_token(refresh_token_str)
         user_id = payload.get("user_id")

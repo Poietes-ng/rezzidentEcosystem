@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from api.db.database import get_db
 from api.loggers.app_logger import app_logger
 from api.utils.success_response import success_response
+from api.utils.redis_client import get_redis_pool
 
 health = APIRouter(tags=["Health"])
 
@@ -30,7 +31,7 @@ async def readiness_check(db: Session = Depends(get_db)):
 
     Checks:
     1. Database connectivity (PostgreSQL)
-    2. TODO: Redis connectivity
+    2. Redis connectivity
     """
     checks = {"database": False, "redis": False}
 
@@ -41,13 +42,15 @@ async def readiness_check(db: Session = Depends(get_db)):
     except Exception as e:
         app_logger.error(f"Database health check failed: {e}")
 
-    # TODO: Check Redis when redis client is wired
-    # try:
-    #     redis_client.ping()
-    #     checks["redis"] = True
-    # except Exception as e:
-    #     app_logger.error(f"Redis health check failed: {e}")
-    checks["redis"] = True  # Placeholder until Redis is wired
+    try:
+        redis_pool = get_redis_pool()
+        if redis_pool is not None:
+            redis_ok = await redis_pool.ping()
+            checks["redis"] = redis_ok
+        else:
+            app_logger.error("Redis health check failed: Redis pool is not initialized.") 
+    except Exception as e:
+        app_logger.error(f"Redis health check failed: {e}")
 
     all_healthy = all(checks.values())
 

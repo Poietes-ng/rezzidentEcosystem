@@ -17,11 +17,18 @@ Registration flow:
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
+from sqlalchemy.engine import result
+from dbm import dumb
+from sqlalchemy.ext.asyncio.session import AsyncSession
 import secrets
+import base64
+import io
+import uuid
+import mimetypes
 
-from fastapi import BackgroundTasks, HTTPException, status
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from api.loggers.app_logger import app_logger
 from api.utils.mailer import send_email
@@ -30,6 +37,8 @@ from api.v1.models.estate import Estate, EstateStructureTemplate, Stakeholder
 from api.v1.models.users import User
 from api.v1.schemas.estate import EstateRegisterSchema
 from api.v1.services.tenant_service import TenantService
+from api.utils.minio_client import upload_file
+from arq import ArqRedis
 
 # ── Crypto context for stakeholder panel-password hashing ──────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -80,10 +89,10 @@ class EstateService:
     """Estate registration and management business logic."""
 
     @staticmethod
-    def register_estate(
-        db: Session,
-        background_tasks: BackgroundTasks,
+    async def register_estate(
+        db: AsyncSession,
         body: EstateRegisterSchema,
+        arq_pool: ArqRedis,
     ) -> Estate:
         """Register a new estate — full onboarding orchestration.
 
@@ -94,7 +103,7 @@ class EstateService:
 
         Args:
             db: Database session.
-            background_tasks: FastAPI BackgroundTasks — used to send
+            background_tasks: FastAPI arq — used to send
                 stakeholder credential emails without blocking the response.
             body: Validated registration payload.
 
@@ -105,7 +114,7 @@ class EstateService:
             HTTPException: 500 if estate code / schema generation fails.
         """
         try:
-            estate = TenantService.register_estate(
+            estate = await TenantService.register_estate(
                 db=db,
                 name=body.name,
                 address=body.address,
@@ -146,12 +155,42 @@ class EstateService:
 
         if body.stakeholders:
             for idx, s in enumerate(body.stakeholders):
+                nin_file_path = None
+                if s.nin:
+                    # Extract mime type and base64 data
+                    b64_data = s.nin
+                    mime_type = "application/octet-stream"
+                    ext = ""
+                    
+                    if ";" in b64_data and "base64," in b64_data:
+                        header, b64_data = b64_data.split("base64,", 1)
+                        if header.startswith("data:"):
+                            mime_type = header[5:].strip(";")
+                            ext = mimetypes.guess_extension(mime_type) or ""
+                    
+                    try:
+                        file_bytes = base64.b64decode(b64_data)
+                        file_obj = io.BytesIO(file_bytes)
+                        object_name = f"nins/{estate.estate_code}/{uuid.uuid4()}{ext}"
+                        
+                        await upload_file(
+                            object_name=object_name,
+                            data=file_obj,
+                            length=len(file_bytes),
+                            content_type=mime_type,
+                        )
+                        nin_file_path = object_name
+                    except Exception as e:
+                        app_logger.error(f"Failed to upload NIN file for stakeholder {s.email}: {e}")
+                        # Depending on requirements, we can raise HTTPException here or continue
+                        nin_file_path = None
+
                 stakeholder = Stakeholder(
                     estate_id=estate.id,
                     full_name=s.full_name,
                     phone_number=s.phone_number,
                     email=s.email,
-                    nin=s.nin if s.nin else None,
+                    nin=nin_file_path,
                     role_title=s.role_title,
                     is_primary=idx == 0,
                 )
@@ -164,13 +203,13 @@ class EstateService:
 
                 db.add(stakeholder)
 
-        db.commit()
-        db.refresh(estate)
+        await db.commit()
+        await db.refresh(estate)
 
         # ── Send dashboard credentials (background — never blocks response) ──
         for email, plain_password in credentials_to_email:
-            background_tasks.add_task(
-                _send_panel_credentials_email,
+            await arq_pool.enqueue_job(
+                "_send_panel_credentials_email",
                 email,
                 estate.estate_code,
                 plain_password,
@@ -178,7 +217,7 @@ class EstateService:
 
         if credentials_to_email:
             estate.center_panel_credentials_sent = True
-            db.commit()
+            await db.commit()
 
         app_logger.info(
             f"Estate registered: {estate.name} ({estate.estate_code}) "
@@ -189,16 +228,15 @@ class EstateService:
         return estate
 
     @staticmethod
-    def get_estate_by_code(db: Session, estate_code: str) -> Estate:
+    async def get_estate_by_code(db: AsyncSession, estate_code: str) -> Estate:
         """Look up an active estate by its code — used by residents joining."""
-        estate = (
-            db.query(Estate)
-            .filter(
-                Estate.estate_code == estate_code.upper(),
-                Estate.status == "active",
+        result = await db.execute(
+            select(Estate).where(
+            Estate.estate_code == estate_code.upper(),
+            Estate.status == "active",
             )
-            .first()
         )
+        estate = result.scalars().first()
 
         if not estate:
             raise HTTPException(
@@ -209,21 +247,20 @@ class EstateService:
         return estate
 
     @staticmethod
-    def get_estate_for_user(db: Session, current_user: User) -> Estate:
+    async def get_estate_for_user(db: AsyncSession, current_user: User) -> Estate:
         """Get the estate associated with the current authenticated user."""
         if not current_user.estate_id:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="You are not associated with any estate.",
             )
-
-        estate = (
-            db.query(Estate)
-            .filter(
-                Estate.estate_code == current_user.estate_id,
+        
+        result = await db.execute(
+            select(Estate).where(
+                Estate.estate_code == current_user.estate_id
             )
-            .first()
         )
+        estate = result.scalars().first()
 
         if not estate:
             raise HTTPException(
@@ -234,23 +271,27 @@ class EstateService:
         return estate
 
     @staticmethod
-    def list_structure_templates(
-        db: Session,
+    async def list_structure_templates(
+        db: AsyncSession,
         levels: int | None = None,
         category: str | None = None,
     ) -> list[EstateStructureTemplate]:
         """List available estate structure templates for the registration form."""
-        query = db.query(EstateStructureTemplate).filter(
+        query = select(EstateStructureTemplate).where(
             EstateStructureTemplate.is_active == True  # noqa: E712
         )
 
         if category:
-            query = query.filter(EstateStructureTemplate.category == category)
+            query = query.where(EstateStructureTemplate.category == category)
 
-        templates = query.all()
+        result = await db.execute(query)
+        templates = list(result.scalars().all())
 
         # Level-count filter applied in Python (JSONB array length).
         if levels is not None:
-            templates = [t for t in templates if len(t.levels) == levels]
+            templates = [
+                t for t in templates
+                if len(t.levels) == levels
+            ]
 
         return templates
