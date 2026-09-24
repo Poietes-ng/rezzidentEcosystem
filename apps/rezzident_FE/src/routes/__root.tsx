@@ -209,7 +209,6 @@ function RootComponent(): React.JSX.Element {
     <div className="font-sans [overflow-wrap:anywhere] antialiased selection:bg-[rgba(79,184,178,0.24)]">
       <ThemeProvider>
         <AuthProvider>
-          <DevelopmentBanner />
           <Outlet />
           <TanStackDevtools
             config={{
