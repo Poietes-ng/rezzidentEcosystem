@@ -133,7 +133,7 @@ export function useNeighbourVouchingFlow(): UseNeighbourVouchingFlowReturn {
   const handleBack = () => {
     switch (state.currentStep) {
       case 'INTRO':
-        navigate({ to: '/app/join' })
+        window.history.back()
         break
       case 'DETAILS':
         goToStep('INTRO', -1)

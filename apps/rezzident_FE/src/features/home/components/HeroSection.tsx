@@ -38,7 +38,7 @@ export function HeroSection(): React.JSX.Element {
           style={{ animationDelay: '400ms' }}
         >
           <Link to="/app/splash" className="w-full sm:w-auto">
-            <Button variant="default" className="h-[56px] w-full px-8 text-lg sm:w-auto">
+            <Button variant="primary" className="h-[56px] w-full px-8 text-lg sm:w-auto">
               Create Account
             </Button>
           </Link>

@@ -6,13 +6,16 @@ export function LoginScreen(): React.JSX.Element {
   return (
     <div className="flex h-full w-full flex-col bg-white">
       {/* Header */}
-      <div className="px-6 pt-12 pb-6">
-        <Link
-          to="/app/welcome"
-          className="mb-8 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100"
+      <div className="px-6 pb-6">
+        <button
+          type="button"
+          onClick={() => window.history.back()}
+          className="mb-8 inline-flex items-center justify-center"
         >
-          <span className="material-symbols-outlined text-actionDark text-[20px]">arrow_back</span>
-        </Link>
+          <span className="material-symbols-outlined text-actionDark text-[24px]">
+            chevron_left
+          </span>
+        </button>
         <h1 className="font-dmsans text-heading-1 text-actionDark mb-2">Welcome back</h1>
         <p className="font-dmsans text-body-base text-gray-500">
           Sign in to your account to continue
@@ -52,13 +55,13 @@ export function LoginScreen(): React.JSX.Element {
 
       {/* Footer Actions */}
       <div className="px-6 pb-8">
-        <Button variant="default" className="mb-4 w-full">
+        <Button variant="primary" className="mb-4 w-full">
           Sign In
         </Button>
         <p className="font-dmsans text-body-small text-center text-gray-500">
           Don't have an account?{' '}
           <Link
-            to="/app/welcome"
+            to="/app/join"
             className="text-actionDark hover:decoration-actionDark font-medium underline decoration-gray-300 underline-offset-4"
           >
             Sign up

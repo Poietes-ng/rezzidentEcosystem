@@ -35,7 +35,7 @@ export function Navigation(): React.JSX.Element {
           </Link>
           <Link to="/app/splash">
             <Button
-              variant="default"
+              variant="primary"
               className="h-[40px] min-h-[40px] rounded-[8px] px-4 py-2 text-sm"
             >
               Create Account
