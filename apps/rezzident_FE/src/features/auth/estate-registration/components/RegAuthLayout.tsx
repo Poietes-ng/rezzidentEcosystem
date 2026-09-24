@@ -1,7 +1,7 @@
 import { Outlet, Link } from '@tanstack/react-router'
 import { useState, useEffect, useCallback } from 'react'
-import { AnimatePresence, motion  } from 'framer-motion'
-import type {PanInfo} from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion'
+import type { PanInfo } from 'framer-motion'
 
 const SLIDES = [
   { lines: ['Manage Your', 'Estate with', 'Confidence'] },
@@ -200,8 +200,8 @@ export function RegAuthLayout() {
       </div>
 
       {/* ═══ Right Column — Form content (vertically centered) ═══ */}
-      <div className="flex flex-1 items-center justify-center overflow-y-auto">
-        <div className="sm:px-web-2xl py-web-xl px-web-lg w-full">
+      <div className="bg-menuHover flex flex-1 [scrollbar-width:none] flex-col items-center justify-center [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="px-web-lg sm:px-web-2xl mt-web-xl w-full [scrollbar-width:none] overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <Outlet />
         </div>
       </div>
