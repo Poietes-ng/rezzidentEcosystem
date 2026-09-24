@@ -1153,8 +1153,10 @@ ESTATE_STRUCTURE_TEMPLATES = [
     },
 ]
 
+from sqlalchemy import select
 
-def seed_estate_structures(db_session):
+
+async def seed_estate_structures(db):
     """Seed all estate structure templates into the database.
 
     Safe to run multiple times — uses upsert logic.
@@ -1162,11 +1164,13 @@ def seed_estate_structures(db_session):
     from api.v1.models.estate import EstateStructureTemplate
 
     for tpl in ESTATE_STRUCTURE_TEMPLATES:
-        existing = (
-            db_session.query(EstateStructureTemplate)
-            .filter(EstateStructureTemplate.template_id == tpl["template_id"])
-            .first()
+        result = await db.execute(
+            select(EstateStructureTemplate).where(
+                EstateStructureTemplate.template_id == tpl["template_id"]
+            )
         )
+
+        existing = result.scalars().first()
 
         if existing:
             # Update
@@ -1193,17 +1197,26 @@ def seed_estate_structures(db_session):
                 verified=tpl.get("verified", False),
                 source=tpl.get("source"),
             )
-            db_session.add(record)
+            db.add(record)
 
-    db_session.commit()
-    print(f"✅ Seeded {len(ESTATE_STRUCTURE_TEMPLATES)} estate structure templates")
+    await db.commit()
+
+    print(
+        f"✅ Seeded {len(ESTATE_STRUCTURE_TEMPLATES)} "
+        "estate structure templates"
+    )
 
 
 if __name__ == "__main__":
+    import asyncio
     from api.db.database import SessionLocal
 
-    db = SessionLocal()
-    try:
-        seed_estate_structures(db)
-    finally:
-        db.close()
+    async def main():
+        db = SessionLocal()
+
+        try:
+            await seed_estate_structures(db)
+        finally:
+            await db.close()
+
+    asyncio.run(main())
