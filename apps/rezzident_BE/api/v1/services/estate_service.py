@@ -17,28 +17,26 @@ Registration flow:
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-from sqlalchemy.engine import result
-from dbm import dumb
-from sqlalchemy.ext.asyncio.session import AsyncSession
-import secrets
 import base64
 import io
-import uuid
 import mimetypes
+import secrets
+import uuid
 
+from arq import ArqRedis
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from api.loggers.app_logger import app_logger
 from api.utils.mailer import send_email
+from api.utils.minio_client import upload_file
 from api.utils.settings import settings
 from api.v1.models.estate import Estate, EstateStructureTemplate, Stakeholder
 from api.v1.models.users import User
 from api.v1.schemas.estate import EstateRegisterSchema
 from api.v1.services.tenant_service import TenantService
-from api.utils.minio_client import upload_file
-from arq import ArqRedis
 
 # ── Crypto context for stakeholder panel-password hashing ──────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -161,18 +159,18 @@ class EstateService:
                     b64_data = s.nin
                     mime_type = "application/octet-stream"
                     ext = ""
-                    
+
                     if ";" in b64_data and "base64," in b64_data:
                         header, b64_data = b64_data.split("base64,", 1)
                         if header.startswith("data:"):
                             mime_type = header[5:].strip(";")
                             ext = mimetypes.guess_extension(mime_type) or ""
-                    
+
                     try:
                         file_bytes = base64.b64decode(b64_data)
                         file_obj = io.BytesIO(file_bytes)
                         object_name = f"nins/{estate.estate_code}/{uuid.uuid4()}{ext}"
-                        
+
                         await upload_file(
                             object_name=object_name,
                             data=file_obj,
@@ -181,7 +179,9 @@ class EstateService:
                         )
                         nin_file_path = object_name
                     except Exception as e:
-                        app_logger.error(f"Failed to upload NIN file for stakeholder {s.email}: {e}")
+                        app_logger.error(
+                            f"Failed to upload NIN file for stakeholder {s.email}: {e}"
+                        )
                         # Depending on requirements, we can raise HTTPException here or continue
                         nin_file_path = None
 
@@ -237,8 +237,8 @@ class EstateService:
         """Look up an active estate by its code — used by residents joining."""
         result = await db.execute(
             select(Estate).where(
-            Estate.estate_code == estate_code.upper(),
-            Estate.status == "active",
+                Estate.estate_code == estate_code.upper(),
+                Estate.status == "active",
             )
         )
         estate = result.scalars().first()
@@ -259,11 +259,9 @@ class EstateService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="You are not associated with any estate.",
             )
-        
+
         result = await db.execute(
-            select(Estate).where(
-                Estate.estate_code == current_user.estate_id
-            )
+            select(Estate).where(Estate.estate_code == current_user.estate_id)
         )
         estate = result.scalars().first()
 
@@ -294,9 +292,6 @@ class EstateService:
 
         # Level-count filter applied in Python (JSONB array length).
         if levels is not None:
-            templates = [
-                t for t in templates
-                if len(t.levels) == levels
-            ]
+            templates = [t for t in templates if len(t.levels) == levels]
 
         return templates

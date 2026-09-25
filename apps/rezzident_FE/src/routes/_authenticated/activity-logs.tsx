@@ -1,14 +1,12 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import type {ActivityLogFilters, ActivityLogItem, ActivitySummaryStats, PaginatedActivityLogs} from '#/features/activity-logs/api';
-import {
-  fetchActivityLogs,
-  fetchActivitySummary
-  
-  
-  
-  
+import type {
+  ActivityLogFilters,
+  ActivityLogItem,
+  ActivitySummaryStats,
+  PaginatedActivityLogs,
 } from '#/features/activity-logs/api'
+import { fetchActivityLogs, fetchActivitySummary } from '#/features/activity-logs/api'
 
 export const Route = createFileRoute('/_authenticated/activity-logs')({
   component: ActivityLogsPage,
@@ -309,9 +307,9 @@ function DetailDrawer({ log, onClose }: { log: ActivityLogItem | null; onClose: 
             { label: 'Role', value: log.user_role ?? '—' },
             { label: 'Target type', value: log.target_type ?? '—' },
             { label: 'When', value: formatDate(log.timestamp) },
-          ].map(({ label, value }) => (
+          ].map(({ label: itemLabel, value }) => (
             <div
-              key={label}
+              key={itemLabel}
               className="demo-card"
               style={{ padding: '0.75rem', borderRadius: '0.75rem' }}
             >
@@ -325,7 +323,7 @@ function DetailDrawer({ log, onClose }: { log: ActivityLogItem | null; onClose: 
                   marginBottom: 4,
                 }}
               >
-                {label}
+                {itemLabel}
               </div>
               <div
                 style={{
@@ -413,7 +411,7 @@ function ActivityLogsPage() {
   const [selectedLog, setSelectedLog] = useState<ActivityLogItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const searchTimeout = useRef<ReturnType<typeof setTimeout>>()
+  const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Load summary once
   useEffect(() => {

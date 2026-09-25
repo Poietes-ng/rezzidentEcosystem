@@ -3,10 +3,9 @@
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-from sqlalchemy import text, select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.db.database import engine
 from api.loggers.app_logger import app_logger
 from api.utils.estate_id import generate_estate_code, generate_schema_name
 from api.v1.models.estate import Estate
@@ -106,8 +105,7 @@ class TenantService:
         """Check if a schema exists in PostgreSQL."""
         result = await db.execute(
             text(
-                "SELECT schema_name FROM information_schema.schemata "
-                "WHERE schema_name = :schema"
+                "SELECT schema_name FROM information_schema.schemata " "WHERE schema_name = :schema"
             ),
             {"schema": schema_name},
         )

@@ -19,8 +19,8 @@ from typing import Any
 
 from fastapi import BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, func
 
 from api.loggers.app_logger import app_logger
 from api.utils.jwt_handler import (
@@ -144,13 +144,14 @@ class AuthService:
         """
         # Rate limit: max 5 OTPs per phone per hour
         one_hour_ago = datetime.now(UTC) - timedelta(hours=1)
-        recent_count = (await db.execute(
-            select(func.count(OTP.id))
-            .filter(
-                OTP.phone_number == phone_number,
-                OTP.created_at >= one_hour_ago,
+        recent_count = (
+            await db.execute(
+                select(func.count(OTP.id)).filter(
+                    OTP.phone_number == phone_number,
+                    OTP.created_at >= one_hour_ago,
+                )
             )
-        )).scalar()
+        ).scalar()
 
         if recent_count >= OTP_RATE_LIMIT_PER_HOUR:
             raise HTTPException(
@@ -160,11 +161,13 @@ class AuthService:
 
         # Invalidate any existing unused OTPs for this phone + purpose
         await db.execute(
-            update(OTP).filter(
+            update(OTP)
+            .filter(
                 OTP.phone_number == phone_number,
                 OTP.purpose == purpose,
                 OTP.is_used == False,  # noqa: E712
-            ).values(is_used=True)
+            )
+            .values(is_used=True)
         )
 
         # Generate cryptographically secure OTP and hash it
@@ -209,14 +212,20 @@ class AuthService:
         Raises:
             HTTPException if invalid, expired, or max attempts reached.
         """
-        otp_record = (await db.execute(
-            select(OTP)
-            .filter(
-                OTP.phone_number == phone_number,
-                OTP.is_used == False,  # noqa: E712
+        otp_record = (
+            (
+                await db.execute(
+                    select(OTP)
+                    .filter(
+                        OTP.phone_number == phone_number,
+                        OTP.is_used == False,  # noqa: E712
+                    )
+                    .order_by(OTP.created_at.desc())
+                )
             )
-            .order_by(OTP.created_at.desc())
-        )).scalars().first()
+            .scalars()
+            .first()
+        )
 
         if not otp_record:
             raise HTTPException(
@@ -412,7 +421,11 @@ class AuthService:
             Tuple of (User, token_dict).
         """
         # Guard: no duplicate registrations
-        existing = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
+        existing = (
+            (await db.execute(select(User).filter(User.phone_number == phone_number)))
+            .scalars()
+            .first()
+        )
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -420,7 +433,11 @@ class AuthService:
             )
 
         # CSV pre-verification check (Tier 1 = PRE_VERIFIED = full access)
-        csv_match = (await db.execute(select(Resident).filter(Resident.phone_number == phone_number))).scalars().first()
+        csv_match = (
+            (await db.execute(select(Resident).filter(Resident.phone_number == phone_number)))
+            .scalars()
+            .first()
+        )
 
         tier = VerificationTier.SELF_REGISTERED
         house_number = None
@@ -468,7 +485,11 @@ class AuthService:
         """
         await AuthService.verify_otp(db=db, phone_number=phone_number, otp_code=otp_code)
 
-        user = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
+        user = (
+            (await db.execute(select(User).filter(User.phone_number == phone_number)))
+            .scalars()
+            .first()
+        )
         has_pin = user is not None and user.pin_hash is not None
 
         return {
@@ -496,7 +517,11 @@ class AuthService:
         Raises:
             HTTPException: If user not found or PIN invalid.
         """
-        user = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
+        user = (
+            (await db.execute(select(User).filter(User.phone_number == phone_number)))
+            .scalars()
+            .first()
+        )
 
         if not user:
             raise HTTPException(

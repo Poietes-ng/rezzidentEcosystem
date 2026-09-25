@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
 from api.loggers.app_logger import app_logger
-from api.utils.success_response import success_response
 from api.utils.redis_client import get_redis_pool
+from api.utils.success_response import success_response
 
 health = APIRouter(tags=["Health"])
 

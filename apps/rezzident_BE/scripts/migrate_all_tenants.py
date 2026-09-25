@@ -25,8 +25,9 @@ def get_all_tenant_schemas():
 
 def migrate_schema(schema_name: str):
     """Run alembic upgrade head on a specific schema."""
-    from alembic import command
     from alembic.config import Config
+
+    from alembic import command
 
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("schema_name", schema_name)
@@ -46,8 +47,9 @@ def main():
 
     # 1. Migrate public schema first
     app_logger.info("Migrating public schema...")
-    from alembic import command
     from alembic.config import Config
+
+    from alembic import command
 
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")

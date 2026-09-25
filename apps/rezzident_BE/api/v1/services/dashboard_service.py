@@ -110,7 +110,9 @@ class DashboardService:
             # ── Stats ──
             active_codes: int = (
                 await db.scalar(
-                    select(func.count()).select_from(VisitorCode).where(
+                    select(func.count())
+                    .select_from(VisitorCode)
+                    .where(
                         VisitorCode.user_id == current_user.id,
                         VisitorCode.is_active,
                         VisitorCode.is_used == False,  # noqa: E712
@@ -121,7 +123,9 @@ class DashboardService:
 
             scheduled_visits: int = (
                 await db.scalar(
-                    select(func.count()).select_from(Visitor).where(
+                    select(func.count())
+                    .select_from(Visitor)
+                    .where(
                         Visitor.user_id == current_user.id,
                         Visitor.time_of_visit >= now,
                         Visitor.actual_arrival.is_(None),
@@ -270,7 +274,9 @@ class DashboardService:
 
             return (
                 await db.scalar(
-                    select(func.count()).select_from(Notification).where(
+                    select(func.count())
+                    .select_from(Notification)
+                    .where(
                         Notification.user_id == user.id,
                         Notification.is_read == False,  # noqa: E712
                     )
@@ -299,31 +305,33 @@ class DashboardService:
 
             activities_today: int = (
                 await db.scalar(
-                    select(func.count()).select_from(ActivityLog).where(
-                        ActivityLog.created_at >= today_start
-                    )
+                    select(func.count())
+                    .select_from(ActivityLog)
+                    .where(ActivityLog.created_at >= today_start)
                 )
             ) or 0
 
             activities_week: int = (
                 await db.scalar(
-                    select(func.count()).select_from(ActivityLog).where(
-                        ActivityLog.created_at >= week_start
-                    )
+                    select(func.count())
+                    .select_from(ActivityLog)
+                    .where(ActivityLog.created_at >= week_start)
                 )
             ) or 0
 
             approved_count: int = (
                 await db.scalar(
-                    select(func.count()).select_from(ResidentBill).where(
-                        ResidentBill.payment_status == ResidentBillStatus.APPROVED
-                    )
+                    select(func.count())
+                    .select_from(ResidentBill)
+                    .where(ResidentBill.payment_status == ResidentBillStatus.APPROVED)
                 )
             ) or 0
 
             active_visitors: int = (
                 await db.scalar(
-                    select(func.count()).select_from(VisitorCode).where(
+                    select(func.count())
+                    .select_from(VisitorCode)
+                    .where(
                         VisitorCode.is_used,
                         VisitorCode.actual_arrival.isnot(None),
                         VisitorCode.actual_departure.is_(None),
@@ -448,9 +456,7 @@ class DashboardService:
         """Get recent activity log entries for admin dashboard."""
         try:
             result = await db.execute(
-                select(ActivityLog)
-                .order_by(ActivityLog.created_at.desc())
-                .limit(limit)
+                select(ActivityLog).order_by(ActivityLog.created_at.desc()).limit(limit)
             )
             activities = result.scalars().all()
             return [
@@ -592,7 +598,9 @@ class DashboardService:
             now = datetime.now(UTC)
             overdue_count: int = (
                 await db.scalar(
-                    select(func.count()).select_from(Bill).where(
+                    select(func.count())
+                    .select_from(Bill)
+                    .where(
                         Bill.due_date < now,
                         Bill.status != "cancelled",
                         Bill.status != "paid",
@@ -641,8 +649,18 @@ class DashboardService:
         """Monthly transaction volume for chart."""
         try:
             months = [
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December",
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
             ]
 
             bills_rows = (
@@ -755,9 +773,7 @@ class DashboardService:
             "last_login": current_user.last_login.isoformat() if current_user.last_login else None,
         }
 
-    async def get_smart_dashboard(
-        self, db: AsyncSession, current_user: User
-    ) -> dict[str, Any]:
+    async def get_smart_dashboard(self, db: AsyncSession, current_user: User) -> dict[str, Any]:
         """Route to the correct dashboard based on user role."""
         role_map = {
             UserRole.RESIDENT: (

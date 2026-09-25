@@ -17,7 +17,7 @@ class WorkerSettings:
         send_otp_sms,
         process_paystack_webhook,
         send_panel_credentials_email,  # was enqueued by name but never registered
-        migrate_all_tenants_job,       # defined in jobs.py but was missing here
+        migrate_all_tenants_job,  # defined in jobs.py but was missing here
     ]
     cron_jobs = [
         # Nightly tenant schema migration at 03:00 UTC.

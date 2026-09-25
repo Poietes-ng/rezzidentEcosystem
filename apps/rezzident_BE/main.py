@@ -32,7 +32,6 @@ from sqlalchemy.exc import IntegrityError
 from starlette.middleware.sessions import SessionMiddleware
 
 
-
 def ensure_secret_key() -> None:
     """Validate SECRET_KEY is set to a real value at startup.
 
@@ -62,9 +61,6 @@ ensure_secret_key()
 # fastapi-guard — top-level imports (v7.x API)
 from guard import SecurityConfig, SecurityMiddleware
 
-from api.utils.redis_client import init_redis, close_redis
-from api.utils.arq_client import init_arq_pool, close_arq_pool
-from api.utils.minio_client import ensure_bucket_exists
 from api.db.database import engine
 from api.loggers.app_logger import app_logger
 from api.middleware.request_id import RequestIdMiddleware
@@ -72,6 +68,9 @@ from api.middleware.request_id import RequestIdMiddleware
 # V2 Middleware imports
 from api.middleware.security_headers import SecurityHeadersMiddleware
 from api.middleware.tenant import TenantMiddleware
+from api.utils.arq_client import close_arq_pool, init_arq_pool
+from api.utils.minio_client import ensure_bucket_exists
+from api.utils.redis_client import close_redis, init_redis
 from api.utils.settings import settings
 from api.utils.success_response import success_response
 from api.v1.routes import api_version_one
@@ -143,7 +142,7 @@ async def lifespan(app: FastAPI):
 
     app.state.arq_pool = await init_arq_pool()
     try:
-        await ensure_bucket_exists()   
+        await ensure_bucket_exists()
     except Exception as e:
         app_logger.error(f"MinIO offline at startup, skipping bucket creation: {e}")
 

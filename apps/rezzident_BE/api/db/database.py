@@ -6,7 +6,7 @@ swapped to asyncpg/aiosqlite at runtime; settings.database_url itself
 stays in its sync form for Alembic.
 """
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.pool import NullPool
 
@@ -21,8 +21,14 @@ def _to_async_url(url: str) -> str:
 
 def get_db_engine(test_mode: bool = False):
     if settings.DB_TYPE == "sqlite" or test_mode:
-        url = f"sqlite+aiosqlite:///{BASE_DIR}/test.db" if test_mode else f"sqlite+aiosqlite:///{BASE_DIR}/app.db"
-        return create_async_engine(url, connect_args={"check_same_thread": False}, poolclass=NullPool)
+        url = (
+            f"sqlite+aiosqlite:///{BASE_DIR}/test.db"
+            if test_mode
+            else f"sqlite+aiosqlite:///{BASE_DIR}/app.db"
+        )
+        return create_async_engine(
+            url, connect_args={"check_same_thread": False}, poolclass=NullPool
+        )
 
     return create_async_engine(
         _to_async_url(settings.database_url),

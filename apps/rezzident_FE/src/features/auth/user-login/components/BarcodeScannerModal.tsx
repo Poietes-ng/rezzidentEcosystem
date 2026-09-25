@@ -40,6 +40,7 @@ export function BarcodeScannerModal({
     // Suppress ZXing's internal per-frame decode noise (NotFoundException,
     // ChecksumException, etc. are expected while no barcode is in frame).
     // ZXing routes these through console.log, console.warn, AND console.error.
+    /* eslint-disable no-console */
     const originalLog = console.log
     const originalWarn = console.warn
     const originalError = console.error
@@ -67,6 +68,7 @@ export function BarcodeScannerModal({
       if (isZXingNoise(args)) return
       originalError.apply(console, args)
     }
+    /* eslint-enable no-console */
 
     async function startScan() {
       try {
@@ -88,6 +90,7 @@ export function BarcodeScannerModal({
               onDetected(result.getText())
             } else if (err && !(err instanceof NotFoundException)) {
               // NotFoundException fires every frame with no barcode — ignore it
+              // eslint-disable-next-line no-console
               console.warn('Scan error:', err)
             }
           },
@@ -124,9 +127,11 @@ export function BarcodeScannerModal({
     return () => {
       stopped = true
       // Restore console methods and stop all camera streams
+      /* eslint-disable no-console */
       console.log = originalLog
       console.warn = originalWarn
       console.error = originalError
+      /* eslint-enable no-console */
       BrowserMultiFormatReader.releaseAllStreams()
     }
   }, [onDetected])

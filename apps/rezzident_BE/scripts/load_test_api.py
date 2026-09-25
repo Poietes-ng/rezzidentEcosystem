@@ -64,7 +64,7 @@ import httpx
 # ── Configuration ─────────────────────────────────────────────────────────────
 DEFAULT_BASE_URL = "http://127.0.0.1:7001"
 REQUEST_TIMEOUT = 20.0
-SLOW_THRESHOLD_MS = 500    # Warn if any response takes longer than this
+SLOW_THRESHOLD_MS = 500  # Warn if any response takes longer than this
 
 PASS = "✅"
 FAIL = "❌"
@@ -149,8 +149,9 @@ async def api(
             if verbose:
                 print(f"  {FAIL} {test_name}: {msg}")
                 print(f"       Body: {json.dumps(body, indent=2)[:500]}")
-            return TestResult(test_name, False, response.status_code, expected_status,
-                              latency_ms, msg, body)
+            return TestResult(
+                test_name, False, response.status_code, expected_status, latency_ms, msg, body
+            )
 
         # ── Response field checks ─────────────────────────────────────────
         # Walk dot-notation paths to validate nested response fields.
@@ -181,22 +182,28 @@ async def api(
 
         if failures:
             msg = "Response shape mismatch:\n" + "\n".join(failures)
-            return TestResult(test_name, False, response.status_code, expected_status,
-                              latency_ms, msg, body)
+            return TestResult(
+                test_name, False, response.status_code, expected_status, latency_ms, msg, body
+            )
 
         # ── Slow response warning ─────────────────────────────────────────
         warn_slow = latency_ms > SLOW_THRESHOLD_MS
-        msg = f"⚠️  Slow ({latency_ms:.0f}ms > {SLOW_THRESHOLD_MS}ms threshold)" if warn_slow else ""
+        msg = (
+            f"⚠️  Slow ({latency_ms:.0f}ms > {SLOW_THRESHOLD_MS}ms threshold)" if warn_slow else ""
+        )
 
-        return TestResult(test_name, True, response.status_code, expected_status,
-                          latency_ms, msg, body)
+        return TestResult(
+            test_name, True, response.status_code, expected_status, latency_ms, msg, body
+        )
 
     except httpx.TimeoutException:
         latency_ms = (time.perf_counter() - start) * 1000
         return TestResult(test_name, False, 0, expected_status, latency_ms, "Request timed out")
     except httpx.ConnectError as e:
         latency_ms = (time.perf_counter() - start) * 1000
-        return TestResult(test_name, False, 0, expected_status, latency_ms, f"Connection error: {e}")
+        return TestResult(
+            test_name, False, 0, expected_status, latency_ms, f"Connection error: {e}"
+        )
 
 
 def _rand_phone() -> str:
@@ -220,15 +227,14 @@ def print_result(r: TestResult, verbose: bool = False) -> None:
     icon = PASS if r.passed else FAIL
     latency_flag = WARN if r.latency_ms > SLOW_THRESHOLD_MS else " "
     print(f"  {icon} {r.name:<45} {r.latency_ms:>7.1f}ms  HTTP {r.status_code} {latency_flag}")
-    if not r.passed:
-        print(f"     → {r.message}")
-    elif r.message and verbose:
+    if not r.passed or r.message and verbose:
         print(f"     → {r.message}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TEST SUITES
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 async def suite_health(client: httpx.AsyncClient, base_url: str, verbose: bool) -> TestSuite:
     """
@@ -249,19 +255,40 @@ async def suite_health(client: httpx.AsyncClient, base_url: str, verbose: bool) 
     print_suite_header("Suite 1 — Health Endpoints")
 
     # Test 1: GET /api/v1/healthz → 200, {"success": true, "data": {"status": "healthy"}}
-    r = await api(client, "GET", f"{base_url}/api/v1/healthz", 200, "GET /healthz → 200 healthy",
-                  checks=[("data.status", "healthy"), ("success", True)], verbose=verbose)
+    r = await api(
+        client,
+        "GET",
+        f"{base_url}/api/v1/healthz",
+        200,
+        "GET /healthz → 200 healthy",
+        checks=[("data.status", "healthy"), ("success", True)],
+        verbose=verbose,
+    )
     suite.add(r)
     print_result(r, verbose)
 
     # Test 2: GET /api/v1/readyz → 200, both DB and Redis checks pass
-    r = await api(client, "GET", f"{base_url}/api/v1/readyz", 200, "GET /readyz → 200 all checks pass",
-                  checks=[("data.checks.database", True), ("data.checks.redis", True)], verbose=verbose)
+    r = await api(
+        client,
+        "GET",
+        f"{base_url}/api/v1/readyz",
+        200,
+        "GET /readyz → 200 all checks pass",
+        checks=[("data.checks.database", True), ("data.checks.redis", True)],
+        verbose=verbose,
+    )
     suite.add(r)
     print_result(r, verbose)
 
     # Test 3: /healthz is fast (Kubernetes probes run every 10s — they MUST be cheap)
-    r = await api(client, "GET", f"{base_url}/api/v1/healthz", 200, "GET /healthz → responds in <200ms", verbose=verbose)
+    r = await api(
+        client,
+        "GET",
+        f"{base_url}/api/v1/healthz",
+        200,
+        "GET /healthz → responds in <200ms",
+        verbose=verbose,
+    )
     perf_ok = r.latency_ms < 200
     r.passed = r.passed and perf_ok
     if not perf_ok:
@@ -272,7 +299,9 @@ async def suite_health(client: httpx.AsyncClient, base_url: str, verbose: bool) 
     return suite
 
 
-async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) -> tuple[TestSuite, dict]:
+async def suite_auth(
+    client: httpx.AsyncClient, base_url: str, verbose: bool
+) -> tuple[TestSuite, dict]:
     """
     Suite 2: Authentication Flow
     =============================
@@ -301,8 +330,11 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
 
     # ── Step 1: Request OTP ───────────────────────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/request-otp", 200,
-        f"POST /register/request-otp → 200",
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/request-otp",
+        200,
+        "POST /register/request-otp → 200",
         checks=[
             ("success", True),
             ("data.phone_number", phone),
@@ -321,7 +353,11 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     otp_in_body = "otp_code" in body_text or "otp" in (r.response_body or {}).get("data", {})
     r2_passed = not otp_in_body
     r2 = TestResult(
-        "OTP not exposed in response body", r2_passed, 200, 200, 0,
+        "OTP not exposed in response body",
+        r2_passed,
+        200,
+        200,
+        0,
         "" if r2_passed else "SECURITY BUG: OTP code found in response!",
     )
     suite.add(r2)
@@ -331,7 +367,10 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     # In production, verify-otp runs first. In dev, we can call set-pin
     # directly if the OTP is pre-marked as used (or bypass logic exists).
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/set-pin", 201,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/set-pin",
+        201,
         "POST /register/set-pin → 201 Created",
         checks=[
             ("success", True),
@@ -353,11 +392,16 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
 
     if r.passed and r.response_body:
         ctx["access_token"] = r.response_body.get("data", {}).get("tokens", {}).get("access_token")
-        ctx["refresh_token"] = r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+        ctx["refresh_token"] = (
+            r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+        )
 
     # ── Step 4: Login with correct PIN ───────────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/login/verify-pin", 200,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/login/verify-pin",
+        200,
         "POST /login/verify-pin → 200 OK",
         checks=[
             ("success", True),
@@ -373,11 +417,16 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     if r.passed and r.response_body:
         # Update tokens from login (may differ from registration tokens)
         ctx["access_token"] = r.response_body.get("data", {}).get("tokens", {}).get("access_token")
-        ctx["refresh_token"] = r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+        ctx["refresh_token"] = (
+            r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+        )
 
     # ── Step 5: Login with WRONG PIN → 401 ───────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/login/verify-pin", 401,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/login/verify-pin",
+        401,
         "POST /login/verify-pin wrong PIN → 401",
         json={"phone_number": phone, "pin": "0000"},
         verbose=verbose,
@@ -388,7 +437,10 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     # ── Step 6: Get /me with valid token → 200 ───────────────────────────────
     if ctx.get("access_token"):
         r = await api(
-            client, "GET", f"{base_url}/api/v1/auth/me", 200,
+            client,
+            "GET",
+            f"{base_url}/api/v1/auth/me",
+            200,
             "GET /me with valid token → 200",
             checks=[("success", True), ("data.phone_number", phone)],
             headers={"Authorization": f"Bearer {ctx['access_token']}"},
@@ -401,7 +453,10 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
 
     # ── Step 7: Get /me WITHOUT token → 403 ──────────────────────────────────
     r = await api(
-        client, "GET", f"{base_url}/api/v1/auth/me", 403,
+        client,
+        "GET",
+        f"{base_url}/api/v1/auth/me",
+        403,
         "GET /me without token → 403 Forbidden",
         verbose=verbose,
     )
@@ -412,7 +467,10 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     old_access = ctx.get("access_token")
     if ctx.get("refresh_token"):
         r = await api(
-            client, "POST", f"{base_url}/api/v1/auth/refresh", 200,
+            client,
+            "POST",
+            f"{base_url}/api/v1/auth/refresh",
+            200,
             "POST /refresh → 200 new token pair",
             checks=[("success", True), ("data.tokens.access_token", True)],
             json={"refresh_token": ctx["refresh_token"]},
@@ -426,19 +484,28 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
             new_access = r.response_body.get("data", {}).get("tokens", {}).get("access_token")
             rotation_ok = new_access and new_access != old_access
             r_rot = TestResult(
-                "Refresh returns NEW token (rotation)", rotation_ok, 200, 200, 0,
+                "Refresh returns NEW token (rotation)",
+                rotation_ok,
+                200,
+                200,
+                0,
                 "" if rotation_ok else "Token rotation failed: got same access token",
             )
             suite.add(r_rot)
             print_result(r_rot, verbose)
             ctx["access_token"] = new_access
-            ctx["refresh_token"] = r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+            ctx["refresh_token"] = (
+                r.response_body.get("data", {}).get("tokens", {}).get("refresh_token")
+            )
     else:
         print(f"  {SKIP} POST /refresh — skipped (no refresh token)")
 
     # ── Step 9: Refresh with garbage token → 401 ─────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/refresh", 401,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/refresh",
+        401,
         "POST /refresh invalid token → 401",
         json={"refresh_token": "this.is.garbage"},
         verbose=verbose,
@@ -449,7 +516,10 @@ async def suite_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) ->
     # ── Step 10: Logout ───────────────────────────────────────────────────────
     if ctx.get("access_token"):
         r = await api(
-            client, "POST", f"{base_url}/api/v1/auth/logout", 200,
+            client,
+            "POST",
+            f"{base_url}/api/v1/auth/logout",
+            200,
             "POST /logout → 200 success",
             checks=[("success", True)],
             headers={"Authorization": f"Bearer {ctx['access_token']}"},
@@ -484,7 +554,10 @@ async def suite_validation(client: httpx.AsyncClient, base_url: str, verbose: bo
 
     # ── Missing required fields → 422 ─────────────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/request-otp", 422,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/request-otp",
+        422,
         "POST /request-otp missing phone → 422",
         json={},  # phone_number is required
         verbose=verbose,
@@ -494,7 +567,10 @@ async def suite_validation(client: httpx.AsyncClient, base_url: str, verbose: bo
 
     # ── Wrong field type → 422 ─────────────────────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/request-otp", 422,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/request-otp",
+        422,
         "POST /request-otp invalid phone format → 422",
         json={"phone_number": "not-a-phone"},
         verbose=verbose,
@@ -504,7 +580,10 @@ async def suite_validation(client: httpx.AsyncClient, base_url: str, verbose: bo
 
     # ── PINs don't match → 422 ────────────────────────────────────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/set-pin", 422,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/set-pin",
+        422,
         "POST /set-pin mismatched PINs → 422",
         json={
             "phone_number": "+2348012345678",
@@ -520,7 +599,10 @@ async def suite_validation(client: httpx.AsyncClient, base_url: str, verbose: bo
 
     # ── Invalid PIN (sequential digits — security rule) → 422 ─────────────────
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/register/set-pin", 422,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/register/set-pin",
+        422,
         "POST /set-pin sequential PIN (1234) → 422",
         json={
             "phone_number": "+2348012345678",
@@ -539,7 +621,10 @@ async def suite_validation(client: httpx.AsyncClient, base_url: str, verbose: bo
     # registered so it passes Pydantic validation but the service returns 404.
     # (+2349999999999 was rejected by the phone validator → 422 before service ran)
     r = await api(
-        client, "POST", f"{base_url}/api/v1/auth/login/verify-pin", 404,
+        client,
+        "POST",
+        f"{base_url}/api/v1/auth/login/verify-pin",
+        404,
         "POST /login unknown phone → 404",
         json={"phone_number": "+2348000000001", "pin": "2580"},
         verbose=verbose,
@@ -575,7 +660,10 @@ async def suite_rate_limiting(client: httpx.AsyncClient, base_url: str, verbose:
 
     for i in range(1, 6):
         r = await api(
-            client, "POST", url, 200,
+            client,
+            "POST",
+            url,
+            200,
             f"POST /request-otp (attempt {i}/5) → 200",
             json={"phone_number": phone},
             verbose=verbose,
@@ -588,7 +676,10 @@ async def suite_rate_limiting(client: httpx.AsyncClient, base_url: str, verbose:
 
     # 6th request should be rate-limited
     r = await api(
-        client, "POST", url, 429,
+        client,
+        "POST",
+        url,
+        429,
         "POST /request-otp (6th attempt) → 429 Rate Limited",
         json={"phone_number": phone},
         verbose=verbose,
@@ -599,7 +690,9 @@ async def suite_rate_limiting(client: httpx.AsyncClient, base_url: str, verbose:
     return suite
 
 
-async def suite_concurrent_auth(client: httpx.AsyncClient, base_url: str, verbose: bool) -> TestSuite:
+async def suite_concurrent_auth(
+    client: httpx.AsyncClient, base_url: str, verbose: bool
+) -> TestSuite:
     """
     Suite 5: Concurrency Correctness
     ==================================
@@ -622,11 +715,18 @@ async def suite_concurrent_auth(client: httpx.AsyncClient, base_url: str, verbos
     phones = [_rand_phone() for _ in range(20)]
     url = f"{base_url}/api/v1/auth/register/request-otp"
 
-    print(f"  Firing 20 concurrent OTP requests...")
+    print("  Firing 20 concurrent OTP requests...")
     tasks = [
-        api(client, "POST", url, 200, f"Concurrent OTP [{i+1}]",
+        api(
+            client,
+            "POST",
+            url,
+            200,
+            f"Concurrent OTP [{i+1}]",
             checks=[("data.phone_number", phone)],
-            json={"phone_number": phone}, verbose=False)
+            json={"phone_number": phone},
+            verbose=False,
+        )
         for i, phone in enumerate(phones)
     ]
 
@@ -639,7 +739,9 @@ async def suite_concurrent_auth(client: httpx.AsyncClient, base_url: str, verbos
 
     icon = PASS if fail_count == 0 else FAIL
     print(f"  {icon} {pass_count}/20 requests succeeded in {wall_ms:.0f}ms wall clock")
-    print(f"     Avg latency: {sum(r.latency_ms for r in results) / len(results):.0f}ms per request")
+    print(
+        f"     Avg latency: {sum(r.latency_ms for r in results) / len(results):.0f}ms per request"
+    )
 
     if fail_count:
         print(f"  {FAIL} {fail_count} requests failed:")
@@ -676,7 +778,7 @@ async def main(base_url: str, verbose: bool) -> None:
             print(f"  {PASS} Server is up → HTTP {r.status_code}")
         except Exception as e:
             print(f"  {FAIL} Cannot reach server: {e}")
-            print(f"       Start it: docker compose up")
+            print("       Start it: docker compose up")
             return
 
         all_suites: list[TestSuite] = []
@@ -699,7 +801,7 @@ async def main(base_url: str, verbose: bool) -> None:
 
         # ── Final Report ──────────────────────────────────────────────────
         print(f"\n{'═' * 65}")
-        print(f"  FINAL REPORT")
+        print("  FINAL REPORT")
         print(f"{'═' * 65}")
 
         total_pass = sum(s.passed for s in all_suites)

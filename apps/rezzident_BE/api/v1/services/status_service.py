@@ -211,7 +211,9 @@ class StatusService:
     async def check_auth(self, db: AsyncSession) -> dict[str, Any]:
         from api.v1.models.users import User
 
-        return await self._check_module(db, "Authentication", User, "User authentication & authorization")
+        return await self._check_module(
+            db, "Authentication", User, "User authentication & authorization"
+        )
 
     async def check_bills(self, db: AsyncSession) -> dict[str, Any]:
         from api.v1.models.bills import Bill
@@ -230,7 +232,9 @@ class StatusService:
     async def check_notifications(self, db: AsyncSession) -> dict[str, Any]:
         from api.v1.models.notification import Notification
 
-        return await self._check_module(db, "Notifications", Notification, "Push & in-app notifications")
+        return await self._check_module(
+            db, "Notifications", Notification, "Push & in-app notifications"
+        )
 
     async def check_expenses(self, db: AsyncSession) -> dict[str, Any]:
         from api.v1.models.expense import Expense
@@ -249,7 +253,9 @@ class StatusService:
     async def check_staff(self, db: AsyncSession) -> dict[str, Any]:
         from api.v1.models.staff import Staff
 
-        return await self._check_module(db, "Staff Management", Staff, "Estate staff administration")
+        return await self._check_module(
+            db, "Staff Management", Staff, "Estate staff administration"
+        )
 
     # ── Persistence ──────────────────────────────────────
     async def log_health_check(
@@ -283,15 +289,11 @@ class StatusService:
         return record
 
     # ── History queries ──────────────────────────────────
-    async def get_history(
-        self, db: AsyncSession, limit: int = 50, skip: int = 0
-    ) -> dict[str, Any]:
+    async def get_history(self, db: AsyncSession, limit: int = 50, skip: int = 0) -> dict[str, Any]:
         """Get paginated health check history."""
         from sqlalchemy import func
 
-        total: int = (
-            await db.scalar(select(func.count()).select_from(SystemHealthCheck))
-        ) or 0
+        total: int = (await db.scalar(select(func.count()).select_from(SystemHealthCheck))) or 0
 
         result = await db.execute(
             select(SystemHealthCheck)
@@ -352,9 +354,7 @@ class StatusService:
             ],
         }
 
-    async def get_daily_summary(
-        self, db: AsyncSession, days: int = 90
-    ) -> list[dict[str, Any]]:
+    async def get_daily_summary(self, db: AsyncSession, days: int = 90) -> list[dict[str, Any]]:
         """Daily uptime summary for uptime bar chart."""
         since = datetime.now(UTC) - timedelta(days=days)
         result = await db.execute(
@@ -434,9 +434,17 @@ class StatusService:
         )
 
         services: list[dict[str, Any]] = [
-            db_check, auth_check, bills_check, visitors_check,
-            notif_check, expenses_check, invoices_check, staff_check,
-            paystack_check, termii_check, redis_check,
+            db_check,
+            auth_check,
+            bills_check,
+            visitors_check,
+            notif_check,
+            expenses_check,
+            invoices_check,
+            staff_check,
+            paystack_check,
+            termii_check,
+            redis_check,
         ]
 
         # Filter out not_configured services for overall status calc

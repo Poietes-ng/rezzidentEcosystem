@@ -14,17 +14,17 @@ validate input → call service → return response.
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
+from arq import ArqRedis
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
+from api.utils.arq_client import get_arq_pool
 from api.utils.jwt_handler import get_current_user
 from api.utils.success_response import success_response
 from api.v1.models.users import User
 from api.v1.schemas.estate import EstateRegisterSchema
 from api.v1.services.estate_service import EstateService
-from api.utils.arq_client import get_arq_pool
-from arq import ArqRedis
 
 estates = APIRouter(prefix="/estates", tags=["Estates"])
 

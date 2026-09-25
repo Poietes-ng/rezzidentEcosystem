@@ -24,7 +24,9 @@ async def ensure_bucket_exists() -> None:
         await run_in_threadpool(minio_client.make_bucket, BUCKET)
 
 
-async def upload_file(object_name: str, data, length: int, content_type: str = "application/octet-stream"):
+async def upload_file(
+    object_name: str, data, length: int, content_type: str = "application/octet-stream"
+):
     return await run_in_threadpool(
         minio_client.put_object, BUCKET, object_name, data, length, content_type=content_type
     )
@@ -32,5 +34,8 @@ async def upload_file(object_name: str, data, length: int, content_type: str = "
 
 async def get_file_url(object_name: str, expires_seconds: int = 3600) -> str:
     return await run_in_threadpool(
-        minio_client.presigned_get_object, BUCKET, object_name, expires=timedelta(seconds=expires_seconds)
+        minio_client.presigned_get_object,
+        BUCKET,
+        object_name,
+        expires=timedelta(seconds=expires_seconds),
     )

@@ -8,7 +8,7 @@ Provides:
 - mock_redis: Patches Redis so JTI blacklist checks pass without a real server
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 # ── Disable fastapi-guard SecurityMiddleware for tests ─────────────────────────
 # Must be patched BEFORE importing main.py, which calls app.add_middleware()
@@ -17,13 +17,9 @@ from unittest.mock import patch as _patch
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import event
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import select, update, func
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.pool import NullPool
+from sqlalchemy import event, select
 from sqlalchemy.dialects.postgresql import JSONB
-
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 _guard_patcher = _patch("guard.SecurityMiddleware", lambda app, **kw: app)
 _guard_patcher.start()
@@ -32,8 +28,8 @@ _guard_patcher.start()
 from sqlalchemy.ext.compiler import compiles
 
 from api.db.database import Base, get_db
-from main import app
 from api.utils.redis_client import get_redis_pool
+from main import app
 
 
 @compiles(JSONB, "sqlite")
@@ -44,7 +40,9 @@ def _compile_jsonb_sqlite(type_, compiler, **kw):
 # ── In-memory SQLite for tests ────────────────────────────────────────────────
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
 test_engine = create_async_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=test_engine, expire_on_commit=False)
+TestSessionLocal = async_sessionmaker(
+    autocommit=False, autoflush=False, bind=test_engine, expire_on_commit=False
+)
 
 
 # SQLite doesn't support schemas — intercept schema creation
@@ -95,7 +93,9 @@ def mock_redis():
         patch("api.utils.redis_client.get_redis", return_value=AsyncMock()) as mock_get,
         patch("api.utils.redis_client.get_redis_pool", return_value=mock_pool),
         patch("api.utils.redis_client.blacklist_jti", new_callable=AsyncMock),
-        patch("api.utils.redis_client.is_jti_blacklisted", new_callable=AsyncMock, return_value=False),
+        patch(
+            "api.utils.redis_client.is_jti_blacklisted", new_callable=AsyncMock, return_value=False
+        ),
         patch("main.init_redis", new_callable=AsyncMock),
         patch("main.close_redis", new_callable=AsyncMock),
         patch("main.init_arq_pool", new_callable=AsyncMock),
@@ -173,11 +173,15 @@ async def registered_user(client, db_session, test_phone, test_pin):
 
     # Grab the OTP from DB (we stored the hash — we need to create a known one)
     # Instead, let's directly create a verified OTP state and register
-    otp_record = (await db_session.execute(
-        select(OTP)
-        .filter(OTP.phone_number == test_phone)
-        .order_by(OTP.created_at.desc())
-    )).scalars().first()
+    otp_record = (
+        (
+            await db_session.execute(
+                select(OTP).filter(OTP.phone_number == test_phone).order_by(OTP.created_at.desc())
+            )
+        )
+        .scalars()
+        .first()
+    )
 
     # We need the actual OTP code — in tests we can brute force it or
     # patch _generate_otp. Let's use a simpler approach: patch the OTP gen.

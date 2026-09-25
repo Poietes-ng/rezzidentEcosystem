@@ -50,16 +50,15 @@ import asyncio
 import statistics
 import time
 from dataclasses import dataclass, field
-from typing import Callable, Coroutine
 
 import httpx
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 DEFAULT_BASE_URL = "http://127.0.0.1:7001"
-CONCURRENCY = 50          # Number of simultaneous requests
-SEQUENTIAL_SAMPLE = 50    # Must equal CONCURRENCY for a fair wall-clock speedup comparison:
-                           # speedup = "50 reqs one-by-one" ÷ "50 reqs all at once"
-REQUEST_TIMEOUT = 60.0    # Seconds before timing out a single request (sequential 50 may take ~5s)
+CONCURRENCY = 50  # Number of simultaneous requests
+SEQUENTIAL_SAMPLE = 50  # Must equal CONCURRENCY for a fair wall-clock speedup comparison:
+# speedup = "50 reqs one-by-one" ÷ "50 reqs all at once"
+REQUEST_TIMEOUT = 60.0  # Seconds before timing out a single request (sequential 50 may take ~5s)
 CONNECT_TIMEOUT = 5.0
 
 
@@ -75,10 +74,10 @@ class RequestResult:
 @dataclass
 class BenchmarkResult:
     label: str
-    mode: str                           # "sequential" | "concurrent"
+    mode: str  # "sequential" | "concurrent"
     concurrency: int
     results: list[RequestResult] = field(default_factory=list)
-    wall_clock_ms: float = 0.0          # Total elapsed real time
+    wall_clock_ms: float = 0.0  # Total elapsed real time
 
     @property
     def successes(self) -> list[RequestResult]:
@@ -133,10 +132,14 @@ async def make_request(
         )
     except httpx.TimeoutException as e:
         elapsed_ms = (time.perf_counter() - start) * 1000
-        return RequestResult(latency_ms=elapsed_ms, status_code=0, success=False, error=f"Timeout: {e}")
+        return RequestResult(
+            latency_ms=elapsed_ms, status_code=0, success=False, error=f"Timeout: {e}"
+        )
     except httpx.ConnectError as e:
         elapsed_ms = (time.perf_counter() - start) * 1000
-        return RequestResult(latency_ms=elapsed_ms, status_code=0, success=False, error=f"ConnectError: {e}")
+        return RequestResult(
+            latency_ms=elapsed_ms, status_code=0, success=False, error=f"ConnectError: {e}"
+        )
     except Exception as e:
         elapsed_ms = (time.perf_counter() - start) * 1000
         return RequestResult(latency_ms=elapsed_ms, status_code=0, success=False, error=str(e))
@@ -187,6 +190,7 @@ PASS = "✅"
 FAIL = "❌"
 WARN = "⚠️ "
 
+
 def _bar(value: float, max_value: float, width: int = 30) -> str:
     """Simple ASCII bar chart."""
     filled = int((value / max(max_value, 1)) * width)
@@ -206,10 +210,15 @@ def print_comparison(seq: BenchmarkResult, conc: BenchmarkResult) -> None:
     speedup = ss["wall_clock_ms"] / max(cs["wall_clock_ms"], 1)
     avg_speedup = ss["avg_ms"] / max(cs["avg_ms"], 1)
 
-    print(f"\n  {'Metric':<28} {'Sequential (×{n})':>18} {'Concurrent (×{n2})':>18}".format(
-        n=seq.concurrency, n2=conc.concurrency))
+    print(
+        f"\n  {'Metric':<28} {'Sequential (×{n})':>18} {'Concurrent (×{n2})':>18}".format(
+            n=seq.concurrency, n2=conc.concurrency
+        )
+    )
     print(f"  {'─' * 28} {'─' * 18} {'─' * 18}")
-    print(f"  {'Total wall clock (ms)':<28} {ss['wall_clock_ms']:>18.1f} {cs['wall_clock_ms']:>18.1f}")
+    print(
+        f"  {'Total wall clock (ms)':<28} {ss['wall_clock_ms']:>18.1f} {cs['wall_clock_ms']:>18.1f}"
+    )
     print(f"  {'Avg latency (ms)':<28} {ss['avg_ms']:>18.1f} {cs['avg_ms']:>18.1f}")
     print(f"  {'Median latency (ms)':<28} {ss['median_ms']:>18.1f} {cs['median_ms']:>18.1f}")
     print(f"  {'p95 latency (ms)':<28} {ss['p95_ms']:>18.1f} {cs['p95_ms']:>18.1f}")
@@ -218,12 +227,16 @@ def print_comparison(seq: BenchmarkResult, conc: BenchmarkResult) -> None:
     print(f"  {'Max latency (ms)':<28} {ss['max_ms']:>18.1f} {cs['max_ms']:>18.1f}")
     print(f"  {'Std dev (ms)':<28} {ss['stdev_ms']:>18.1f} {cs['stdev_ms']:>18.1f}")
     print(f"  {'Failures':<28} {ss['failures']:>18}  {cs['failures']:>17}")
-    print(f"  {'Failure rate':<28} {ss['failure_rate_pct']:>17.1f}% {cs['failure_rate_pct']:>17.1f}%")
+    print(
+        f"  {'Failure rate':<28} {ss['failure_rate_pct']:>17.1f}% {cs['failure_rate_pct']:>17.1f}%"
+    )
     print()
 
     # Speedup analysis
-    print(f"  ── Analysis ──────────────────────────────────────────────")
-    print(f"  Wall-clock speedup   : {speedup:.1f}× faster (expected ≈ {conc.concurrency // seq.concurrency}×)")
+    print("  ── Analysis ──────────────────────────────────────────────")
+    print(
+        f"  Wall-clock speedup   : {speedup:.1f}× faster (expected ≈ {conc.concurrency // seq.concurrency}×)"
+    )
     print(f"  Avg latency speedup  : {avg_speedup:.1f}× lower per request")
 
     expected_speedup = conc.concurrency / max(ss["count"], 1)  # theoretical max
@@ -252,13 +265,17 @@ def print_result_row(r: BenchmarkResult) -> None:
         print(f"  {FAIL} {r.label} — all requests failed")
         return
     icon = PASS if s["failure_rate_pct"] == 0 else (WARN if s["failure_rate_pct"] < 20 else FAIL)
-    print(f"  {icon} {r.label:<30} avg={s['avg_ms']:>7.1f}ms  "
-          f"p95={s['p95_ms']:>7.1f}ms  wall={s['wall_clock_ms']:>8.1f}ms  "
-          f"fail={s['failures']}/{len(r.results)}")
+    print(
+        f"  {icon} {r.label:<30} avg={s['avg_ms']:>7.1f}ms  "
+        f"p95={s['p95_ms']:>7.1f}ms  wall={s['wall_clock_ms']:>8.1f}ms  "
+        f"fail={s['failures']}/{len(r.results)}"
+    )
 
 
 # ── Test scenarios ─────────────────────────────────────────────────────────────
-async def scenario_healthz(client: httpx.AsyncClient, base_url: str) -> tuple[BenchmarkResult, BenchmarkResult]:
+async def scenario_healthz(
+    client: httpx.AsyncClient, base_url: str
+) -> tuple[BenchmarkResult, BenchmarkResult]:
     """
     Scenario 1: GET /healthz
     -------------------------
@@ -274,7 +291,9 @@ async def scenario_healthz(client: httpx.AsyncClient, base_url: str) -> tuple[Be
     return seq, conc
 
 
-async def scenario_readyz(client: httpx.AsyncClient, base_url: str) -> tuple[BenchmarkResult, BenchmarkResult]:
+async def scenario_readyz(
+    client: httpx.AsyncClient, base_url: str
+) -> tuple[BenchmarkResult, BenchmarkResult]:
     """
     Scenario 2: GET /readyz
     -----------------------
@@ -291,7 +310,9 @@ async def scenario_readyz(client: httpx.AsyncClient, base_url: str) -> tuple[Ben
     return seq, conc
 
 
-async def scenario_otp(client: httpx.AsyncClient, base_url: str) -> tuple[BenchmarkResult, BenchmarkResult]:
+async def scenario_otp(
+    client: httpx.AsyncClient, base_url: str
+) -> tuple[BenchmarkResult, BenchmarkResult]:
     """
     Scenario 3: POST /api/v1/auth/register/request-otp
     ----------------------------------------------------
@@ -308,6 +329,7 @@ async def scenario_otp(client: httpx.AsyncClient, base_url: str) -> tuple[Benchm
     """
     url = f"{base_url}/api/v1/auth/register/request-otp"
     import time as _time
+
     # Use a time-based offset so each test run gets fresh phone numbers that
     # have never been rate-limited. Without this, re-running the script reuses
     # the same numbers which hit the OTP rate limiter (5 attempts) and queue
@@ -326,17 +348,30 @@ async def scenario_otp(client: httpx.AsyncClient, base_url: str) -> tuple[Benchm
         r = await make_request(client, "POST", url, json=payloads[i])
         seq_results.append(r)
     seq_wall = (time.perf_counter() - start) * 1000
-    seq = BenchmarkResult(label="POST /request-otp", mode="sequential", concurrency=1,
-                          results=seq_results, wall_clock_ms=seq_wall)
+    seq = BenchmarkResult(
+        label="POST /request-otp",
+        mode="sequential",
+        concurrency=1,
+        results=seq_results,
+        wall_clock_ms=seq_wall,
+    )
 
     conc_results: list[RequestResult] = []
     print(f"  Running concurrent burst ({CONCURRENCY} requests)...")
-    tasks = [make_request(client, "POST", url, json=payloads[SEQUENTIAL_SAMPLE + i]) for i in range(CONCURRENCY)]
+    tasks = [
+        make_request(client, "POST", url, json=payloads[SEQUENTIAL_SAMPLE + i])
+        for i in range(CONCURRENCY)
+    ]
     start = time.perf_counter()
     conc_results = list(await asyncio.gather(*tasks))
     conc_wall = (time.perf_counter() - start) * 1000
-    conc = BenchmarkResult(label="POST /request-otp", mode="concurrent", concurrency=CONCURRENCY,
-                           results=conc_results, wall_clock_ms=conc_wall)
+    conc = BenchmarkResult(
+        label="POST /request-otp",
+        mode="concurrent",
+        concurrency=CONCURRENCY,
+        results=conc_results,
+        wall_clock_ms=conc_wall,
+    )
 
     return seq, conc
 
@@ -363,7 +398,7 @@ async def main(base_url: str) -> None:
             print(f"  {PASS} Server is up → HTTP {r.status_code}")
         except Exception as e:
             print(f"  {FAIL} Cannot reach server: {e}")
-            print(f"       Make sure the API is running: docker compose up")
+            print("       Make sure the API is running: docker compose up")
             return
 
         all_sequential: list[BenchmarkResult] = []
@@ -398,20 +433,28 @@ async def main(base_url: str) -> None:
 
         # ── Summary ───────────────────────────────────────────────────────
         print_section("SUMMARY — All Scenarios")
-        print(f"\n  {'Scenario':<30} {'Mode':<12} {'Avg (ms)':>10} {'p95 (ms)':>10} {'Wall (ms)':>10} {'Fails':>6}")
+        print(
+            f"\n  {'Scenario':<30} {'Mode':<12} {'Avg (ms)':>10} {'p95 (ms)':>10} {'Wall (ms)':>10} {'Fails':>6}"
+        )
         print(f"  {'─' * 30} {'─' * 12} {'─' * 10} {'─' * 10} {'─' * 10} {'─' * 6}")
         for r in all_sequential + all_concurrent:
             s = r.stats()
             if s:
-                mode_label = f"seq×{r.concurrency}" if r.mode == "sequential" else f"conc×{r.concurrency}"
-                print(f"  {r.label:<30} {mode_label:<12} {s['avg_ms']:>10.1f} {s['p95_ms']:>10.1f} "
-                      f"{s['wall_clock_ms']:>10.1f} {s['failures']:>6}")
+                mode_label = (
+                    f"seq×{r.concurrency}" if r.mode == "sequential" else f"conc×{r.concurrency}"
+                )
+                print(
+                    f"  {r.label:<30} {mode_label:<12} {s['avg_ms']:>10.1f} {s['p95_ms']:>10.1f} "
+                    f"{s['wall_clock_ms']:>10.1f} {s['failures']:>6}"
+                )
 
         # Overall verdict — count how many individual scenarios passed
         passing_scenarios = sum(
-            1 for seq, conc in zip(all_sequential, all_concurrent)
-            if seq.stats() and conc.stats() and
-            (seq.stats()["wall_clock_ms"] / max(conc.stats()["wall_clock_ms"], 1))
+            1
+            for seq, conc in zip(all_sequential, all_concurrent, strict=False)
+            if seq.stats()
+            and conc.stats()
+            and (seq.stats()["wall_clock_ms"] / max(conc.stats()["wall_clock_ms"], 1))
             >= (conc.concurrency / max(seq.stats()["count"], 1)) * 0.5
         )
         total_scenarios = len(all_sequential)
@@ -425,18 +468,22 @@ async def main(base_url: str) -> None:
         print(f"\n  Individual scenario verdicts: {passing_scenarios}/{total_scenarios} passed\n")
 
         if passing_scenarios == total_scenarios:
-            print(f"  {PASS} ASYNC CONFIRMED: All {total_scenarios} scenarios show no event loop blocking.")
-            print(f"     Wall-clock speedup near 1× is CORRECT on local Docker — it means")
-            print(f"     50 concurrent requests finish in the same total time as 50 sequential,")
-            print(f"     proving the server handles them in parallel rather than queuing them.")
-            print(f"     On a production Linux server with a larger DB pool you would see 5-15×.")
+            print(
+                f"  {PASS} ASYNC CONFIRMED: All {total_scenarios} scenarios show no event loop blocking."
+            )
+            print("     Wall-clock speedup near 1× is CORRECT on local Docker — it means")
+            print("     50 concurrent requests finish in the same total time as 50 sequential,")
+            print("     proving the server handles them in parallel rather than queuing them.")
+            print("     On a production Linux server with a larger DB pool you would see 5-15×.")
         elif passing_scenarios >= total_scenarios // 2:
-            print(f"  {WARN} {passing_scenarios}/{total_scenarios} scenarios passed. Some I/O may still be synchronous.")
-            print(f"     Check for Session.query() calls in routes that returned low speedup.")
+            print(
+                f"  {WARN} {passing_scenarios}/{total_scenarios} scenarios passed. Some I/O may still be synchronous."
+            )
+            print("     Check for Session.query() calls in routes that returned low speedup.")
         else:
             print(f"  {FAIL} Only {passing_scenarios}/{total_scenarios} scenarios passed.")
-            print(f"     Likely cause: sync DB calls blocking the event loop.")
-            print(f"     Search for: db.query(), Session (not AsyncSession), .all() without await")
+            print("     Likely cause: sync DB calls blocking the event loop.")
+            print("     Search for: db.query(), Session (not AsyncSession), .all() without await")
 
         print(f"\n{'═' * 65}\n")
 

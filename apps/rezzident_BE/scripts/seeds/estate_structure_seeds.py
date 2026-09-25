@@ -1201,14 +1201,12 @@ async def seed_estate_structures(db):
 
     await db.commit()
 
-    print(
-        f"✅ Seeded {len(ESTATE_STRUCTURE_TEMPLATES)} "
-        "estate structure templates"
-    )
+    print(f"✅ Seeded {len(ESTATE_STRUCTURE_TEMPLATES)} " "estate structure templates")
 
 
 if __name__ == "__main__":
     import asyncio
+
     from api.db.database import SessionLocal
 
     async def main():

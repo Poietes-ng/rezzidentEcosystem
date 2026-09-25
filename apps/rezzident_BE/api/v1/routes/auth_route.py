@@ -17,8 +17,8 @@ from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
-from api.utils.redis_client import get_redis
 from api.utils.jwt_handler import get_current_user
+from api.utils.redis_client import get_redis
 from api.utils.success_response import success_response
 from api.v1.models.otp import OTPPurpose
 from api.v1.models.users import User

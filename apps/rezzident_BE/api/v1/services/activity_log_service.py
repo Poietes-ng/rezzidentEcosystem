@@ -167,7 +167,12 @@ class ActivityLogService:
         )
 
     async def log_invoice_created(
-        self, db: AsyncSession, user_id: str, invoice_number: str, resident_identifier: str, bill_id: str
+        self,
+        db: AsyncSession,
+        user_id: str,
+        invoice_number: str,
+        resident_identifier: str,
+        bill_id: str,
     ):
         return await self.log_activity(
             db,
@@ -227,7 +232,12 @@ class ActivityLogService:
 
     # ── Staff ──
     async def log_staff_created(
-        self, db: AsyncSession, creator_id: str, staff_name: str, staff_role: str, staff_user_id: str
+        self,
+        db: AsyncSession,
+        creator_id: str,
+        staff_name: str,
+        staff_role: str,
+        staff_user_id: str,
     ):
         return await self.log_activity(
             db,
@@ -253,7 +263,9 @@ class ActivityLogService:
             target_id=expense_id,
         )
 
-    async def log_expense_approved(self, db: AsyncSession, user_id: str, title: str, expense_id: str):
+    async def log_expense_approved(
+        self, db: AsyncSession, user_id: str, title: str, expense_id: str
+    ):
         return await self.log_activity(
             db,
             user_id,
@@ -313,7 +325,9 @@ class ActivityLogService:
         )
 
     # ── V2 NEW: Estate Management ──
-    async def log_estate_created(self, db: AsyncSession, user_id: str, estate_name: str, estate_id: str):
+    async def log_estate_created(
+        self, db: AsyncSession, user_id: str, estate_name: str, estate_id: str
+    ):
         return await self.log_activity(
             db,
             user_id,
@@ -496,7 +510,9 @@ class ActivityLogService:
             created_at=activity.created_at,
         )
 
-    async def get_activity_summary(self, db: AsyncSession, current_user: User) -> ActivitySummaryStats:
+    async def get_activity_summary(
+        self, db: AsyncSession, current_user: User
+    ) -> ActivitySummaryStats:
         """Get summary statistics."""
         base_filter = []
         if current_user.role.value in ("resident",):
