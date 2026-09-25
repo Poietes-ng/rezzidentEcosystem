@@ -1,4 +1,4 @@
-from datetime import UTC
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String, func
 from uuid6 import uuid7
@@ -16,7 +16,7 @@ class BaseTableModel(Base):
 
     __abstract__ = True
 
-    id = Column(String, primary_key=True, index=True, default=lambda: str(uuid7().hex))
+    id = Column(String, primary_key=True, index=True, default=lambda: uuid7().hex)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     is_deleted = Column(Boolean, default=False, nullable=False)
@@ -35,7 +35,5 @@ class BaseTableModel(Base):
 
     def soft_delete(self):
         """Mark this record as deleted without removing from database."""
-        from datetime import datetime
-
-        self.is_deleted = True
-        self.deleted_at = datetime.now(UTC)
+        self.is_deleted = True  # type: ignore[assignment]
+        self.deleted_at = datetime.now(UTC)  # type: ignore[assignment]

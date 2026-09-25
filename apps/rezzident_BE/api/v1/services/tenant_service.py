@@ -16,7 +16,7 @@ class TenantService:
     """Manages PostgreSQL schemas for multi-tenant isolation."""
 
     @staticmethod
-    async def create_tenant_schema(schema_name: str) -> bool:
+    async def create_tenant_schema(db: AsyncSession, schema_name: str) -> bool:
         """Create a new PostgreSQL schema for an estate.
 
         Creates the schema and all tenant tables within it
@@ -28,11 +28,10 @@ class TenantService:
         Returns:
             True if successful.
         """
-        async with engine.connect() as conn:
-            # Create the schema
-            await conn.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}"'))
-            await conn.commit()
-            app_logger.info(f"Created schema: {schema_name}")
+        # Create the schema using the provided db session
+        await db.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{schema_name}"'))
+        await db.commit()
+        app_logger.info(f"Created schema: {schema_name}")
 
         return True
 
@@ -79,7 +78,7 @@ class TenantService:
         schema_name = generate_schema_name(estate_code)
 
         # Create PostgreSQL schema
-        await TenantService.create_tenant_schema(schema_name)
+        await TenantService.create_tenant_schema(db, schema_name)
 
         # Create estate record
         estate = Estate(
@@ -103,14 +102,13 @@ class TenantService:
         return estate
 
     @staticmethod
-    async def schema_exists(schema_name: str) -> bool:
+    async def schema_exists(db: AsyncSession, schema_name: str) -> bool:
         """Check if a schema exists in PostgreSQL."""
-        async with engine.connect() as conn:
-            result = await conn.execute(
-                text(
-                    "SELECT schema_name FROM information_schema.schemata "
-                    "WHERE schema_name = :schema"
-                ),
-                {"schema": schema_name},
-            )
-            return result.fetchone() is not None
+        result = await db.execute(
+            text(
+                "SELECT schema_name FROM information_schema.schemata "
+                "WHERE schema_name = :schema"
+            ),
+            {"schema": schema_name},
+        )
+        return result.fetchone() is not None

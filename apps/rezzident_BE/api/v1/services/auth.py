@@ -19,7 +19,8 @@ from typing import Any
 
 from fastapi import BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, func
 
 from api.loggers.app_logger import app_logger
 from api.utils.jwt_handler import (
@@ -120,8 +121,8 @@ class AuthService:
     # ── OTP ────────────────────────────────────────────────────────────────────
 
     @staticmethod
-    def create_and_send_otp(
-        db: Session,
+    async def create_and_send_otp(
+        db: AsyncSession,
         phone_number: str,
         purpose: OTPPurpose,
         background_tasks: BackgroundTasks,
@@ -143,14 +144,13 @@ class AuthService:
         """
         # Rate limit: max 5 OTPs per phone per hour
         one_hour_ago = datetime.now(UTC) - timedelta(hours=1)
-        recent_count = (
-            db.query(OTP)
+        recent_count = (await db.execute(
+            select(func.count(OTP.id))
             .filter(
                 OTP.phone_number == phone_number,
                 OTP.created_at >= one_hour_ago,
             )
-            .count()
-        )
+        )).scalar()
 
         if recent_count >= OTP_RATE_LIMIT_PER_HOUR:
             raise HTTPException(
@@ -159,11 +159,13 @@ class AuthService:
             )
 
         # Invalidate any existing unused OTPs for this phone + purpose
-        db.query(OTP).filter(
-            OTP.phone_number == phone_number,
-            OTP.purpose == purpose,
-            OTP.is_used == False,  # noqa: E712
-        ).update({"is_used": True})
+        await db.execute(
+            update(OTP).filter(
+                OTP.phone_number == phone_number,
+                OTP.purpose == purpose,
+                OTP.is_used == False,  # noqa: E712
+            ).values(is_used=True)
+        )
 
         # Generate cryptographically secure OTP and hash it
         otp_code = _generate_otp()
@@ -177,7 +179,7 @@ class AuthService:
             expires_at=datetime.now(UTC) + timedelta(minutes=OTP_EXPIRY_MINUTES),
         )
         db.add(otp_record)
-        db.commit()
+        await db.commit()
 
         # Queue OTP delivery as a background task — response returns immediately
         background_tasks.add_task(_deliver_otp, phone_number, otp_code)
@@ -189,8 +191,8 @@ class AuthService:
         }
 
     @staticmethod
-    def verify_otp(
-        db: Session,
+    async def verify_otp(
+        db: AsyncSession,
         phone_number: str,
         otp_code: str,
     ) -> bool:
@@ -207,15 +209,14 @@ class AuthService:
         Raises:
             HTTPException if invalid, expired, or max attempts reached.
         """
-        otp_record = (
-            db.query(OTP)
+        otp_record = (await db.execute(
+            select(OTP)
             .filter(
                 OTP.phone_number == phone_number,
                 OTP.is_used == False,  # noqa: E712
             )
             .order_by(OTP.created_at.desc())
-            .first()
-        )
+        )).scalars().first()
 
         if not otp_record:
             raise HTTPException(
@@ -239,7 +240,7 @@ class AuthService:
         otp_record.attempts += 1
 
         if not _verify_hash(otp_code, otp_record.otp_hash):
-            db.commit()
+            await db.commit()
             remaining = otp_record.max_attempts - otp_record.attempts
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -248,14 +249,14 @@ class AuthService:
 
         # Mark as used — prevents replay attacks
         otp_record.is_used = True
-        db.commit()
+        await db.commit()
 
         return True
 
     # ── PIN ────────────────────────────────────────────────────────────────────
 
     @staticmethod
-    def set_pin(db: Session, user: User, pin: str) -> User:
+    async def set_pin(db: AsyncSession, user: User, pin: str) -> User:
         """Set or update a user's PIN.
 
         Args:
@@ -269,12 +270,12 @@ class AuthService:
         user.pin_hash = _hash_value(pin)
         user.pin_attempts = 0
         user.pin_locked_until = None
-        db.commit()
-        db.refresh(user)
+        await db.commit()
+        await db.refresh(user)
         return user
 
     @staticmethod
-    def verify_pin(db: Session, user: User, pin: str) -> bool:
+    async def verify_pin(db: AsyncSession, user: User, pin: str) -> bool:
         """Verify a user's PIN with lockout protection.
 
         Rules:
@@ -312,7 +313,7 @@ class AuthService:
 
             if user.pin_attempts >= PIN_MAX_ATTEMPTS:
                 user.pin_locked_until = datetime.now(UTC) + timedelta(minutes=PIN_LOCKOUT_MINUTES)
-                db.commit()
+                await db.commit()
                 raise HTTPException(
                     status_code=status.HTTP_423_LOCKED,
                     detail=(
@@ -321,7 +322,7 @@ class AuthService:
                     ),
                 )
 
-            db.commit()
+            await db.commit()
             remaining = PIN_MAX_ATTEMPTS - user.pin_attempts
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -332,7 +333,7 @@ class AuthService:
         user.pin_attempts = 0
         user.pin_locked_until = None
         user.last_login = datetime.now(UTC)
-        db.commit()
+        await db.commit()
 
         return True
 
@@ -384,8 +385,8 @@ class AuthService:
     # ── Registration ───────────────────────────────────────────────────────────
 
     @staticmethod
-    def register_user(
-        db: Session,
+    async def register_user(
+        db: AsyncSession,
         phone_number: str,
         full_name: str,
         pin: str,
@@ -411,7 +412,7 @@ class AuthService:
             Tuple of (User, token_dict).
         """
         # Guard: no duplicate registrations
-        existing = db.query(User).filter(User.phone_number == phone_number).first()
+        existing = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -419,7 +420,7 @@ class AuthService:
             )
 
         # CSV pre-verification check (Tier 1 = PRE_VERIFIED = full access)
-        csv_match = db.query(Resident).filter(Resident.phone_number == phone_number).first()
+        csv_match = (await db.execute(select(Resident).filter(Resident.phone_number == phone_number))).scalars().first()
 
         tier = VerificationTier.SELF_REGISTERED
         house_number = None
@@ -440,8 +441,8 @@ class AuthService:
         )
 
         db.add(user)
-        db.commit()
-        db.refresh(user)
+        await db.commit()
+        await db.refresh(user)
 
         tokens = AuthService.generate_tokens(user, estate_code=estate_code)
 
@@ -450,8 +451,8 @@ class AuthService:
     # ── Login helpers (extracted from routes) ──────────────────────────────────
 
     @staticmethod
-    def login_verify_otp(
-        db: Session,
+    async def login_verify_otp(
+        db: AsyncSession,
         phone_number: str,
         otp_code: str,
     ) -> dict[str, Any]:
@@ -465,9 +466,9 @@ class AuthService:
         Returns:
             Dict with phone_number, verified flag, and requires_pin flag.
         """
-        AuthService.verify_otp(db=db, phone_number=phone_number, otp_code=otp_code)
+        await AuthService.verify_otp(db=db, phone_number=phone_number, otp_code=otp_code)
 
-        user = db.query(User).filter(User.phone_number == phone_number).first()
+        user = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
         has_pin = user is not None and user.pin_hash is not None
 
         return {
@@ -477,8 +478,8 @@ class AuthService:
         }
 
     @staticmethod
-    def login_with_pin(
-        db: Session,
+    async def login_with_pin(
+        db: AsyncSession,
         phone_number: str,
         pin: str,
     ) -> tuple[User, dict]:
@@ -495,7 +496,7 @@ class AuthService:
         Raises:
             HTTPException: If user not found or PIN invalid.
         """
-        user = db.query(User).filter(User.phone_number == phone_number).first()
+        user = (await db.execute(select(User).filter(User.phone_number == phone_number))).scalars().first()
 
         if not user:
             raise HTTPException(
@@ -503,7 +504,7 @@ class AuthService:
                 detail="User not found. Please register first.",
             )
 
-        AuthService.verify_pin(db=db, user=user, pin=pin)
+        await AuthService.verify_pin(db=db, user=user, pin=pin)
         tokens = AuthService.generate_tokens(user, estate_code=user.estate_id)
 
         return user, tokens
@@ -536,7 +537,7 @@ class AuthService:
 
     @staticmethod
     async def refresh_tokens(
-        db: Session,
+        db: AsyncSession,
         redis,
         refresh_token_str: str,
     ) -> tuple[User, dict]:
@@ -563,7 +564,7 @@ class AuthService:
         user_id = payload.get("user_id")
         old_jti = payload.get("jti", "")
 
-        user = db.query(User).filter(User.id == user_id).first()
+        user = (await db.execute(select(User).filter(User.id == user_id))).scalars().first()
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -597,7 +598,7 @@ class AuthService:
         Returns:
             Dict with message.
         """
-        from api.db.redis import blacklist_jti
+        from api.utils.redis_client import blacklist_jti
 
         try:
             payload = verify_token(token_str)

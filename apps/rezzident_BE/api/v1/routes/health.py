@@ -5,7 +5,7 @@ Standard Kubernetes-style health checks for monitoring.
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
 from api.loggers.app_logger import app_logger
@@ -26,7 +26,10 @@ async def health_check():
 
 
 @health.get("/readyz", status_code=status.HTTP_200_OK)
-async def readiness_check(db: Session = Depends(get_db)):
+async def readiness_check(
+    db: AsyncSession = Depends(get_db),
+    redis_pool=Depends(get_redis_pool),
+):
     """Readiness probe — can the application serve requests?
 
     Checks:
@@ -37,18 +40,17 @@ async def readiness_check(db: Session = Depends(get_db)):
 
     # Check PostgreSQL
     try:
-        db.execute(text("SELECT 1"))
+        await db.execute(text("SELECT 1"))
         checks["database"] = True
     except Exception as e:
         app_logger.error(f"Database health check failed: {e}")
 
     try:
-        redis_pool = get_redis_pool()
         if redis_pool is not None:
             redis_ok = await redis_pool.ping()
-            checks["redis"] = redis_ok
+            checks["redis"] = bool(redis_ok)
         else:
-            app_logger.error("Redis health check failed: Redis pool is not initialized.") 
+            app_logger.error("Redis health check failed: Redis pool is not initialized.")
     except Exception as e:
         app_logger.error(f"Redis health check failed: {e}")
 

@@ -1,4 +1,4 @@
-"""Activity Log Service V2 — Multi-tenant aware audit trail.
+"""Activity Log Service V2 — Multi-tenant aware audit trail (async).
 
 V2 improvements over V1:
 - Severity levels (info/warning/critical) for filtering
@@ -6,20 +6,22 @@ V2 improvements over V1:
 - Extended convenience methods for future features
 - Multi-tenant aware (logs stay in tenant schema)
 - Bulk query with search + date filters + pagination
+- Fully async: uses AsyncSession + await db.execute(select(...))
 
 Usage across the app:
     from api.v1.services.activity_log_service import activity_log_service
 
-    activity_log_service.log_activity(db, user_id, "bill_created", "Created", "...")
-    activity_log_service.log_visitor_code_generated(db, user_id, "John", "Smith-2203", code_id)
+    await activity_log_service.log_activity(db, user_id, "bill_created", "Created", "...")
+    await activity_log_service.log_visitor_code_generated(db, user_id, "John", "Smith-2203", code_id)
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
-from sqlalchemy import desc, func, or_
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import desc, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from api.loggers.app_logger import app_logger
 from api.v1.models.activity_log import ActivityLog
@@ -34,15 +36,15 @@ from api.v1.schemas.activity_log import (
 
 
 class ActivityLogService:
-    """Service for managing activity logs — multi-tenant aware."""
+    """Service for managing activity logs — multi-tenant aware (async)."""
 
     # ══════════════════════════════════════════════════════
     # CORE LOGGING — Use this everywhere
     # ══════════════════════════════════════════════════════
 
-    def log_activity(
+    async def log_activity(
         self,
-        db: Session,
+        db: AsyncSession,
         user_id: str | None,
         activity_type: str,
         action: str,
@@ -57,7 +59,7 @@ class ActivityLogService:
         """Core method to log any activity. NEVER raises — silently fails.
 
         Args:
-            db: Database session (tenant-scoped).
+            db: Async database session (tenant-scoped).
             user_id: UUID of the acting user (None for system events).
             activity_type: Type from ActivityTypeEnum.
             action: Short verb (e.g., "Created", "Approved").
@@ -88,13 +90,13 @@ class ActivityLogService:
             )
 
             db.add(activity)
-            db.commit()
-            db.refresh(activity)
+            await db.commit()
+            await db.refresh(activity)
 
             return activity
 
         except Exception as e:
-            db.rollback()
+            await db.rollback()
             # NEVER crash the caller — log and move on
             app_logger.warning(f"Failed to log activity: {e}")
             return None
@@ -104,17 +106,18 @@ class ActivityLogService:
     # ══════════════════════════════════════════════════════
 
     # ── Auth ──
-    def log_user_login(
+    async def log_user_login(
         self,
-        db: Session,
+        db: AsyncSession,
         user_id: str,
         ip_address: str | None = None,
         user_agent: str | None = None,
     ):
         """Log successful login."""
-        user = db.query(User).filter(User.id == user_id).first()
+        result = await db.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
         name = user.full_name if user else "Unknown"
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "user_login",
@@ -124,9 +127,9 @@ class ActivityLogService:
             user_agent=user_agent,
         )
 
-    def log_pin_locked(self, db: Session, user_id: str, ip_address: str | None = None):
+    async def log_pin_locked(self, db: AsyncSession, user_id: str, ip_address: str | None = None):
         """Log PIN lockout (V2)."""
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "pin_locked",
@@ -137,10 +140,10 @@ class ActivityLogService:
         )
 
     # ── Bills & Payments ──
-    def log_bill_created(
-        self, db: Session, user_id: str, bill_title: str, amount: float, bill_id: str
+    async def log_bill_created(
+        self, db: AsyncSession, user_id: str, bill_title: str, amount: float, bill_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "bill_created",
@@ -150,10 +153,10 @@ class ActivityLogService:
             target_id=bill_id,
         )
 
-    def log_payment_received(
-        self, db: Session, user_id: str, amount: float, reference: str, payment_id: str
+    async def log_payment_received(
+        self, db: AsyncSession, user_id: str, amount: float, reference: str, payment_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "payment_received",
@@ -163,10 +166,10 @@ class ActivityLogService:
             target_id=payment_id,
         )
 
-    def log_invoice_created(
-        self, db: Session, user_id: str, invoice_number: str, resident_identifier: str, bill_id: str
+    async def log_invoice_created(
+        self, db: AsyncSession, user_id: str, invoice_number: str, resident_identifier: str, bill_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "invoice_created",
@@ -177,10 +180,10 @@ class ActivityLogService:
         )
 
     # ── Visitors ──
-    def log_visitor_code_generated(
-        self, db: Session, user_id: str, visitor_name: str, code: str, code_id: str
+    async def log_visitor_code_generated(
+        self, db: AsyncSession, user_id: str, visitor_name: str, code: str, code_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "visitor_code",
@@ -190,10 +193,10 @@ class ActivityLogService:
             target_id=code_id,
         )
 
-    def log_visitor_arrival(
-        self, db: Session, user_id: str, visitor_name: str, code: str, code_id: str
+    async def log_visitor_arrival(
+        self, db: AsyncSession, user_id: str, visitor_name: str, code: str, code_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "visitor_arrival",
@@ -203,16 +206,16 @@ class ActivityLogService:
             target_id=code_id,
         )
 
-    def log_visitor_departure(
+    async def log_visitor_departure(
         self,
-        db: Session,
+        db: AsyncSession,
         user_id: str,
         visitor_name: str,
         code: str,
         code_id: str,
         duration_minutes: int,
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "visitor_departure",
@@ -223,10 +226,10 @@ class ActivityLogService:
         )
 
     # ── Staff ──
-    def log_staff_created(
-        self, db: Session, creator_id: str, staff_name: str, staff_role: str, staff_user_id: str
+    async def log_staff_created(
+        self, db: AsyncSession, creator_id: str, staff_name: str, staff_role: str, staff_user_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             creator_id,
             "staff_created",
@@ -237,10 +240,10 @@ class ActivityLogService:
         )
 
     # ── Expenses ──
-    def log_expense_created(
-        self, db: Session, user_id: str, title: str, amount: float, expense_id: str
+    async def log_expense_created(
+        self, db: AsyncSession, user_id: str, title: str, amount: float, expense_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "expense_created",
@@ -250,8 +253,8 @@ class ActivityLogService:
             target_id=expense_id,
         )
 
-    def log_expense_approved(self, db: Session, user_id: str, title: str, expense_id: str):
-        return self.log_activity(
+    async def log_expense_approved(self, db: AsyncSession, user_id: str, title: str, expense_id: str):
+        return await self.log_activity(
             db,
             user_id,
             "expense_approved",
@@ -262,10 +265,10 @@ class ActivityLogService:
         )
 
     # ── V2 NEW: Verification ──
-    def log_verification_submitted(
-        self, db: Session, user_id: str, tier: str, verification_id: str
+    async def log_verification_submitted(
+        self, db: AsyncSession, user_id: str, tier: str, verification_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "verification_submitted",
@@ -275,10 +278,10 @@ class ActivityLogService:
             target_id=verification_id,
         )
 
-    def log_verification_approved(
-        self, db: Session, user_id: str, resident_name: str, tier: str, verification_id: str
+    async def log_verification_approved(
+        self, db: AsyncSession, user_id: str, resident_name: str, tier: str, verification_id: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "verification_approved",
@@ -289,16 +292,16 @@ class ActivityLogService:
         )
 
     # ── V2 NEW: Roles & Permissions ──
-    def log_role_changed(
+    async def log_role_changed(
         self,
-        db: Session,
+        db: AsyncSession,
         admin_id: str,
         target_name: str,
         old_role: str,
         new_role: str,
         target_user_id: str,
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             admin_id,
             "role_changed",
@@ -310,8 +313,8 @@ class ActivityLogService:
         )
 
     # ── V2 NEW: Estate Management ──
-    def log_estate_created(self, db: Session, user_id: str, estate_name: str, estate_id: str):
-        return self.log_activity(
+    async def log_estate_created(self, db: AsyncSession, user_id: str, estate_name: str, estate_id: str):
+        return await self.log_activity(
             db,
             user_id,
             "estate_created",
@@ -323,10 +326,10 @@ class ActivityLogService:
         )
 
     # ── V2 NEW: Financial ──
-    def log_subaccount_created(
-        self, db: Session, user_id: str, estate_name: str, subaccount_code: str
+    async def log_subaccount_created(
+        self, db: AsyncSession, user_id: str, estate_name: str, subaccount_code: str
     ):
-        return self.log_activity(
+        return await self.log_activity(
             db,
             user_id,
             "subaccount_created",
@@ -339,9 +342,9 @@ class ActivityLogService:
     # QUERY METHODS
     # ══════════════════════════════════════════════════════
 
-    def get_activity_logs(
+    async def get_activity_logs(
         self,
-        db: Session,
+        db: AsyncSession,
         current_user: User,
         activity_type: str | None = None,
         user_id: str | None = None,
@@ -357,34 +360,50 @@ class ActivityLogService:
         - Residents: own activities only
         - Staff/Admin: all activities, can filter by user
         """
-        query = db.query(ActivityLog).options(joinedload(ActivityLog.user))
+        # Build base WHERE clauses
+        filters = []
 
         # Permission: residents see only their own
         if current_user.role.value in ("resident",):
-            query = query.filter(ActivityLog.user_id == current_user.id)
+            filters.append(ActivityLog.user_id == current_user.id)
         elif user_id:
-            query = query.filter(ActivityLog.user_id == user_id)
+            filters.append(ActivityLog.user_id == user_id)
 
-        # Filters
         if activity_type:
-            query = query.filter(ActivityLog.activity_type == activity_type)
+            filters.append(ActivityLog.activity_type == activity_type)
         if date_from:
-            query = query.filter(ActivityLog.created_at >= date_from)
+            filters.append(ActivityLog.created_at >= date_from)
         if date_to:
-            query = query.filter(ActivityLog.created_at <= date_to)
+            filters.append(ActivityLog.created_at <= date_to)
         if search:
             term = f"%{search}%"
-            query = query.filter(
+            filters.append(
                 or_(
                     ActivityLog.description.ilike(term),
                     ActivityLog.action.ilike(term),
                 )
             )
 
-        total = query.count()
+        # Count
+        count_q = select(func.count()).select_from(ActivityLog)
+        for f in filters:
+            count_q = count_q.where(f)
+        total: int = (await db.execute(count_q)).scalar_one()
+
         pages = (total + limit - 1) // limit if total > 0 else 0
 
-        activities = query.order_by(desc(ActivityLog.created_at)).limit(limit).offset(skip).all()
+        # Fetch with user relationship loaded
+        data_q = (
+            select(ActivityLog)
+            .options(selectinload(ActivityLog.user))
+            .order_by(desc(ActivityLog.created_at))
+            .limit(limit)
+            .offset(skip)
+        )
+        for f in filters:
+            data_q = data_q.where(f)
+
+        activities = (await db.execute(data_q)).scalars().all()
 
         items = []
         for a in activities:
@@ -421,16 +440,16 @@ class ActivityLogService:
             items=items,
         )
 
-    def get_activity_detail(
-        self, db: Session, current_user: User, activity_id: str
+    async def get_activity_detail(
+        self, db: AsyncSession, current_user: User, activity_id: str
     ) -> ActivityLogDetail:
         """Get detailed info for a single activity."""
-        activity = (
-            db.query(ActivityLog)
-            .options(joinedload(ActivityLog.user))
-            .filter(ActivityLog.id == activity_id)
-            .first()
+        result = await db.execute(
+            select(ActivityLog)
+            .options(selectinload(ActivityLog.user))
+            .where(ActivityLog.id == activity_id)
         )
+        activity = result.scalar_one_or_none()
 
         if not activity:
             raise HTTPException(
@@ -477,35 +496,43 @@ class ActivityLogService:
             created_at=activity.created_at,
         )
 
-    def get_activity_summary(self, db: Session, current_user: User) -> ActivitySummaryStats:
+    async def get_activity_summary(self, db: AsyncSession, current_user: User) -> ActivitySummaryStats:
         """Get summary statistics."""
-        base = db.query(ActivityLog)
-
+        base_filter = []
         if current_user.role.value in ("resident",):
-            base = base.filter(ActivityLog.user_id == current_user.id)
+            base_filter.append(ActivityLog.user_id == current_user.id)
 
-        total = base.count()
+        async def _count(*extra) -> int:
+            q = select(func.count()).select_from(ActivityLog)
+            for f in base_filter + list(extra):
+                q = q.where(f)
+            return (await db.execute(q)).scalar_one()
 
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-        today = base.filter(ActivityLog.created_at >= today_start).count()
+        total = await _count()
+
+        today_start = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        today = await _count(ActivityLog.created_at >= today_start)
 
         week_start = today_start - timedelta(days=today_start.weekday())
-        week = base.filter(ActivityLog.created_at >= week_start).count()
+        week = await _count(ActivityLog.created_at >= week_start)
 
         month_start = today_start.replace(day=1)
-        month = base.filter(ActivityLog.created_at >= month_start).count()
+        month = await _count(ActivityLog.created_at >= month_start)
 
         # Top activity types
-        top_types_query = (
-            db.query(
+        top_q = (
+            select(
                 ActivityLog.activity_type,
                 func.count(ActivityLog.id).label("count"),
             )
             .group_by(ActivityLog.activity_type)
             .order_by(desc("count"))
             .limit(5)
-            .all()
         )
+        for f in base_filter:
+            top_q = top_q.where(f)
+
+        top_types_rows = (await db.execute(top_q)).all()
         top_types = [
             {
                 "type": (
@@ -513,14 +540,14 @@ class ActivityLogService:
                 ),
                 "count": t.count,
             }
-            for t in top_types_query
+            for t in top_types_rows
         ]
 
         # Most active users (admin/staff only)
         most_active = []
         if current_user.role.value not in ("resident",):
-            top_users = (
-                db.query(
+            users_q = (
+                select(
                     User.full_name,
                     func.count(ActivityLog.id).label("count"),
                 )
@@ -528,8 +555,8 @@ class ActivityLogService:
                 .group_by(User.id, User.full_name)
                 .order_by(desc("count"))
                 .limit(5)
-                .all()
             )
+            top_users = (await db.execute(users_q)).all()
             most_active = [
                 {"user_name": u.full_name or "Unknown", "count": u.count} for u in top_users
             ]

@@ -206,12 +206,17 @@ class EstateService:
         await db.commit()
         await db.refresh(estate)
 
+        # Cache values before possible second commit expires the object
+        estate_name = estate.name
+        estate_code = estate.estate_code
+        estate_schema = estate.schema_name
+
         # ── Send dashboard credentials (background — never blocks response) ──
         for email, plain_password in credentials_to_email:
             await arq_pool.enqueue_job(
-                "_send_panel_credentials_email",
+                "send_panel_credentials_email",
                 email,
-                estate.estate_code,
+                estate_code,
                 plain_password,
             )
 
@@ -220,8 +225,8 @@ class EstateService:
             await db.commit()
 
         app_logger.info(
-            f"Estate registered: {estate.name} ({estate.estate_code}) "
-            f"→ schema: {estate.schema_name} "
+            f"Estate registered: {estate_name} ({estate_code}) "
+            f"→ schema: {estate_schema} "
             f"({len(credentials_to_email)} stakeholder(s) granted panel access)"
         )
 

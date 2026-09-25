@@ -1,5 +1,7 @@
 """MinIO client — sync SDK wrapped for use inside async routes."""
 
+from datetime import timedelta
+
 from minio import Minio
 from starlette.concurrency import run_in_threadpool
 
@@ -29,7 +31,6 @@ async def upload_file(object_name: str, data, length: int, content_type: str = "
 
 
 async def get_file_url(object_name: str, expires_seconds: int = 3600) -> str:
-    from datetime import timedelta
     return await run_in_threadpool(
         minio_client.presigned_get_object, BUCKET, object_name, expires=timedelta(seconds=expires_seconds)
     )

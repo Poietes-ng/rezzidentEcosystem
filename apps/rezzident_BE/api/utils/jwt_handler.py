@@ -18,6 +18,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError, PyJWTError
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from api.db.database import get_db
 from api.utils.config import ALGORITHM, SECRET_KEY
@@ -249,7 +251,7 @@ def _remaining_ttl_seconds(payload: dict) -> int:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Dependency to get current authenticated user.
 
@@ -266,16 +268,16 @@ async def get_current_user(
     Raises:
         HTTPException: If authentication fails or token is blacklisted.
     """
-    from api.db.redis import get_redis_pool, is_jti_blacklisted
+    from api.utils.redis_client import get_redis_pool, is_jti_blacklisted
     from api.v1.models.users import User
 
     token = credentials.credentials
 
     try:
         payload = verify_token(token)
-        user_id: str = payload.get("user_id")
-        token_role: str = payload.get("role")
-        jti: str = payload.get("jti", "")
+        user_id: str | None = payload.get("user_id")
+        token_role: str | None = payload.get("role")
+        jti: str | None = payload.get("jti")
 
         if user_id is None:
             raise HTTPException(
@@ -312,7 +314,7 @@ async def get_current_user(
             app_logger.warning("[JWT] Redis blacklist check failed — skipping.")
 
     # Get user from database
-    user = db.query(User).filter(User.id == user_id).first()
+    user = (await db.execute(select(User).filter(User.id == user_id))).scalars().first()
 
     if user is None:
         raise HTTPException(
