@@ -17,7 +17,7 @@ export function HeroSection(): React.JSX.Element {
 
         {/* Heading */}
         <h1
-          className="font-cabinet text-actionDark animate-fade-in-up text-5xl font-bold tracking-tight sm:text-7xl"
+          className="font-dmsans text-actionDark animate-fade-in-up text-5xl font-bold tracking-tight sm:text-7xl"
           style={{ animationDelay: '200ms' }}
         >
           Your residence, <span className="text-actionYellow">reimagined.</span>
