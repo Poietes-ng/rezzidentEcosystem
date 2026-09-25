@@ -47,13 +47,10 @@ services:
       POSTGRES_USER: rezzident
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: rezzident
-    ports:
-      - "127.0.0.1:5433:5432" # Exposed for local GUI access on 5433 (TablePlus, DBeaver, etc.)
     volumes:
       - pgdata:/var/lib/postgresql
     networks:
       - private
-      - edge # Remove this in staging & prod environment
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rezzident"]
       interval: 10s
