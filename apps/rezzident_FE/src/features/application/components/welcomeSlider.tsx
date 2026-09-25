@@ -1,7 +1,5 @@
-import { Link } from '@tanstack/react-router'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Button } from '../../../shared/components/ui/button'
 import { cn } from '../../../shared/utils/cn'
 
 const SLIDES = [
