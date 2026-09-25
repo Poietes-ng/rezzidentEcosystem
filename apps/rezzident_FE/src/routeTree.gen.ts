@@ -19,7 +19,9 @@ import { Route as authRegistrationCriteriaRouteImport } from './routes/(auth)/re
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
 import { Route as publicAboutRouteImport } from './routes/(public)/about'
 import { Route as publicHomeRouteImport } from './routes/(public)/home'
+import { Route as AuthenticatedActivityLogsRouteImport } from './routes/_authenticated/activity-logs'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppJoinRouteImport } from './routes/app/join'
 import { Route as AppLoginRouteImport } from './routes/app/login'
@@ -77,9 +79,19 @@ const publicHomeRoute = publicHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
+const AuthenticatedActivityLogsRoute = AuthenticatedActivityLogsRouteImport.update({
+  id: '/activity-logs',
+  path: '/activity-logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -137,7 +149,9 @@ export interface FileRoutesByFullPath {
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -155,7 +169,9 @@ export interface FileRoutesByTo {
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -177,7 +193,9 @@ export interface FileRoutesById {
   '/(auth)/registration-criteria': typeof authRegistrationCriteriaRoute
   '/(public)/about': typeof publicAboutRoute
   '/(public)/home': typeof publicHomeRoute
+  '/_authenticated/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -199,7 +217,9 @@ export interface FileRouteTypes {
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
+    | '/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -217,7 +237,9 @@ export interface FileRouteTypes {
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
+    | '/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -238,7 +260,9 @@ export interface FileRouteTypes {
     | '/(auth)/registration-criteria'
     | '/(public)/about'
     | '/(public)/home'
+    | '/_authenticated/activity-logs'
     | '/_authenticated/profile'
+    | '/_authenticated/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -330,11 +354,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicHomeRouteImport
       parentRoute: typeof publicRouteRoute
     }
+    '/_authenticated/activity-logs': {
+      id: '/_authenticated/activity-logs'
+      path: '/activity-logs'
+      fullPath: '/activity-logs'
+      preLoaderRoute: typeof AuthenticatedActivityLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/status': {
+      id: '/_authenticated/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/app/': {
@@ -432,11 +470,15 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
 const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityLogsRoute: typeof AuthenticatedActivityLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityLogsRoute: AuthenticatedActivityLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedStatusRoute: AuthenticatedStatusRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
