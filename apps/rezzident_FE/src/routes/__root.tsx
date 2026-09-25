@@ -18,10 +18,10 @@ const ORGANIZATION_SCHEMA = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Poietes',
-  url: SITE_URL,
+  url: 'https://poietes.com',
   logo: 'https://res.cloudinary.com/tzdjufav/image/upload/v1/poietes/v1/poioteslogo.svg',
   description:
-    'Rezzident Smart community living at your fingertips, Manage bills, visitors, and votes in one place, Report issues, and chat instantly.',
+    'Poietes is the parent company and creator of Rezzident, providing smart community living software.',
   foundingDate: '2025',
   sameAs: [
     'https://twitter.com/rezzident',
@@ -64,7 +64,7 @@ const WEBSITE_SCHEMA = JSON.stringify({
   name: 'Rezzident',
   url: SITE_URL,
   description:
-    'Rezzident Smart community living at your fingertips, Manage bills, visitors, and votes in one place, Report issues, and chat instantly.',
+    'Manage bills, visitors, and votes in one place. Report issues and chat instantly with your community.',
   publisher: {
     '@type': 'Organization',
     name: 'Poietes',
@@ -73,10 +73,30 @@ const WEBSITE_SCHEMA = JSON.stringify({
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/products?q={search_term_string}`,
+      urlTemplate: `${SITE_URL}/?q={search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },
+  hasPart: [
+    {
+      '@type': 'WebPage',
+      name: 'Log in',
+      url: `${SITE_URL}/app/welcome`,
+      description: 'Log in to your Rezzident account.',
+    },
+    {
+      '@type': 'WebPage',
+      name: 'Create Estate',
+      url: `${SITE_URL}/registration-criteria`,
+      description: 'Register and set up a new estate on Rezzident.',
+    },
+    {
+      '@type': 'WebPage',
+      name: 'Neighbour Vouch',
+      url: `${SITE_URL}/vouch`,
+      description: 'Get vouched by a neighbour to join the estate.',
+    },
+  ],
 })
 
 export const Route = createRootRoute({
@@ -88,7 +108,7 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'Rezzident Smart community living at your fingertips, Manage bills, visitors, and votes in one place, Report issues, and chat instantly.',
+          'Manage bills, visitors, and votes in one place. Report issues and chat instantly with your community.',
       },
       {
         name: 'keywords',
@@ -108,12 +128,12 @@ export const Route = createRootRoute({
       { property: 'og:site_name', content: 'Poietes' },
       {
         property: 'og:title',
-        content: 'Rezzident - Smart community living at your fingertips.',
+        content: 'Rezzident — Smart community living at your fingertips',
       },
       {
         property: 'og:description',
         content:
-          'Rezzident Smart community living at your fingertips, Manage bills, visitors, and votes in one place, Report issues, and chat instantly.',
+          'Manage bills, visitors, and votes in one place. Report issues and chat instantly with your community.',
       },
       { property: 'og:url', content: SITE_URL },
       { property: 'og:image', content: OG_IMAGE },
@@ -125,12 +145,12 @@ export const Route = createRootRoute({
       { name: 'twitter:card', content: 'summary_large_image' },
       {
         name: 'twitter:title',
-        content: 'Rezzident - Smart community living at your fingertips.',
+        content: 'Rezzident — Smart community living at your fingertips',
       },
       {
         name: 'twitter:description',
         content:
-          'Rezzident Smart community living at your fingertips, Manage bills, visitors, and votes in one place, Report issues, and chat instantly.',
+          'Manage bills, visitors, and votes in one place. Report issues and chat instantly with your community.',
       },
       { name: 'twitter:image', content: OG_IMAGE },
       { name: 'twitter:site', content: '@poietes' },
@@ -163,6 +183,16 @@ export const Route = createRootRoute({
         href: OG_IMAGE,
         fetchPriority: 'high',
       } as any,
+    ],
+    scripts: [
+      {
+        type: 'application/ld+json',
+        children: ORGANIZATION_SCHEMA,
+      },
+      {
+        type: 'application/ld+json',
+        children: WEBSITE_SCHEMA,
+      },
     ],
   }),
   notFoundComponent: () => (
