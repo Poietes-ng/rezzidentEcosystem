@@ -26,9 +26,9 @@ from sqlalchemy import desc, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.loggers.app_logger import app_logger
+from api.utils.redis_client import get_redis_pool
 from api.utils.settings import settings
 from api.v1.models.system_health import SystemHealthCheck
-from api.utils.redis_client import get_redis_pool
 
 # Track server start time
 _server_start_time = time.time()

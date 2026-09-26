@@ -8,23 +8,27 @@ const MAIN_RECOVERY_OPTIONS = [
     title: 'Contact Support',
     description: 'Our team can verify your details and help you move forward.',
     icon: 'support_agent',
+    imageIcon: undefined,
     route: '/app/support',
   },
   {
     id: 2,
     title: 'Get vouched for by neighbours',
     description: 'Ask trusted neighbours to confirm your identity so you can continue.',
+    icon: undefined,
     imageIcon: '/assets/vouch.svg',
     route: '/app/vouch',
   },
-]
+] as const
+
+type MainOptionRoute = (typeof MAIN_RECOVERY_OPTIONS)[number]['route']
 
 const SEARCH_OPTION = {
   id: 3,
   title: 'How to find your estate ID',
   description: 'Open a short guide that shows where to locate it if you still want to look.',
   route: '/app/onboarding/get-started/find-estate-id',
-}
+} as const
 
 export default function IDontHaveEstatePrefix(): React.JSX.Element {
   const navigate = useNavigate()
@@ -61,7 +65,7 @@ export default function IDontHaveEstatePrefix(): React.JSX.Element {
           <Card
             key={option.id}
             variant="outlined"
-            onClick={() => navigate({ to: option.route as any })}
+            onClick={() => navigate({ to: option.route })}
             role="button"
             tabIndex={0}
             className="hover:border-actionYellow focus:ring-actionYellow flex cursor-pointer items-center gap-4 bg-white p-4 transition-all hover:shadow-md focus:ring-2 focus:ring-offset-2 focus:outline-none active:scale-[0.98]"
@@ -91,7 +95,7 @@ export default function IDontHaveEstatePrefix(): React.JSX.Element {
 
         {/* Third Card (No Border, Transparent, With Chevron, 28px Margin Top) */}
         <div
-          onClick={() => navigate({ to: SEARCH_OPTION.route as any })}
+          onClick={() => navigate({ to: SEARCH_OPTION.route })}
           role="button"
           tabIndex={0}
           className="group mt-7 flex cursor-pointer items-center gap-4 p-4 transition-all focus:outline-none active:scale-[0.98]"

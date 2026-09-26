@@ -190,6 +190,7 @@ class TreasurerDashboardResponse(BaseModel):
     monthly_revenue: list[MonthlyTransactionItem] = []
     recent_payments: list[dict] = []
 
+
 # ══════════════════════════════════════════════════════
 # Staff Dashboard
 # ══════════════════════════════════════════════════════
