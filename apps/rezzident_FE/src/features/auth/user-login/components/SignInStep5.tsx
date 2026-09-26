@@ -80,13 +80,13 @@ export function Step5FacialCapture({ join }: Props): React.JSX.Element {
 
       <div className="mt-auto">
         {!photoCaptured ? (
-          <Button onClick={handleCapturePhoto} className="w-full">
+          <Button onClick={handleCapturePhoto} className="my-[32px]! w-full">
             <span className="material-symbols-outlined mr-2">photo_camera</span>
             Take Photo
           </Button>
         ) : (
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={() => setPhotoCaptured(false)} className="w-full">
+          <div className="flex gap-4 py-[32px]">
+            <Button variant="secondary" onClick={() => setPhotoCaptured(false)} className="w-full">
               Retake
             </Button>
             <Button onClick={handleNext} className="w-full">
