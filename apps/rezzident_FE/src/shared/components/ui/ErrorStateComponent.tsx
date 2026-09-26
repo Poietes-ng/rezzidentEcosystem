@@ -23,7 +23,7 @@ export function ErrorStateComponent({
   return (
     <div className="flex h-dvh w-full flex-col items-center justify-center px-6 py-12 text-center">
       {/* Animated Icon Container */}
-      <div className="rounded-ful relative mb-8 flex h-32 w-32 items-center justify-center shadow-xl shadow-gray-200/50">
+      <div className="relative mb-8 flex h-32 w-32 items-center justify-center rounded-full shadow-xl shadow-gray-200/50">
         <img
           src="/assets/LoginHeroImageTest1.png"
           alt=""
