@@ -84,3 +84,43 @@ async def migrate_all_tenants_job(ctx: dict) -> None:
     except Exception as e:
         app_logger.error(f"[Job] Tenant migration failed: {e}")
         raise
+
+
+async def send_panel_credentials_email(
+    ctx: dict,
+    email: str,
+    estate_code: str,
+    plain_password: str,
+) -> None:
+    """Send centre-panel login credentials to a new stakeholder.
+
+    Called by estate_service.register_estate() after creating a stakeholder
+    with panel access. Enqueued via ARQ so SMTP failures don't block the
+    estate registration response and the job is automatically retried.
+
+    ARQ retry behaviour (B9 fix):
+    - On exception, ARQ retries up to `max_tries` times (default 5).
+    - Each retry uses exponential backoff.
+    - Failed jobs are visible in the ARQ dashboard (arq.jobs).
+
+    Production: replace the log stub with your mail provider (fastapi-mail,
+    SendGrid, Resend, etc.).
+    Development: logs credentials to app.log — never sends real email.
+    """
+    if settings.PYTHON_ENV == "development":
+        app_logger.info(
+            f"[DEV — Panel Credentials] To: {email} | "
+            f"Estate: {estate_code} | Password: {plain_password}"
+        )
+        return
+
+    # TODO: Production email integration
+    # Example with fastapi-mail:
+    #   message = MessageSchema(
+    #       subject=f"Your Rezzident Panel Access — {estate_code}",
+    #       recipients=[email],
+    #       body=render_template("panel_credentials.html", estate_code=estate_code, password=plain_password),
+    #       subtype=MessageType.html,
+    #   )
+    #   await fast_mail.send_message(message)
+    app_logger.info(f"[Job] Would send panel credentials email to {email} for estate {estate_code}")

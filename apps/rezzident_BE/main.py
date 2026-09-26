@@ -61,13 +61,16 @@ ensure_secret_key()
 # fastapi-guard — top-level imports (v7.x API)
 from guard import SecurityConfig, SecurityMiddleware
 
-from api.db.redis import close_redis, init_redis
+from api.db.database import engine
 from api.loggers.app_logger import app_logger
 from api.middleware.request_id import RequestIdMiddleware
 
 # V2 Middleware imports
 from api.middleware.security_headers import SecurityHeadersMiddleware
 from api.middleware.tenant import TenantMiddleware
+from api.utils.arq_client import close_arq_pool, init_arq_pool
+from api.utils.minio_client import ensure_bucket_exists
+from api.utils.redis_client import close_redis, init_redis
 from api.utils.settings import settings
 from api.utils.success_response import success_response
 from api.v1.routes import api_version_one
@@ -137,6 +140,12 @@ async def lifespan(app: FastAPI):
     redis_client = await init_redis()
     app.state.redis = redis_client
 
+    app.state.arq_pool = await init_arq_pool()
+    try:
+        await ensure_bucket_exists()
+    except Exception as e:
+        app_logger.error(f"MinIO offline at startup, skipping bucket creation: {e}")
+
     # ── Ensure required directories exist ──
     os.makedirs("./media", exist_ok=True)
     os.makedirs("./tmp/media", exist_ok=True)
@@ -156,6 +165,9 @@ async def lifespan(app: FastAPI):
 
     # ── Shutdown ──
     await close_redis()
+    await close_arq_pool()
+    await engine.dispose()
+
     app_logger.info("Rezzident API shutting down.")
 
 

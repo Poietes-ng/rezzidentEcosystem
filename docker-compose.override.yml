@@ -1,0 +1,50 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# docker-compose.override.yml — LOCAL DEV ONLY
+#
+# Docker Compose automatically merges this file with docker-compose.yml.
+# It switches the `web` service from the production `runner` stage to the
+# `dev` stage, which runs `vite dev --host` with HMR enabled.
+#
+# HOW IT WORKS:
+#   - build.target: dev  →  uses the dev stage (vite dev) instead of runner
+#   - volumes mount only src/ + packages/ so Vite sees your edits instantly
+#   - node_modules are NOT mounted — the container's installed ones are used
+#     (anonymous volume trick prevents the host folder from overriding them)
+#   - CHOKIDAR_USEPOLLING=true  →  required on macOS; Docker doesn't forward
+#     inotify events, so Vite falls back to polling for file-change detection
+#
+# REMOVE THIS FILE (or add it to .gitignore) before shipping to production.
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+  web:
+    build:
+      # Override: target the dev stage instead of the default runner stage
+      target: dev
+    volumes:
+      # Mount FE source so edits are visible to Vite immediately
+      - ./apps/rezzident_FE/src:/app/apps/rezzident_FE/src
+      - ./apps/rezzident_FE/index.html:/app/apps/rezzident_FE/index.html
+      - ./apps/rezzident_FE/vite.config.ts:/app/apps/rezzident_FE/vite.config.ts
+      - ./apps/rezzident_FE/tailwind.config.js:/app/apps/rezzident_FE/tailwind.config.js
+      - ./apps/rezzident_FE/tsconfig.json:/app/apps/rezzident_FE/tsconfig.json
+      # Static assets served directly by Vite dev server (fonts, images, favicons)
+      - ./apps/rezzident_FE/public:/app/apps/rezzident_FE/public
+      # Workspace packages (design-tokens, shared-types, utils, api-client)
+      - ./packages:/app/packages
+      # Anonymous volumes: keep the container's node_modules intact;
+      # prevents the (likely empty) host folders from shadowing them.
+      - /app/node_modules
+      - /app/apps/rezzident_FE/node_modules
+    ports:
+      # Map host 5173 → container 3000 (Vite dev script uses --port 3000)
+      - "127.0.0.1:5173:3000"
+    environment:
+      # Polling is required on macOS Docker Desktop for file-watch to work
+      - CHOKIDAR_USEPOLLING=true
+      # Tell Vite's HMR client which host port to connect back on
+      - VITE_HMR_PORT=5173
+      - VITE_HMR_HOST=127.0.0.1
+      # VITE_ vars are readable at runtime in dev mode (unlike prod build)
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://127.0.0.1:7001}
+      - VITE_CDN_URL=${VITE_CDN_URL:-}

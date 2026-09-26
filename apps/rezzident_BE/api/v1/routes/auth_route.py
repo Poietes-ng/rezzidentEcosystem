@@ -14,11 +14,11 @@ Reference: docs/architecture/08-pin-biometric-auth.md
 
 import redis.asyncio as aioredis
 from fastapi import APIRouter, BackgroundTasks, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
-from api.db.redis import get_redis
 from api.utils.jwt_handler import get_current_user
+from api.utils.redis_client import get_redis
 from api.utils.success_response import success_response
 from api.v1.models.otp import OTPPurpose
 from api.v1.models.users import User
@@ -43,10 +43,10 @@ auth = APIRouter(prefix="/auth", tags=["Authentication"])
 async def register_request_otp(
     body: RequestOTPSchema,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 1: Send OTP to phone for registration."""
-    result = AuthService.create_and_send_otp(
+    result = await AuthService.create_and_send_otp(
         db=db,
         phone_number=body.phone_number,
         purpose=OTPPurpose.REGISTRATION,
@@ -65,10 +65,10 @@ async def register_request_otp(
 @auth.post("/register/verify-otp", status_code=status.HTTP_200_OK)
 async def register_verify_otp(
     body: VerifyOTPSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 2: Verify OTP during registration."""
-    AuthService.verify_otp(
+    await AuthService.verify_otp(
         db=db,
         phone_number=body.phone_number,
         otp_code=body.otp_code,
@@ -83,10 +83,10 @@ async def register_verify_otp(
 @auth.post("/register/set-pin", status_code=status.HTTP_201_CREATED)
 async def register_set_pin(
     body: SetPINSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 3: Set PIN to complete registration."""
-    user, tokens = AuthService.register_user(
+    user, tokens = await AuthService.register_user(
         db=db,
         phone_number=body.phone_number,
         full_name=body.full_name,
@@ -112,10 +112,10 @@ async def register_set_pin(
 async def login_request_otp(
     body: RequestOTPSchema,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 1: Send OTP to phone for login."""
-    result = AuthService.create_and_send_otp(
+    result = await AuthService.create_and_send_otp(
         db=db,
         phone_number=body.phone_number,
         purpose=OTPPurpose.LOGIN,
@@ -134,10 +134,10 @@ async def login_request_otp(
 @auth.post("/login/verify-otp", status_code=status.HTTP_200_OK)
 async def login_verify_otp(
     body: VerifyOTPSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 2: Verify OTP for login."""
-    data = AuthService.login_verify_otp(
+    data = await AuthService.login_verify_otp(
         db=db,
         phone_number=body.phone_number,
         otp_code=body.otp_code,
@@ -152,10 +152,10 @@ async def login_verify_otp(
 @auth.post("/login/verify-pin", status_code=status.HTTP_200_OK)
 async def login_verify_pin(
     body: VerifyPINSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Step 3: Verify PIN and issue tokens."""
-    user, tokens = AuthService.login_with_pin(
+    user, tokens = await AuthService.login_with_pin(
         db=db,
         phone_number=body.phone_number,
         pin=body.pin,
@@ -178,7 +178,7 @@ async def login_verify_pin(
 @auth.post("/refresh", status_code=status.HTTP_200_OK)
 async def refresh_token(
     body: RefreshTokenSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ):
     """Exchange refresh token for a new access + refresh token pair."""
@@ -209,7 +209,7 @@ async def logout(
 @auth.post("/logout/token", status_code=status.HTTP_200_OK)
 async def logout_with_token(
     body: RefreshTokenSchema,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     redis: aioredis.Redis = Depends(get_redis),
 ):
     """Logout — blacklist a specific token JTI (access or refresh)."""

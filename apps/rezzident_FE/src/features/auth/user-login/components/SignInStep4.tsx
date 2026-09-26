@@ -20,11 +20,11 @@ export function Step4Address({ join }: Props): React.JSX.Element {
   } = join
 
   return (
-    <div className="animate-in fade-in slide-in-from-right-4 flex flex-1 flex-col duration-500">
+    <div className="animate-in fade-in slide-in-from-right-4 flex flex-1 flex-col pt-16 duration-500">
       <span className="mb-2 block text-[11px] font-bold tracking-widest text-gray-400 uppercase">
         Step {displayStep} of {totalSteps}
       </span>
-      <h1 className="font-cabinet text-actionDark mb-3 text-[32px] leading-tight font-bold">
+      <h1 className="font-dmsans text-actionDark mb-3 text-[32px] leading-tight font-bold">
         Where do you live?
       </h1>
       <p className="mb-10 text-[14px] leading-relaxed text-gray-500">

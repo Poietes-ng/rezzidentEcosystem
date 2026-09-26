@@ -1,63 +1,63 @@
 """Database engine, session, and base — single source of truth.
 
 Uses settings.database_url (constructed from DB_HOST, DB_PORT, etc.)
-so there is no duplicate DB_URL env var.
+so there is no duplicate DB_URL env var. Async engine — driver is
+swapped to asyncpg/aiosqlite at runtime; settings.database_url itself
+stays in its sync form for Alembic.
 """
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import NullPool
 
 from api.utils.settings import BASE_DIR, settings
 
 
+def _to_async_url(url: str) -> str:
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
+
+
 def get_db_engine(test_mode: bool = False):
-    """Create and return a SQLAlchemy engine.
-
-    Supports PostgreSQL (primary) and SQLite (test fallback).
-    Connection pool settings are read from the unified Settings.
-    """
     if settings.DB_TYPE == "sqlite" or test_mode:
-        base_path = f"sqlite:///{BASE_DIR}"
+        url = (
+            f"sqlite+aiosqlite:///{BASE_DIR}/test.db"
+            if test_mode
+            else f"sqlite+aiosqlite:///{BASE_DIR}/app.db"
+        )
+        return create_async_engine(
+            url, connect_args={"check_same_thread": False}, poolclass=NullPool
+        )
 
-        if test_mode:
-            url = f"{base_path}/test.db"
-            return create_engine(url, connect_args={"check_same_thread": False})
-
-        url = f"{base_path}/"
-        return create_engine(url, connect_args={"check_same_thread": False})
-
-    # PostgreSQL — use the unified database_url property
-    return create_engine(
-        settings.database_url,
+    return create_async_engine(
+        _to_async_url(settings.database_url),
         pool_pre_ping=settings.DB_POOL_PRE_PING,
         pool_recycle=settings.DB_POOL_RECYCLE,
         pool_size=settings.DB_POOL_SIZE,
         max_overflow=settings.DB_MAX_OVERFLOW,
-        poolclass=QueuePool,
     )
 
 
 engine = get_db_engine()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-db_session = scoped_session(SessionLocal)
+SessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+)
 
 Base = declarative_base()
 
 
-def create_database():
-    return Base.metadata.create_all(bind=engine)
+async def create_database() -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
-def get_db():
-    """Dependency that provides a database session.
-
-    Creates a new session for each request and properly closes it after.
-    """
-    db = SessionLocal()
-    try:
+async def get_db():
+    """Dependency that provides an async database session per request."""
+    async with SessionLocal() as db:
         yield db
-    finally:
-        db.close()

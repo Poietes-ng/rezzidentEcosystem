@@ -1,4 +1,4 @@
-"""Activity Log routes — V2.
+"""Activity Log routes — V2 (async).
 
 Endpoints:
 - GET  /activity-logs             — List with filters (paginated)
@@ -10,7 +10,7 @@ Endpoints:
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
 from api.utils.auth_dependencies import require_admin
@@ -35,7 +35,7 @@ async def list_activity_logs(
     search: str | None = Query(None, description="Search description/action"),
     limit: int = Query(20, ge=1, le=100),
     skip: int = Query(0, ge=0),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """List activity logs.
@@ -43,7 +43,7 @@ async def list_activity_logs(
     - Residents: own activities only
     - Staff/Admin: all activities, filterable by user
     """
-    result = activity_log_service.get_activity_logs(
+    result = await activity_log_service.get_activity_logs(
         db=db,
         current_user=current_user,
         activity_type=activity_type,
@@ -68,11 +68,11 @@ async def list_activity_logs(
     summary="Get activity summary statistics",
 )
 async def get_activity_summary(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Summary stats: total, today, this week, this month, top types."""
-    result = activity_log_service.get_activity_summary(db=db, current_user=current_user)
+    result = await activity_log_service.get_activity_summary(db=db, current_user=current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -88,11 +88,11 @@ async def get_activity_summary(
 )
 async def get_activity_detail(
     activity_id: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Full detail for a single activity log entry."""
-    result = activity_log_service.get_activity_detail(
+    result = await activity_log_service.get_activity_detail(
         db=db, current_user=current_user, activity_id=activity_id
     )
 
@@ -118,11 +118,11 @@ async def get_user_activities(
     date_to: datetime | None = Query(None),
     limit: int = Query(20, ge=1, le=100),
     skip: int = Query(0, ge=0),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
     """Admin-only: get all activities for a specific user."""
-    result = activity_log_service.get_activity_logs(
+    result = await activity_log_service.get_activity_logs(
         db=db,
         current_user=current_user,
         activity_type=activity_type,

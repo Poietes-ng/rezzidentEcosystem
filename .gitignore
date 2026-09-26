@@ -67,7 +67,6 @@ todos.json
 REACT_CORE_CONCEPT.md
 
 # ── Docker ──
-docker-compose.override.yml
 kickoff/
 Board_structure.md
 reports/
@@ -75,3 +74,5 @@ reports/
 
 # ── Database ──
 *.db
+ColorTokens.md
+sidebar-notes.md

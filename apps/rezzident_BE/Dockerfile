@@ -4,7 +4,7 @@ FROM python:3.11-slim AS builder
 WORKDIR /build
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN pip install --no-cache-dir --timeout 120 --retries 5 --prefix=/install -r requirements.txt
 
 # ── Production Stage ──
 FROM python:3.11-slim

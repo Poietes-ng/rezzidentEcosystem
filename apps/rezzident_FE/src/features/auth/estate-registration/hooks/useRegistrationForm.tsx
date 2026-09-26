@@ -152,7 +152,7 @@ export function useRegistrationForm() {
       const overlayTimer = setTimeout(() => {
         setShowRedirect(true)
         const navTimer = setTimeout(() => {
-          navigate({ to: '/app/splash' })
+          navigate({ to: '/admin-login' })
         }, 1500)
         return () => clearTimeout(navTimer)
       }, 3000)
@@ -172,7 +172,26 @@ export function useRegistrationForm() {
     e.preventDefault()
     let csvContent = 'data:text/csv;charset=utf-8,'
 
-    if (form.levelStructure === '1') {
+    const selectedTemplate = structureTemplates.find((t) => t.template_id === form.estateStructure)
+
+    if (selectedTemplate) {
+      const headers = ['Full Name', ...selectedTemplate.levels.map((l) => l.label), 'Phone Number']
+      csvContent += headers.join(',') + '\n'
+
+      const row1 = ['John Doe']
+      selectedTemplate.levels.forEach((_, i) => {
+        row1.push(i === 0 ? 'A' : i === 1 ? '12' : i === 2 ? 'Phase 1' : '1')
+      })
+      row1.push('+234 801 234 5678')
+      csvContent += row1.join(',') + '\n'
+
+      const row2 = ['Jane Smith']
+      selectedTemplate.levels.forEach((_, i) => {
+        row2.push(i === 0 ? 'B' : i === 1 ? '5' : i === 2 ? 'Phase 2' : '2')
+      })
+      row2.push('+234 802 345 6789')
+      csvContent += row2.join(',') + '\n'
+    } else if (form.levelStructure === '1') {
       csvContent += 'Full Name,House No.,Phone Number\n'
       csvContent += 'John Doe,14,+234 801 234 5678\n'
       csvContent += 'Jane Smith,27,+234 802 345 6789\n'

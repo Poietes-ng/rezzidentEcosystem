@@ -1,8 +1,8 @@
 /**
  * Home tab — dashboard.
  */
-import { View, Text, ScrollView } from 'react-native';
-import { ScreenWrapper } from '@/components/layout';
+import { View, Text } from 'react-native'
+import { ScreenWrapper } from '@/components/layout'
 
 export default function HomeScreen() {
   return (
@@ -30,9 +30,7 @@ export default function HomeScreen() {
               borderRadius: 12,
             }}
           >
-            <Text className="mb-2xs font-dmsans text-caption text-warmGray">
-              {stat.label}
-            </Text>
+            <Text className="mb-2xs font-dmsans text-caption text-warmGray">{stat.label}</Text>
             <Text className="font-dmsans text-heading-2 font-bold text-actionDark">
               {stat.value}
             </Text>
@@ -40,5 +38,5 @@ export default function HomeScreen() {
         ))}
       </View>
     </ScreenWrapper>
-  );
+  )
 }
