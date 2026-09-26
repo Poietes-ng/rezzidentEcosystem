@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import type React from 'react'
 import { Card } from '#/shared/components/ui/card'
 import { MessageBubble } from '#/shared/components/ui/message-bubble'
@@ -28,12 +28,13 @@ const GUIDES = [
 
 export function QuickFinderGuide(): React.JSX.Element {
   const navigate = useNavigate()
+  const router = useRouter()
 
   return (
     <section className="font-dmsans flex h-full w-full flex-col bg-transparent px-6 pb-8">
       {/* ── Header & Back Button ── */}
       <button
-        onClick={() => window.history.back()}
+        onClick={() => router.history.back()}
         className="text-actionDark mt-6 mb-4 flex w-fit items-center justify-start transition-opacity hover:opacity-70 focus:outline-none"
       >
         <span className="material-symbols-outlined text-[18px]!">arrow_back_ios_new</span>
