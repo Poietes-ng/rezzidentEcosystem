@@ -28,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.loggers.app_logger import app_logger
 from api.utils.settings import settings
 from api.v1.models.system_health import SystemHealthCheck
+from api.utils.redis_client import get_redis_pool
 
 # Track server start time
 _server_start_time = time.time()
@@ -85,12 +86,11 @@ class StatusService:
                 "description": "Redis cache & rate limiter",
             }
         try:
-            import redis.asyncio as aioredis
-
+            r = get_redis_pool()
+            if not r:
+                raise ConnectionError("Redis pool not initialized")
             start = time.time()
-            r = aioredis.from_url(redis_url, socket_timeout=3)
             await r.ping()
-            await r.aclose()
             latency = round((time.time() - start) * 1000, 2)
             return {
                 "name": "Cache (Redis)",
