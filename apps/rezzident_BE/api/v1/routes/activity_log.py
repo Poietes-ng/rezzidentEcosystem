@@ -58,7 +58,7 @@ async def list_activity_logs(
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Activity logs fetched successfully",
-        data=result.model_dump(),
+        data=result,
     )
 
 
@@ -77,7 +77,7 @@ async def get_activity_summary(
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Activity summary fetched successfully",
-        data=result.model_dump(),
+        data=result,
     )
 
 
@@ -99,7 +99,7 @@ async def get_activity_detail(
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Activity log details fetched successfully",
-        data=result.model_dump(),
+        data=result,
     )
 
 
@@ -136,5 +136,5 @@ async def get_user_activities(
     return success_response(
         status_code=status.HTTP_200_OK,
         message=f"Activities for user {user_id} fetched successfully",
-        data=result.model_dump(),
+        data=result,
     )

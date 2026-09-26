@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { useRouter } from '@tanstack/react-router'
 import { useRegistrationForm } from '../hooks/useRegistrationForm'
 import { EstateDetails } from './registration-steps/EstateDetails'
 import { StructureExamples } from './registration-steps/StructureExamples'
@@ -13,6 +14,7 @@ import { Button } from '#/shared/components/ui/button'
 import { ServerDowntimeError } from '#/shared/components/ui/server-downtime-error'
 
 export function RegistrationForm() {
+  const router = useRouter()
   const registration = useRegistrationForm()
   const {
     subStep,
@@ -54,7 +56,7 @@ export function RegistrationForm() {
             title="Registration Failed"
             description={submitError}
             buttonText="Retry Registration"
-            onRetry={() => window.location.reload()}
+            onRetry={() => router.invalidate()}
           />
         )}
 
