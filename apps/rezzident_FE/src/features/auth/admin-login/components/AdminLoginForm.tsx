@@ -1,5 +1,5 @@
 import { useNavigate, Link } from '@tanstack/react-router'
-import { Button } from '#/shared/components/ui/button'
+import { Button } from '#/shared/components/ui'
 
 export function AdminLoginForm() {
   const navigate = useNavigate()
