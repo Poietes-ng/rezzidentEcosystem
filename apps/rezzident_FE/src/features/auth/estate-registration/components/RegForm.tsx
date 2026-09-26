@@ -83,7 +83,7 @@ export function RegistrationForm() {
               className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm"
             >
               <h2 className="font-dmsans text-web-h1 font-web-medium flex items-center justify-center text-center text-white">
-                Redirecting to admin login...
+                Redirecting to your dashboard...
               </h2>
             </motion.div>
           )}
@@ -110,7 +110,7 @@ export function RegistrationForm() {
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    Registering...
+                    Please Wait...
                   </span>
                 ) : subStep === 2 ? (
                   'Proceed to Create Structure'
