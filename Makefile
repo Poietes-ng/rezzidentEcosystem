@@ -131,7 +131,7 @@ lint: ## Lint all apps  (turbo)
 
 .PHONY: lint/be
 lint/be: ## Lint backend  (ruff + black --check)
-	cd apps/rezzident_BE && ruff check . && black --check .
+	cd apps/rezzident_BE && ./venv/bin/ruff check . && ./venv/bin/black --check .
 
 .PHONY: lint/fe
 lint/fe: ## Lint frontend only
@@ -151,7 +151,7 @@ format: ## Format all apps  (turbo)
 
 .PHONY: format/be
 format/be: ## Format backend  (ruff --fix + black)
-	cd apps/rezzident_BE && ruff check --fix . && black .
+	cd apps/rezzident_BE && ./venv/bin/ruff check --fix . && ./venv/bin/black .
 
 .PHONY: format/fe
 format/fe: ## Format frontend only
