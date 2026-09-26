@@ -4,56 +4,34 @@ import type { FullStatusReport } from '#/features/status/api'
 export function ServiceCard({ service }: { service: FullStatusReport['services'][0] }) {
   const style = getStatusStyle(service.status)
   return (
-    <div
-      className="demo-card"
-      style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', position: 'relative' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+    <div className="demo-card relative flex flex-col gap-3">
+      <div className="flex items-start justify-between">
         <div>
-          <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--sea-ink)' }}>
+          <h3 className="m-0 text-[1.05rem] font-extrabold text-[var(--sea-ink)]">
             {service.name}
           </h3>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--sea-ink-soft)' }}>
+          <p className="mx-0 mt-[0.2rem] mb-0 text-[0.82rem] text-[var(--sea-ink-soft)]">
             {service.description}
           </p>
         </div>
         <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.25rem 0.6rem',
-            borderRadius: 999,
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            background: style.bg,
-            color: style.text,
-          }}
+          className="inline-flex items-center gap-[0.35rem] rounded-full px-2.5 py-1 text-[0.72rem] font-bold"
+          style={{ background: style.bg, color: style.text }}
         >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: style.dot }} />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: style.dot }} />
           {formatStatus(service.status)}
         </span>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginTop: 'auto',
-          paddingTop: '0.5rem',
-        }}
-      >
+      <div className="mt-auto flex items-end justify-between pt-2">
         {service.error ? (
-          <div style={{ fontSize: '0.75rem', color: '#9f3030', fontWeight: 600 }}>
-            {service.error}
-          </div>
+          <div className="text-[0.75rem] font-semibold text-[#9f3030]">{service.error}</div>
         ) : service.response_time_ms !== null ? (
-          <div style={{ fontSize: '0.8rem', color: 'var(--sea-ink-soft)', fontWeight: 600 }}>
+          <div className="text-[0.8rem] font-semibold text-[var(--sea-ink-soft)]">
             {service.response_time_ms} ms
           </div>
         ) : (
-          <div style={{ fontSize: '0.8rem', color: 'var(--sea-ink-soft)' }}>—</div>
+          <div className="text-[0.8rem] text-[var(--sea-ink-soft)]">—</div>
         )}
       </div>
     </div>

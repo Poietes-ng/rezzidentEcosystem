@@ -2,11 +2,11 @@ import { StatCard } from './StatCard'
 import type { ActivitySummaryStats } from '#/features/activity-logs/api'
 import { TYPE_LABELS, typeStyle } from '#/features/activity-logs/utils'
 
-interface Props {
+interface ActivityLogsSummaryProps {
   summary?: ActivitySummaryStats | null
 }
 
-export function ActivityLogsSummary({ summary }: Props) {
+export function ActivityLogsSummary({ summary }: ActivityLogsSummaryProps) {
   if (!summary) return null
 
   return (

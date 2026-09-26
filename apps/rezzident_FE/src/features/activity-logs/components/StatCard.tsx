@@ -1,34 +1,11 @@
 export function StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
   return (
-    <div
-      className="demo-panel"
-      style={{
-        padding: '1.25rem 1.5rem',
-        borderRadius: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-      }}
-    >
-      <span style={{ fontSize: '1.4rem' }}>{icon}</span>
-      <div
-        style={{
-          fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-          fontWeight: 800,
-          color: 'var(--sea-ink)',
-          lineHeight: 1,
-        }}
-      >
+    <div className="demo-panel flex flex-col gap-2 rounded-2xl px-6 py-5">
+      <span className="text-2xl">{icon}</span>
+      <div className="text-[clamp(1.6rem,3vw,2.2rem)] leading-none font-extrabold text-[var(--sea-ink)]">
         {value.toLocaleString()}
       </div>
-      <div
-        style={{
-          fontSize: '0.78rem',
-          fontWeight: 600,
-          color: 'var(--sea-ink-soft)',
-          letterSpacing: '0.04em',
-        }}
-      >
+      <div className="text-[0.78rem] font-semibold tracking-wider text-[var(--sea-ink-soft)]">
         {label}
       </div>
     </div>

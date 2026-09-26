@@ -65,14 +65,12 @@ export function ActivityLogsPage() {
         @keyframes slide-in-right { from { transform:translateX(100%) } to { transform:translateX(0) } }
       `}</style>
 
-      <div className="demo-page rise-in" style={{ paddingTop: '2rem' }}>
+      <div className="demo-page rise-in pt-8">
         {/* ── Header ── */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div className="mb-8">
           <span className="island-kicker">Admin</span>
-          <h1 className="demo-title" style={{ marginTop: '0.4rem' }}>
-            Activity Logs
-          </h1>
-          <p className="demo-muted" style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+          <h1 className="demo-title mt-1.5">Activity Logs</h1>
+          <p className="demo-muted mt-2 text-[0.95rem]">
             Full audit trail — every action across the estate.
           </p>
         </div>
@@ -81,28 +79,17 @@ export function ActivityLogsPage() {
         <ActivityLogsSummary summary={summary} />
 
         {/* ── Filters ── */}
-        <div
-          className="demo-panel"
-          style={{
-            marginBottom: '1.25rem',
-            display: 'flex',
-            gap: '0.75rem',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-          }}
-        >
+        <div className="demo-panel mb-5 flex flex-wrap items-center gap-3">
           <input
-            className="demo-input demo-input-fit"
+            className="demo-input demo-input-fit min-w-[240px] flex-1"
             placeholder="🔍  Search description or action…"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            style={{ minWidth: 240, flex: 1 }}
           />
           <select
-            className="demo-select demo-input-fit"
+            className="demo-select demo-input-fit min-w-[160px]"
             value={selectedType}
             onChange={(e) => handleTypeFilter(e.target.value)}
-            style={{ minWidth: 160 }}
           >
             <option value="">All types</option>
             {Object.entries(TYPE_LABELS).map(([k, v]) => (
@@ -125,54 +112,27 @@ export function ActivityLogsPage() {
         </div>
 
         {/* ── Table ── */}
-        <div className="demo-table-shell" style={{ marginBottom: '1.5rem' }}>
-          {error && (
-            <div
-              className="demo-alert demo-alert-danger"
-              style={{ margin: '1rem', borderRadius: '0.75rem' }}
-            >
-              ⚠️ {error}
-            </div>
-          )}
+        <div className="demo-table-shell mb-6">
+          {error && <div className="demo-alert demo-alert-danger m-4 rounded-xl">⚠️ {error}</div>}
           {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center' }}>
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  margin: '0 auto 1rem',
-                  border: '3px solid var(--line)',
-                  borderTopColor: 'var(--lagoon)',
-                  animation: 'spin 700ms linear infinite',
-                }}
-              />
-              <p className="demo-muted" style={{ fontSize: '0.9rem', margin: 0 }}>
-                Loading logs…
-              </p>
-              <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+            <div className="p-12 text-center">
+              <div className="mx-auto mb-4 h-9 w-9 animate-[spin_700ms_linear_infinite] rounded-full border-[3px] border-[var(--line)] border-t-[var(--lagoon)]" />
+              <p className="demo-muted m-0 text-[0.9rem]">Loading logs…</p>
             </div>
           ) : (
             <table className="demo-table">
               <thead>
                 <tr>
-                  <th style={{ width: 140 }}>Type</th>
+                  <th className="w-[140px]">Type</th>
                   <th>Event</th>
-                  <th style={{ width: 180 }}>User</th>
-                  <th style={{ width: 110 }}>When</th>
+                  <th className="w-[180px]">User</th>
+                  <th className="w-[110px]">When</th>
                 </tr>
               </thead>
               <tbody>
                 {page?.items.length === 0 && (
                   <tr>
-                    <td
-                      colSpan={4}
-                      style={{
-                        textAlign: 'center',
-                        padding: '2.5rem',
-                        color: 'var(--sea-ink-soft)',
-                      }}
-                    >
+                    <td colSpan={4} className="p-10 text-center text-[var(--sea-ink-soft)]">
                       No activity logs found.
                     </td>
                   </tr>
@@ -187,19 +147,11 @@ export function ActivityLogsPage() {
 
         {/* ── Pagination ── */}
         {page && totalPages > 1 && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              flexWrap: 'wrap',
-            }}
-          >
-            <span className="demo-muted" style={{ fontSize: '0.85rem' }}>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <span className="demo-muted text-[0.85rem]">
               Page {currentPage} of {totalPages} — {page.total.toLocaleString()} total
             </span>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div className="flex gap-2">
               <button
                 className="demo-button demo-button-secondary"
                 disabled={currentPage <= 1}

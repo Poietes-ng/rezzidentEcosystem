@@ -43,22 +43,9 @@ export function StatusPage(): React.JSX.Element {
 
   if (loading && !statusReport) {
     return (
-      <div className="demo-page rise-in" style={{ paddingTop: '2rem', textAlign: 'center' }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            margin: '4rem auto 1rem',
-            border: '3px solid var(--line)',
-            borderTopColor: 'var(--lagoon)',
-            animation: 'spin 700ms linear infinite',
-          }}
-        />
-        <p className="demo-muted" style={{ fontSize: '0.9rem' }}>
-          Checking system health…
-        </p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <div className="demo-page rise-in pt-8 text-center">
+        <div className="mx-auto mt-16 mb-4 h-9 w-9 animate-[spin_700ms_linear_infinite] rounded-full border-[3px] border-[var(--line)] border-t-[var(--lagoon)]" />
+        <p className="demo-muted text-[0.9rem]">Checking system health…</p>
       </div>
     )
   }
@@ -72,75 +59,39 @@ export function StatusPage(): React.JSX.Element {
       <style>{`
         @keyframes fade-in { from { opacity:0 } to { opacity:1 } }
       `}</style>
-      <div className="demo-page rise-in" style={{ paddingTop: '2rem' }}>
+      <div className="demo-page rise-in pt-8">
         {/* ── Header ── */}
-        <div
-          style={{
-            marginBottom: '2.5rem',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1.5rem',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-          }}
-        >
+        <div className="mb-10 flex flex-wrap items-start justify-between gap-6">
           <div>
             <span className="island-kicker">Admin</span>
-            <h1 className="demo-title" style={{ marginTop: '0.4rem' }}>
-              System Status
-            </h1>
-            <p className="demo-muted" style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>
+            <h1 className="demo-title mt-1.5">System Status</h1>
+            <p className="demo-muted mt-2 text-[0.95rem]">
               Real-time health of APIs, databases, and third-party services.
             </p>
           </div>
 
           {statusReport && (
             <div
-              className="island-shell"
+              className="island-shell flex items-center gap-4 rounded-2xl px-6 py-4"
               style={{
-                padding: '1rem 1.5rem',
-                borderRadius: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
                 border: `1px solid ${overallStyle.bg}`,
                 background: `linear-gradient(165deg, color-mix(in oklab, ${overallStyle.bg} 40%, var(--surface-strong)), var(--surface))`,
               }}
             >
               <div
+                className="flex h-12 w-12 items-center justify-center rounded-full text-[1.6rem]"
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
                   background: overallStyle.bg,
                   color: overallStyle.text,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '1.6rem',
                 }}
               >
                 {overallStyle.icon}
               </div>
               <div>
-                <div
-                  style={{
-                    fontSize: '1.15rem',
-                    fontWeight: 800,
-                    color: 'var(--sea-ink)',
-                    lineHeight: 1.2,
-                  }}
-                >
+                <div className="text-[1.15rem] leading-[1.2] font-extrabold text-[var(--sea-ink)]">
                   {statusReport.overall_label}
                 </div>
-                <div
-                  style={{
-                    fontSize: '0.8rem',
-                    color: 'var(--sea-ink-soft)',
-                    marginTop: '0.25rem',
-                    fontWeight: 600,
-                  }}
-                >
+                <div className="mt-1 text-[0.8rem] font-semibold text-[var(--sea-ink-soft)]">
                   Uptime: {statusReport.uptime_formatted}
                 </div>
               </div>
@@ -148,27 +99,18 @@ export function StatusPage(): React.JSX.Element {
           )}
         </div>
 
-        {error && (
-          <div className="demo-alert demo-alert-danger" style={{ marginBottom: '2rem' }}>
-            ⚠️ {error}
-          </div>
-        )}
+        {error && <div className="demo-alert demo-alert-danger mb-8">⚠️ {error}</div>}
 
         {/* ── Uptime Chart ── */}
         <UptimeChart data={dailyData ?? []} />
 
         {/* ── Services Grid ── */}
         {statusReport && (
-          <div style={{ marginBottom: '3rem' }}>
-            <div className="demo-section-title" style={{ marginBottom: '1.25rem' }}>
-              System Components
-            </div>
+          <div className="mb-12">
+            <div className="demo-section-title mb-5">System Components</div>
             <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '1rem',
-              }}
+              className="grid gap-4"
+              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}
             >
               {statusReport.services.map((service) => (
                 <ServiceCard key={service.name} service={service} />
@@ -180,54 +122,31 @@ export function StatusPage(): React.JSX.Element {
         {/* ── Recent Incidents ── */}
         {incidents && incidents.incidents.length > 0 && (
           <div className="demo-panel">
-            <div className="demo-section-title" style={{ marginBottom: '1.25rem' }}>
-              Recent Incidents (Last 30 Days)
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="demo-section-title mb-5">Recent Incidents (Last 30 Days)</div>
+            <div className="flex flex-col gap-3">
               {incidents.incidents.map((inc) => {
                 const style = getStatusStyle(inc.overall_status)
                 return (
                   <div
                     key={inc.id}
-                    style={{
-                      padding: '1rem',
-                      border: '1px solid var(--line)',
-                      borderRadius: '0.75rem',
-                      background: 'color-mix(in oklab, var(--surface-strong) 80%, transparent)',
-                      display: 'flex',
-                      gap: '1rem',
-                      alignItems: 'flex-start',
-                    }}
+                    className="flex items-start gap-4 rounded-xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--surface-strong)_80%,transparent)] p-4"
                   >
                     <span
+                      className="inline-flex rounded-full px-2.5 py-1 text-[0.7rem] font-bold whitespace-nowrap"
                       style={{
-                        display: 'inline-flex',
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: 999,
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
                         background: style.bg,
                         color: style.text,
                       }}
                     >
                       {formatStatus(inc.overall_status)}
                     </span>
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--sea-ink)' }}
-                      >
+                    <div className="flex-1">
+                      <div className="text-[0.88rem] font-bold text-[var(--sea-ink)]">
                         {inc.incident_services
                           ? `Issues with: ${inc.incident_services}`
                           : inc.overall_label}
                       </div>
-                      <div
-                        style={{
-                          fontSize: '0.75rem',
-                          color: 'var(--sea-ink-soft)',
-                          marginTop: 4,
-                        }}
-                      >
+                      <div className="mt-1 text-[0.75rem] text-[var(--sea-ink-soft)]">
                         {formatDate(inc.occurred_at)}
                       </div>
                     </div>

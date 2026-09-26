@@ -203,16 +203,15 @@ async def get_transaction_volume(
     status_code=status.HTTP_200_OK,
     summary="Staff Reports — All Staff Members",
 )
-async def get_staff_reports(
+async def get_staff_reports_route(
     current_user: User = Depends(require_admin),
 ):
     """Reports accessible to all admin/staff roles."""
-    # get_staff_reports is synchronous (no DB) — no await needed
-    data = dashboard_service.get_staff_reports(current_user)
+    data = await dashboard_service.get_staff_reports(current_user)
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Staff reports retrieved",
-        data=data,
+        data=data.model_dump(),
     )
 
 

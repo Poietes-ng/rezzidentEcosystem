@@ -162,7 +162,7 @@ class AuthService:
         # Invalidate any existing unused OTPs for this phone + purpose
         await db.execute(
             update(OTP)
-            .filter(
+            .where(
                 OTP.phone_number == phone_number,
                 OTP.purpose == purpose,
                 OTP.is_used == False,  # noqa: E712
