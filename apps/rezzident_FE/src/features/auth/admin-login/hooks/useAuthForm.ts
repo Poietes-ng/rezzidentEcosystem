@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback   } from 'react'
+import type {Dispatch, SetStateAction} from 'react';
 
 interface FormErrors {
   [field: string]: string
@@ -9,11 +10,24 @@ interface UseAuthFormOptions {
   mode: 'sign-in' | 'sign-up'
 }
 
+export interface UseAuthFormReturn {
+  email: string
+  setEmail: Dispatch<SetStateAction<string>>
+  password: string
+  setPassword: Dispatch<SetStateAction<string>>
+  errors: FormErrors
+  isSubmitting: boolean
+  setIsSubmitting: Dispatch<SetStateAction<boolean>>
+  validate: () => boolean
+  reset: () => void
+  clearError: (field: string) => void
+}
+
 /**
  * Reusable form state and validation hook for sign-in and sign-up forms.
  * Encapsulates email, password, name state + validation + error handling.
  */
-export function useAuthForm({ mode }: UseAuthFormOptions) {
+export function useAuthForm({ mode }: UseAuthFormOptions): UseAuthFormReturn {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<FormErrors>({})

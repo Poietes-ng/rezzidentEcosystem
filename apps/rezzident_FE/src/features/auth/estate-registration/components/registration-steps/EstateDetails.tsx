@@ -11,11 +11,11 @@ import {
   SelectItem,
 } from '#/shared/components/ui/select'
 
-interface Props {
+interface EstateDetailsProps {
   registration: UseRegistrationFormReturn
 }
 
-export function EstateDetails({ registration }: Props) {
+export function EstateDetails({ registration }: EstateDetailsProps) {
   const { form, errors, updateField } = registration
 
   return (

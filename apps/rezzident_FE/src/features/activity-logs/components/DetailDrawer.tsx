@@ -1,13 +1,12 @@
 import type { ActivityLogItem } from '#/features/activity-logs/api'
 import { TYPE_LABELS, typeStyle, formatDate } from '#/features/activity-logs/utils'
 
-export function DetailDrawer({
-  log,
-  onClose,
-}: {
+export interface DetailDrawerProps {
   log: ActivityLogItem | null
   onClose: () => void
-}) {
+}
+
+export function DetailDrawer({ log, onClose }: DetailDrawerProps) {
   if (!log) return null
   const style = typeStyle(log.activity_type)
   const label = TYPE_LABELS[log.activity_type] ?? log.activity_type
