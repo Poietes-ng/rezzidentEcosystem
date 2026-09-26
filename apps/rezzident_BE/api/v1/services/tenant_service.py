@@ -27,7 +27,7 @@ class TenantService:
         this strictly so that the identifier can be safely interpolated into
         the ``CREATE SCHEMA`` DDL statement, which cannot use bound parameters.
         """
-        if not re.fullmatch(r'[a-z][a-z0-9_]{0,62}', schema_name):
+        if not re.fullmatch(r"[a-z][a-z0-9_]{0,62}", schema_name):
             raise ValueError(
                 f"Invalid schema name '{schema_name}': must be lowercase alphanumeric "
                 "with underscores (1–63 chars, starting with a letter)."
