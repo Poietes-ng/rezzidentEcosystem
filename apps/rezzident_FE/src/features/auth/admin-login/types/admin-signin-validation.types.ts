@@ -1,4 +1,4 @@
-import type { EstateFormData, FieldErrors } from './admin-signin.type'
+import type { EstateFormData, FieldErrors } from './admin-signin.types'
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
