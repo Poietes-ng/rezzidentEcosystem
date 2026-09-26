@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { BrowserMultiFormatReader } from '@zxing/browser'
-import { NotFoundException, ChecksumException, FormatException } from '@zxing/library'
+import { useRef } from 'react'
+import { useZXingScanner } from '../hooks/useZXingScanner'
 import type React from 'react'
 import { cn } from '#/shared/utils/cn'
 
@@ -14,127 +13,10 @@ export function BarcodeScannerModal({
   onClose,
 }: BarcodeScannerModalProps): React.JSX.Element {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [scanning, setScanning] = useState(true)
-  const [torchOn, setTorchOn] = useState(false)
-  const [torchSupported, setTorchSupported] = useState(false)
-
-  // ── Torch toggle ──────────────────────────────────────────────────────────
-  const toggleTorch = useCallback(async () => {
-    const track = streamRef.current?.getVideoTracks()[0]
-    if (!track) return
-    try {
-      await track.applyConstraints({ advanced: [{ torch: !torchOn } as MediaTrackConstraintSet] })
-      setTorchOn((prev) => !prev)
-    } catch {
-      // Device doesn't support torch — silently ignore
-    }
-  }, [torchOn])
-
-  // ── Scanner setup ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    const reader = new BrowserMultiFormatReader()
-    let stopped = false
-
-    // Suppress ZXing's internal per-frame decode noise (NotFoundException,
-    // ChecksumException, etc. are expected while no barcode is in frame).
-    // ZXing routes these through console.log, console.warn, AND console.error.
-    /* eslint-disable no-console */
-    const originalLog = console.log
-    const originalWarn = console.warn
-    const originalError = console.error
-    const isZXingNoise = (args: unknown[]) =>
-      args.some(
-        (a) =>
-          a instanceof NotFoundException ||
-          a instanceof ChecksumException ||
-          a instanceof FormatException ||
-          (typeof a === 'string' && a.includes('MultiFormatReader')) ||
-          (a instanceof Error &&
-            (a.name === 'NotFoundException' ||
-              a.name === 'ChecksumException' ||
-              a.name === 'FormatException')),
-      )
-    console.log = (...args: unknown[]) => {
-      if (isZXingNoise(args)) return
-      originalLog.apply(console, args)
-    }
-    console.warn = (...args: unknown[]) => {
-      if (isZXingNoise(args)) return
-      originalWarn.apply(console, args)
-    }
-    console.error = (...args: unknown[]) => {
-      if (isZXingNoise(args)) return
-      originalError.apply(console, args)
-    }
-    /* eslint-enable no-console */
-
-    async function startScan() {
-      try {
-        if (!videoRef.current) return
-
-        await reader.decodeFromConstraints(
-          {
-            video: {
-              facingMode: 'environment',
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-            },
-          },
-          videoRef.current,
-          (result, err) => {
-            if (stopped) return
-            if (result) {
-              setScanning(false)
-              onDetected(result.getText())
-            } else if (err && !(err instanceof NotFoundException)) {
-              // NotFoundException fires every frame with no barcode — ignore it
-              // eslint-disable-next-line no-console
-              console.warn('Scan error:', err)
-            }
-          },
-        )
-
-        // Capture the active stream so the torch toggle can access its track
-        // videoRef.current is non-null here (guarded by early-return above)
-
-        const stream = videoRef.current.srcObject as MediaStream | null
-        if (stream) {
-          streamRef.current = stream
-          const track = stream.getVideoTracks()[0]
-          // Optional chains needed for runtime browser compat — TS types don't
-          // reflect that getCapabilities may be absent on some browsers.
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          const caps = track?.getCapabilities?.() as Record<string, unknown> | undefined
-          if (caps && 'torch' in caps) {
-            setTorchSupported(true)
-          }
-        }
-      } catch (e: unknown) {
-        if (stopped) return
-        const msg = e instanceof Error ? e.message : String(e)
-        if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
-          setError('Camera permission denied. Please allow camera access and try again.')
-        } else {
-          setError('Unable to access camera. Please check your device settings.')
-        }
-      }
-    }
-
-    startScan()
-
-    return () => {
-      stopped = true
-      // Restore console methods and stop all camera streams
-      /* eslint-disable no-console */
-      console.log = originalLog
-      console.warn = originalWarn
-      console.error = originalError
-      /* eslint-enable no-console */
-      BrowserMultiFormatReader.releaseAllStreams()
-    }
-  }, [onDetected])
+  const { error, scanning, torchOn, torchSupported, toggleTorch } = useZXingScanner({
+    videoRef,
+    onDetected,
+  })
 
   return (
     /*
@@ -213,59 +95,7 @@ export function BarcodeScannerModal({
             {/*
              * SVG corner brackets — 220 × 220 viewBox, rx/ry = 15, arm = 30px.
              */}
-            <svg
-              viewBox="0 0 220 220"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-              aria-hidden="true"
-            >
-              {/* Subtle connecting perimeter */}
-              <rect
-                x="3.5"
-                y="3.5"
-                width="213"
-                height="213"
-                rx="15"
-                ry="15"
-                className="stroke-actionYellow/50"
-                strokeWidth="1"
-                fill="none"
-              />
-
-              {/* Top-Left */}
-              <path
-                d="M 3.5 33.5 L 3.5 18.5 A 15 15 0 0 1 18.5 3.5 L 33.5 3.5"
-                className="stroke-actionYellowPressed"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Top-Right */}
-              <path
-                d="M 186.5 3.5 L 201.5 3.5 A 15 15 0 0 1 216.5 18.5 L 216.5 33.5"
-                className="stroke-actionYellowPressed"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Bottom-Right */}
-              <path
-                d="M 216.5 186.5 L 216.5 201.5 A 15 15 0 0 1 201.5 216.5 L 186.5 216.5"
-                className="stroke-actionYellowPressed"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Bottom-Left */}
-              <path
-                d="M 33.5 216.5 L 18.5 216.5 A 15 15 0 0 1 3.5 201.5 L 3.5 186.5"
-                className="stroke-actionYellowPressed"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ViewfinderOverlay />
           </div>
 
           {/* Hint below the viewfinder */}
@@ -302,5 +132,65 @@ export function BarcodeScannerModal({
         .scan-line { animation: scanline 2s ease-in-out infinite alternate; }
       `}</style>
     </div>
+  )
+}
+
+// ── Viewfinder SVG overlay ─────────────────────────────────────────────────
+
+function ViewfinderOverlay() {
+  return (
+    <svg
+      viewBox="0 0 220 220"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+      aria-hidden="true"
+    >
+      {/* Subtle connecting perimeter */}
+      <rect
+        x="3.5"
+        y="3.5"
+        width="213"
+        height="213"
+        rx="15"
+        ry="15"
+        className="stroke-actionYellow/50"
+        strokeWidth="1"
+        fill="none"
+      />
+
+      {/* Top-Left */}
+      <path
+        d="M 3.5 33.5 L 3.5 18.5 A 15 15 0 0 1 18.5 3.5 L 33.5 3.5"
+        className="stroke-actionYellowPressed"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Top-Right */}
+      <path
+        d="M 186.5 3.5 L 201.5 3.5 A 15 15 0 0 1 216.5 18.5 L 216.5 33.5"
+        className="stroke-actionYellowPressed"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Bottom-Right */}
+      <path
+        d="M 216.5 186.5 L 216.5 201.5 A 15 15 0 0 1 201.5 216.5 L 186.5 216.5"
+        className="stroke-actionYellowPressed"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Bottom-Left */}
+      <path
+        d="M 33.5 216.5 L 18.5 216.5 A 15 15 0 0 1 3.5 201.5 L 3.5 186.5"
+        className="stroke-actionYellowPressed"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

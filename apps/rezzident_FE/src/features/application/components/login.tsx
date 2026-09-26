@@ -1,15 +1,17 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
 import type React from 'react'
 import { Button, Input } from '#/shared/components/ui'
 
 export function LoginScreen(): React.JSX.Element {
+  const router = useRouter()
+
   return (
     <div className="flex h-full w-full flex-col bg-white">
       {/* Header */}
       <div className="px-6 pb-6">
         <button
           type="button"
-          onClick={() => window.history.back()}
+          onClick={() => router.history.back()}
           className="mb-8 inline-flex items-center justify-center"
         >
           <span className="material-symbols-outlined text-actionDark text-[24px]">
