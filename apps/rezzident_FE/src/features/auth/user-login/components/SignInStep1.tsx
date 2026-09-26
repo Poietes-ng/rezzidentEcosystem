@@ -86,10 +86,15 @@ export function Step1EstateId({ join }: Props): React.JSX.Element {
             I already have an account
           </Button>
         </Link>
-        <p className="pb-4 text-center text-[10px] text-gray-400">
+        <p className="font-dmsans pt-6 pb-3 text-center text-[12px] font-normal text-[#9A9488]">
           By continuing, you agree to our{' '}
-          <span className="underline decoration-gray-300">Terms</span> &{' '}
-          <span className="underline decoration-gray-300">Privacy Policy</span>
+          <span className="hover:text-actionYellow cursor-pointer font-medium underline transition-colors duration-300 ease-in-out">
+            Terms
+          </span>
+          {' & '}
+          <span className="hover:text-actionYellow cursor-pointer font-medium underline transition-colors duration-300 ease-in-out">
+            Privacy Policy
+          </span>
         </p>
       </div>
     </div>
