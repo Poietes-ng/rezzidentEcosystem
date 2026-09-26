@@ -149,7 +149,7 @@ class EstateService:
 
         # ── Stakeholders (first PANEL_ACCESS_STAKEHOLDER_COUNT get
         #    dashboard access + a credentials email) ──
-        credentials_to_email: list[tuple[str, str]] = []  # [(email, plain_password)]
+        credentials_to_email = []  # type: list[tuple[str, str]]
 
         if body.stakeholders:
             for idx, s in enumerate(body.stakeholders):
