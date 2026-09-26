@@ -1,13 +1,16 @@
+import { useRouter } from '@tanstack/react-router'
 import type React from 'react'
 import { Card } from '#/shared/components/ui/card'
 
 export function Support(): React.JSX.Element {
+  const router = useRouter()
+
   return (
     <section className="font-dmsans flex h-full w-full flex-col bg-transparent px-6 pb-10">
       {/* ── Header ── */}
       <div className="relative mb-8 flex items-center justify-between">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => router.history.back()}
           className="text-actionDark z-10 flex h-10 w-10 items-center justify-start transition-opacity hover:opacity-70 focus:outline-none"
           aria-label="Go back"
         >
