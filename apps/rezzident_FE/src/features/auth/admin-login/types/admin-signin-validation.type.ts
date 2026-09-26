@@ -26,16 +26,13 @@ export function validateStep(subStep: number, form: EstateFormData): FieldErrors
 
   switch (subStep) {
     case 1: {
-      if (!form.email.trim()) errors.email = 'Estate name is required.'
-      else if (form.email.trim().length < 2)
-        errors.estateName = 'Estate name must be at least 2 characters.'
+      if (!form.email.trim()) errors.email = 'Email is required.'
+      else if (!isValidEmail(form.email.trim())) errors.email = 'Invalid email address.'
 
-      if (!form.password.trim()) errors.password = 'Estate address is required.'
+      if (!form.password.trim()) errors.password = 'Password is required.'
       else if (form.password.trim().length < 5)
-        errors.estateAddress = 'Address must be at least 5 characters.'
+        errors.password = 'Password must be at least 5 characters.'
 
-      if (!form.estate_id) errors.stateLocated = 'Please select a state.'
-      if (!form.estate_id) errors.lgaLocated = 'Please select a Local Government Area.'
       break
     }
 
