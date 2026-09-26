@@ -40,6 +40,7 @@ from api.v1.schemas.dashboard import (
     RevenueStats,
     SecurityDashboardResponse,
     SecuritySummaryStats,
+    StaffDashboardResponse,
     TreasurerDashboardResponse,
     TreasurerSummaryStats,
     UserDistribution,
@@ -788,6 +789,10 @@ class DashboardService:
                 "Treasurer dashboard fetched successfully",
                 lambda: self.get_treasurer_dashboard(db, current_user),
             ),
+            UserRole.STAFF: (
+                "Staff dashboard fetched successfully",
+                lambda: self.get_staff_reports(current_user),
+            ),
         }
 
         if current_user.role in role_map:
@@ -799,17 +804,17 @@ class DashboardService:
 
         return {"message": message, "data": data.model_dump()}
 
-    def get_staff_reports(self, current_user: User) -> dict[str, Any]:
+    async def get_staff_reports(self, current_user: User) -> StaffDashboardResponse:
         """Available reports for staff/admin users."""
-        return {
-            "user_role": current_user.role.value,
-            "reports": [
+        return StaffDashboardResponse(
+            user_role=current_user.role.value,
+            reports=[
                 {"name": "Monthly Activity", "status": "available"},
                 {"name": "Resident Summary", "status": "available"},
                 {"name": "Financial Overview", "status": "available"},
                 {"name": "Visitor Analytics", "status": "available"},
             ],
-        }
+        )
 
 
 # Singleton

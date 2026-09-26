@@ -189,3 +189,14 @@ class TreasurerDashboardResponse(BaseModel):
     summary: TreasurerSummaryStats
     monthly_revenue: list[MonthlyTransactionItem] = []
     recent_payments: list[dict] = []
+
+# ══════════════════════════════════════════════════════
+# Staff Dashboard
+# ══════════════════════════════════════════════════════
+
+
+class StaffDashboardResponse(BaseModel):
+    """Staff dashboard payload."""
+
+    user_role: str
+    reports: list[dict] = []
