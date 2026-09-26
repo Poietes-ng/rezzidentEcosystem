@@ -1,210 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { getStatusStyle, formatStatus, formatDate } from '../utils'
+import { ServiceCard } from './ServiceCard'
+import { UptimeChart } from './UptimeChart'
 import type React from 'react'
-import type { FullStatusReport, DailyUptimeEntry, IncidentsResponse } from '#/features/status/api'
 import { fetchFullStatus, fetchDailySummary, fetchIncidents } from '#/features/status/api'
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-export const STATUS_COLORS: Record<
-  string,
-  { bg: string; text: string; dot: string; icon: string }
-> = {
-  operational: { bg: 'rgba(47,106,74,0.12)', text: 'var(--palm)', dot: 'var(--palm)', icon: '✓' },
-  degraded: { bg: 'rgba(196,126,42,0.12)', text: '#a06820', dot: '#c47e2a', icon: '⚠' },
-  partial_outage: { bg: 'rgba(196,71,71,0.1)', text: '#9f3030', dot: '#c44747', icon: '⚠' },
-  major_outage: { bg: 'rgba(196,71,71,0.15)', text: '#9f3030', dot: '#c44747', icon: '✖' },
-  not_configured: {
-    bg: 'rgba(23,58,64,0.08)',
-    text: 'var(--sea-ink-soft)',
-    dot: 'var(--sea-ink-soft)',
-    icon: '?',
-  },
-}
-
-export function getStatusStyle(status: string) {
-  return STATUS_COLORS[status] ?? STATUS_COLORS.not_configured
-}
-
-export function formatStatus(status: string) {
-  return status
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-}
-
-export function formatDate(iso: string) {
-  return new Date(iso).toLocaleString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-// ── Service Card ───────────────────────────────────────────────────────────
-
-function ServiceCard({ service }: { service: FullStatusReport['services'][0] }) {
-  const style = getStatusStyle(service.status)
-  return (
-    <div
-      className="demo-card"
-      style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', position: 'relative' }}
-    >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--sea-ink)' }}>
-            {service.name}
-          </h3>
-          <p style={{ margin: '0.2rem 0 0', fontSize: '0.82rem', color: 'var(--sea-ink-soft)' }}>
-            {service.description}
-          </p>
-        </div>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            padding: '0.25rem 0.6rem',
-            borderRadius: 999,
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            background: style.bg,
-            color: style.text,
-          }}
-        >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: style.dot }} />
-          {formatStatus(service.status)}
-        </span>
-      </div>
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          marginTop: 'auto',
-          paddingTop: '0.5rem',
-        }}
-      >
-        {service.error ? (
-          <div style={{ fontSize: '0.75rem', color: '#9f3030', fontWeight: 600 }}>
-            {service.error}
-          </div>
-        ) : service.response_time_ms !== null ? (
-          <div style={{ fontSize: '0.8rem', color: 'var(--sea-ink-soft)', fontWeight: 600 }}>
-            {service.response_time_ms} ms
-          </div>
-        ) : (
-          <div style={{ fontSize: '0.8rem', color: 'var(--sea-ink-soft)' }}>—</div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Uptime Chart ───────────────────────────────────────────────────────────
-
-function UptimeChart({ data }: { data: DailyUptimeEntry[] }) {
-  if (data.length === 0) return null
-
-  return (
-    <div className="demo-panel" style={{ marginBottom: '2rem' }}>
-      <div className="demo-section-title" style={{ marginBottom: '1.25rem' }}>
-        90-Day Uptime History
-      </div>
-      <div style={{ display: 'flex', gap: '2px', height: '40px', alignItems: 'flex-end' }}>
-        {data.map((day, i) => {
-          let bgColor = 'var(--line)'
-          if (day.status === 'operational') bgColor = 'var(--palm)'
-          else if (day.status === 'incident') bgColor = '#c44747'
-
-          return (
-            <div
-              key={i}
-              title={`${day.date}: ${day.uptime_pct !== null ? day.uptime_pct + '%' : 'No data'}`}
-              style={{
-                flex: 1,
-                background: bgColor,
-                height: day.status === 'no_data' ? '20%' : '100%',
-                borderRadius: '2px',
-                opacity: day.status === 'no_data' ? 0.5 : day.uptime_pct === 100 ? 0.85 : 1,
-                transition: 'opacity 150ms ease',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.opacity =
-                  day.status === 'no_data' ? '0.5' : day.uptime_pct === 100 ? '0.85' : '1')
-              }
-            />
-          )
-        })}
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: '0.75rem',
-          fontSize: '0.75rem',
-          color: 'var(--sea-ink-soft)',
-          fontWeight: 600,
-        }}
-      >
-        <span>90 days ago</span>
-        <span>Today</span>
-      </div>
-    </div>
-  )
-}
 
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export function StatusPage(): React.JSX.Element {
   const TOKEN = localStorage.getItem('access_token') ?? ''
 
-  const [statusReport, setStatusReport] = useState<FullStatusReport | null>(null)
-  const [dailyData, setDailyData] = useState<DailyUptimeEntry[]>([])
-  const [incidents, setIncidents] = useState<IncidentsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    data: statusReport,
+    isLoading: isReportLoading,
+    error: reportError,
+  } = useQuery({
+    queryKey: ['statusReport', TOKEN],
+    queryFn: () => fetchFullStatus(TOKEN),
+    refetchInterval: 60000,
+  })
 
-  useEffect(() => {
-    let isMounted = true
-    const loadData = async () => {
-      setLoading(true)
-      try {
-        const [reportRes, dailyRes, incidentsRes] = await Promise.all([
-          fetchFullStatus(TOKEN),
-          fetchDailySummary(TOKEN, 90),
-          fetchIncidents(TOKEN, 10, 30),
-        ])
-        if (isMounted) {
-          setStatusReport(reportRes)
-          setDailyData(dailyRes)
-          setIncidents(incidentsRes)
-        }
-      } catch (err: unknown) {
-        if (isMounted) setError(err instanceof Error ? err.message : 'Failed to load status')
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
+  const {
+    data: dailyData,
+    isLoading: isDailyLoading,
+    error: dailyError,
+  } = useQuery({
+    queryKey: ['dailyStatus', TOKEN],
+    queryFn: () => fetchDailySummary(TOKEN, 90),
+  })
 
-    loadData()
-    const interval = setInterval(() => {
-      fetchFullStatus(TOKEN)
-        .then((res) => {
-          if (isMounted) setStatusReport(res)
-        })
-        .catch(() => {})
-    }, 60000)
+  const {
+    data: incidents,
+    isLoading: isIncidentsLoading,
+    error: incidentsError,
+  } = useQuery({
+    queryKey: ['statusIncidents', TOKEN],
+    queryFn: () => fetchIncidents(TOKEN, 10, 30),
+  })
 
-    return () => {
-      isMounted = false
-      clearInterval(interval)
-    }
-  }, [TOKEN])
+  const loading = isReportLoading || isDailyLoading || isIncidentsLoading
+  const error = reportError?.message || dailyError?.message || incidentsError?.message || null
 
   if (loading && !statusReport) {
     return (
@@ -320,7 +155,7 @@ export function StatusPage(): React.JSX.Element {
         )}
 
         {/* ── Uptime Chart ── */}
-        <UptimeChart data={dailyData} />
+        <UptimeChart data={dailyData ?? []} />
 
         {/* ── Services Grid ── */}
         {statusReport && (
