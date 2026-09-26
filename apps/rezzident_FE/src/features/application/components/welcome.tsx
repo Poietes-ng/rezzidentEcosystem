@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from '../../../shared/components/ui/button'
-import WelcomeSlider from './welcomeSlider'
+import WelcomeSlider from './WelcomeSlider'
 
 /**
  * WelcomeScreen — rezzident_FE
