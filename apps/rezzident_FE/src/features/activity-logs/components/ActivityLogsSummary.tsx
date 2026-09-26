@@ -1,4 +1,4 @@
-import { StatCard } from './ActivityLogSubComponents'
+import { StatCard } from './StatCard'
 import type { ActivitySummaryStats } from '#/features/activity-logs/api'
 import { TYPE_LABELS, typeStyle } from '#/features/activity-logs/utils'
 

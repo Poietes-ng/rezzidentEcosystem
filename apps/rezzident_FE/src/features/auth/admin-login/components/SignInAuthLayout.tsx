@@ -60,7 +60,7 @@ const textLine = {
   },
 }
 
-export function RegAuthLayout() {
+export function SignInAuthLayout() {
   const [[currentSlide, direction], setSlide] = useState<[number, number]>([0, 1])
   const [isInteracting, setIsInteracting] = useState(false)
 

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { LogRow, DetailDrawer } from './ActivityLogSubComponents'
+import { LogRow } from './LogRow'
+import { DetailDrawer } from './DetailDrawer'
 import { ActivityLogsSummary } from './ActivityLogsSummary'
 import type { ActivityLogFilters, ActivityLogItem } from '#/features/activity-logs/api'
 import { fetchActivityLogs, fetchActivitySummary } from '#/features/activity-logs/api'
