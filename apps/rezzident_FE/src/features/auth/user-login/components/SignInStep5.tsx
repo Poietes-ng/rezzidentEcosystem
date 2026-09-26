@@ -20,7 +20,7 @@ export function Step5FacialCapture({ join }: Props): React.JSX.Element {
   } = join
 
   return (
-    <div className="animate-in fade-in slide-in-from-right-4 flex flex-1 flex-col duration-500">
+    <div className="animate-in fade-in slide-in-from-right-4 flex flex-1 flex-col pt-16 duration-500">
       <span className="mb-2 block text-[11px] font-bold tracking-widest text-gray-400 uppercase">
         Step {displayStep} of {totalSteps}
       </span>

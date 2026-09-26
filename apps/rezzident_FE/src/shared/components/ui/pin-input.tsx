@@ -104,7 +104,7 @@ export function PinInput({
           return (
             <div
               key={index}
-              className="relative flex h-[48px] w-[40px] items-center justify-center"
+              className="relative flex h-[56px] w-[40px] items-center justify-center"
             >
               <input
                 ref={(el) => {
@@ -132,7 +132,7 @@ export function PinInput({
                   activeVariant === 'dot' ? (
                     <div
                       className={cn(
-                        'size-[8px] rounded-full',
+                        'h-[24px] w-[24px] rounded-full',
                         error ? 'bg-errorRed' : 'bg-actionDark',
                       )}
                     />
@@ -161,8 +161,8 @@ export function PinInput({
               {/* Bottom underline */}
               <div
                 className={cn(
-                  'pointer-events-none absolute bottom-0 left-0 h-[1.5px] w-full transition-colors',
-                  error ? 'bg-errorRed' : isFocused ? 'bg-actionYellow h-[2px]' : 'bg-gray-200',
+                  'pointer-events-none absolute bottom-0 left-0 h-[1px] w-[40px] transition-colors',
+                  error ? 'bg-errorRed' : isFocused ? 'bg-actionYellow h-[2px]' : 'bg-actionDark',
                 )}
               />
             </div>
@@ -177,7 +177,7 @@ export function PinInput({
           tabIndex={-1}
           aria-label={revealed ? 'Hide PIN' : 'Show PIN'}
           onClick={() => setRevealed((r) => !r)}
-          className="hover:text-actionDark flex items-center gap-1 text-gray-400 transition-colors focus-visible:outline-none"
+          className="hover:text-actionDark text-warmGray flex items-center gap-1 transition-colors focus-visible:outline-none"
         >
           <span className="material-symbols-outlined text-[18px] select-none">
             {revealed ? 'visibility_off' : 'visibility'}
