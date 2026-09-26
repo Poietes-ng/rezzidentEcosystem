@@ -12,14 +12,7 @@ export function ActivityLogsSummary({ summary }: ActivityLogsSummaryProps) {
   return (
     <>
       {/* ── Summary stats ── */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
+      <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4">
         <StatCard label="Total events" value={summary.total_activities} icon="📋" />
         <StatCard label="Today" value={summary.activities_today} icon="☀️" />
         <StatCard label="This week" value={summary.activities_this_week} icon="📅" />
@@ -27,24 +20,15 @@ export function ActivityLogsSummary({ summary }: ActivityLogsSummaryProps) {
       </div>
 
       {/* ── Top types + active users ── */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '1rem',
-          marginBottom: '2rem',
-        }}
-      >
+      <div className="mb-8 grid grid-cols-2 gap-4">
         <div className="demo-panel">
-          <div className="demo-section-title" style={{ marginBottom: '1rem' }}>
-            Top Activity Types
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div className="demo-section-title mb-4">Top Activity Types</div>
+          <div className="flex flex-col gap-2">
             {summary.top_activity_types.map((t) => {
               const pct = Math.round((t.count / (summary.total_activities || 1)) * 100)
               const style = typeStyle(t.type)
               return (
-                <div key={t.type} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div key={t.type} className="flex items-center gap-[0.6rem]">
                   <span
                     style={{
                       fontSize: '0.72rem',
@@ -91,20 +75,15 @@ export function ActivityLogsSummary({ summary }: ActivityLogsSummaryProps) {
         </div>
 
         <div className="demo-panel">
-          <div className="demo-section-title" style={{ marginBottom: '1rem' }}>
-            Most Active Users
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <div className="demo-section-title mb-4">Most Active Users</div>
+          <div className="flex flex-col gap-[0.6rem]">
             {summary.most_active_users.length === 0 ? (
               <p className="demo-muted" style={{ fontSize: '0.85rem', margin: 0 }}>
                 No data yet.
               </p>
             ) : (
               summary.most_active_users.map((u, i) => (
-                <div
-                  key={u.user_name}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-                >
+                <div key={u.user_name} className="flex items-center gap-3">
                   <span
                     style={{
                       width: 28,
