@@ -4,6 +4,8 @@
  * component and any sub-components without circular references.
  */
 
+export type TypeStyle = { bg: string; text: string; dot: string }
+
 export const TYPE_LABELS: Record<string, string> = {
   user_login: 'Login',
   pin_locked: 'PIN Locked',
@@ -23,7 +25,7 @@ export const TYPE_LABELS: Record<string, string> = {
   subaccount_created: 'Subaccount',
 }
 
-export const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
+export const TYPE_COLORS: Record<string, TypeStyle> = {
   user_login: { bg: 'rgba(79,184,178,0.12)', text: 'var(--lagoon-deep)', dot: 'var(--lagoon)' },
   pin_locked: { bg: 'rgba(196,126,42,0.12)', text: '#a06820', dot: '#c47e2a' },
   bill_created: { bg: 'rgba(47,106,74,0.12)', text: 'var(--palm)', dot: 'var(--palm)' },
@@ -43,11 +45,11 @@ export const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string
   default: { bg: 'rgba(65,97,102,0.1)', text: 'var(--sea-ink-soft)', dot: 'var(--sea-ink-soft)' },
 }
 
-export function typeStyle(type: string) {
+export function typeStyle(type: string): TypeStyle {
   return TYPE_COLORS[type] ?? TYPE_COLORS.default
 }
 
-export function timeAgo(iso: string) {
+export function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const m = Math.floor(diff / 60000)
   if (m < 1) return 'just now'
@@ -58,7 +60,7 @@ export function timeAgo(iso: string) {
   return `${d}d ago`
 }
 
-export function formatDate(iso: string) {
+export function formatDate(iso: string): string {
   return new Date(iso).toLocaleString('en-GB', {
     day: '2-digit',
     month: 'short',

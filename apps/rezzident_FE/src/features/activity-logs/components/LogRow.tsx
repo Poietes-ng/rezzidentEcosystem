@@ -1,7 +1,12 @@
 import type { ActivityLogItem } from '#/features/activity-logs/api'
 import { TYPE_LABELS, typeStyle, timeAgo, formatDate } from '#/features/activity-logs/utils'
 
-export function LogRow({ log, onClick }: { log: ActivityLogItem; onClick: () => void }) {
+interface LogRowProps {
+  log: ActivityLogItem
+  onClick: () => void
+}
+
+export function LogRow({ log, onClick }: LogRowProps) {
   const style = typeStyle(log.activity_type)
   const label = TYPE_LABELS[log.activity_type] ?? log.activity_type
   return (

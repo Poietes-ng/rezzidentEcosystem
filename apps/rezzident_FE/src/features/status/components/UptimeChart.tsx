@@ -4,11 +4,9 @@ export function UptimeChart({ data }: { data: DailyUptimeEntry[] }) {
   if (data.length === 0) return null
 
   return (
-    <div className="demo-panel" style={{ marginBottom: '2rem' }}>
-      <div className="demo-section-title" style={{ marginBottom: '1.25rem' }}>
-        90-Day Uptime History
-      </div>
-      <div style={{ display: 'flex', gap: '2px', height: '40px', alignItems: 'flex-end' }}>
+    <div className="demo-panel mb-8">
+      <div className="demo-section-title mb-3">90-Day Uptime History</div>
+      <div className="h-3xl flex items-end gap-0.5">
         {data.map((day, i) => {
           let bgColor = 'var(--line)'
           if (day.status === 'operational') bgColor = 'var(--palm)'

@@ -5,7 +5,7 @@ import { AdminLogin } from '../AdminSignInForm'
 // Mock TanStack Router
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => vi.fn(),
-  Link: ({ children }: any) => <a>{children}</a>,
+  Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
   useRouter: () => ({}),
 }))
 
