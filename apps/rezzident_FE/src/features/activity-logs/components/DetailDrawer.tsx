@@ -19,10 +19,7 @@ export function DetailDrawer({ log, onClose }: DetailDrawerProps) {
         className="fixed inset-0 z-40 animate-[fade-in_160ms_ease_both] bg-[#0a1418]/35 backdrop-blur-sm"
       />
       {/* Drawer */}
-      <aside
-        className="fixed top-0 right-0 bottom-0 flex w-[min(420px,100vw)] animate-[slide-in-right_220ms_cubic-bezier(0.16,1,0.3,1)_both] flex-col gap-5 overflow-y-auto border-l border-[var(--line)] bg-[linear-gradient(165deg,var(--surface-strong),var(--surface))] px-7 py-8 shadow-[-18px_0_44px_rgba(23,58,64,0.14)] backdrop-blur-md"
-        style={{ zIndex: 41 }}
-      >
+      <aside className="fixed top-0 right-0 bottom-0 z-[41] flex w-[min(420px,100vw)] animate-[slide-in-right_220ms_cubic-bezier(0.16,1,0.3,1)_both] flex-col gap-5 overflow-y-auto border-l border-[var(--line)] bg-[linear-gradient(165deg,var(--surface-strong),var(--surface))] px-7 py-8 shadow-[-18px_0_44px_rgba(23,58,64,0.14)] backdrop-blur-md">
         <div className="flex items-center justify-between">
           <span className="island-kicker">Activity Detail</span>
           <button
