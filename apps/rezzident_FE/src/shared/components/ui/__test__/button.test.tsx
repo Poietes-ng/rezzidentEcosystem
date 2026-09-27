@@ -23,13 +23,15 @@ describe('Button', () => {
     expect(btn.className).toContain('justify-center')
   })
 
-  it('applies different classes for secondary variant', () => {
+  it('applies different styles for secondary variant', () => {
     const { container: defaultContainer } = render(<Button>Default</Button>)
     const { container: secondaryContainer } = render(<Button variant="secondary">Secondary</Button>)
     const defaultBtn = defaultContainer.querySelector('button')!
     const secondaryBtn = secondaryContainer.querySelector('button')!
     // Secondary should have different styling than default
-    expect(defaultBtn.className).not.toBe(secondaryBtn.className)
+    expect(defaultBtn.style.getPropertyValue('--btn-bg')).not.toBe(
+      secondaryBtn.style.getPropertyValue('--btn-bg'),
+    )
   })
 
   it('is disabled when disabled prop is set', () => {

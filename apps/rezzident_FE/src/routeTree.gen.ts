@@ -13,18 +13,24 @@ import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as authAdminLoginRouteImport } from './routes/(auth)/admin-login'
 import { Route as authRegistrationRouteImport } from './routes/(auth)/registration'
 import { Route as authRegistrationCriteriaRouteImport } from './routes/(auth)/registration-criteria'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
 import { Route as publicAboutRouteImport } from './routes/(public)/about'
 import { Route as publicHomeRouteImport } from './routes/(public)/home'
+import { Route as AuthenticatedActivityLogsRouteImport } from './routes/_authenticated/activity-logs'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppJoinRouteImport } from './routes/app/join'
 import { Route as AppLoginRouteImport } from './routes/app/login'
 import { Route as AppSplashRouteImport } from './routes/app/splash'
+import { Route as AppSupportRouteImport } from './routes/app/support'
 import { Route as AppVouchRouteImport } from './routes/app/vouch'
 import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
+import { Route as AppOnboardingGetStartedFindEstateIdRouteImport } from './routes/app/onboarding/get-started/find-estate-id'
+import { Route as AppOnboardingGetStartedNoEstateIdRouteImport } from './routes/app/onboarding/get-started/no-estate-id'
 
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
@@ -42,6 +48,11 @@ const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authAdminLoginRoute = authAdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const authRegistrationRoute = authRegistrationRouteImport.update({
   id: '/registration',
@@ -68,9 +79,19 @@ const publicHomeRoute = publicHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
+const AuthenticatedActivityLogsRoute = AuthenticatedActivityLogsRouteImport.update({
+  id: '/activity-logs',
+  path: '/activity-logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -93,6 +114,11 @@ const AppSplashRoute = AppSplashRouteImport.update({
   path: '/splash',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppVouchRoute = AppVouchRouteImport.update({
   id: '/vouch',
   path: '/vouch',
@@ -103,35 +129,58 @@ const AppWelcomeRoute = AppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppOnboardingGetStartedFindEstateIdRoute =
+  AppOnboardingGetStartedFindEstateIdRouteImport.update({
+    id: '/onboarding/get-started/find-estate-id',
+    path: '/onboarding/get-started/find-estate-id',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppOnboardingGetStartedNoEstateIdRoute = AppOnboardingGetStartedNoEstateIdRouteImport.update({
+  id: '/onboarding/get-started/no-estate-id',
+  path: '/onboarding/get-started/no-estate-id',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/app': typeof AppRouteRouteWithChildren
+  '/admin-login': typeof authAdminLoginRoute
   '/registration': typeof authRegistrationRoute
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/support': typeof AppSupportRoute
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app/': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
+  '/admin-login': typeof authAdminLoginRoute
   '/registration': typeof authRegistrationRoute
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/support': typeof AppSupportRoute
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -139,67 +188,91 @@ export interface FileRoutesById {
   '/(public)': typeof publicRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
+  '/(auth)/admin-login': typeof authAdminLoginRoute
   '/(auth)/registration': typeof authRegistrationRoute
   '/(auth)/registration-criteria': typeof authRegistrationCriteriaRoute
   '/(public)/about': typeof publicAboutRoute
   '/(public)/home': typeof publicHomeRoute
+  '/_authenticated/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
+  '/app/support': typeof AppSupportRoute
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/(public)/': typeof publicIndexRoute
   '/app/': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/app'
+    | '/admin-login'
     | '/registration'
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
+    | '/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
+    | '/app/support'
     | '/app/vouch'
     | '/app/welcome'
     | '/app/'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-login'
     | '/registration'
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
+    | '/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
+    | '/app/support'
     | '/app/vouch'
     | '/app/welcome'
     | '/app'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   id:
     | '__root__'
     | '/(auth)'
     | '/(public)'
     | '/_authenticated'
     | '/app'
+    | '/(auth)/admin-login'
     | '/(auth)/registration'
     | '/(auth)/registration-criteria'
     | '/(public)/about'
     | '/(public)/home'
+    | '/_authenticated/activity-logs'
     | '/_authenticated/profile'
+    | '/_authenticated/status'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
+    | '/app/support'
     | '/app/vouch'
     | '/app/welcome'
     | '/(public)/'
     | '/app/'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/admin-login': {
+      id: '/(auth)/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof authAdminLoginRouteImport
+      parentRoute: typeof authRouteRoute
+    }
     '/(auth)/registration': {
       id: '/(auth)/registration'
       path: '/registration'
@@ -274,11 +354,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicHomeRouteImport
       parentRoute: typeof publicRouteRoute
     }
+    '/_authenticated/activity-logs': {
+      id: '/_authenticated/activity-logs'
+      path: '/activity-logs'
+      fullPath: '/activity-logs'
+      preLoaderRoute: typeof AuthenticatedActivityLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/status': {
+      id: '/_authenticated/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/app/': {
@@ -309,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSplashRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/support': {
+      id: '/app/support'
+      path: '/support'
+      fullPath: '/app/support'
+      preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/vouch': {
       id: '/app/vouch'
       path: '/vouch'
@@ -323,15 +424,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWelcomeRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/onboarding/get-started/find-estate-id': {
+      id: '/app/onboarding/get-started/find-estate-id'
+      path: '/onboarding/get-started/find-estate-id'
+      fullPath: '/app/onboarding/get-started/find-estate-id'
+      preLoaderRoute: typeof AppOnboardingGetStartedFindEstateIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/onboarding/get-started/no-estate-id': {
+      id: '/app/onboarding/get-started/no-estate-id'
+      path: '/onboarding/get-started/no-estate-id'
+      fullPath: '/app/onboarding/get-started/no-estate-id'
+      preLoaderRoute: typeof AppOnboardingGetStartedNoEstateIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface authRouteRouteChildren {
+  authAdminLoginRoute: typeof authAdminLoginRoute
   authRegistrationRoute: typeof authRegistrationRoute
   authRegistrationCriteriaRoute: typeof authRegistrationCriteriaRoute
 }
 
 const authRouteRouteChildren: authRouteRouteChildren = {
+  authAdminLoginRoute: authAdminLoginRoute,
   authRegistrationRoute: authRegistrationRoute,
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
@@ -353,11 +470,15 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
 const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityLogsRoute: typeof AuthenticatedActivityLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityLogsRoute: AuthenticatedActivityLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedStatusRoute: AuthenticatedStatusRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
@@ -368,18 +489,24 @@ interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
   AppLoginRoute: typeof AppLoginRoute
   AppSplashRoute: typeof AppSplashRoute
+  AppSupportRoute: typeof AppSupportRoute
   AppVouchRoute: typeof AppVouchRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOnboardingGetStartedFindEstateIdRoute: typeof AppOnboardingGetStartedFindEstateIdRoute
+  AppOnboardingGetStartedNoEstateIdRoute: typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppJoinRoute: AppJoinRoute,
   AppLoginRoute: AppLoginRoute,
   AppSplashRoute: AppSplashRoute,
+  AppSupportRoute: AppSupportRoute,
   AppVouchRoute: AppVouchRoute,
   AppWelcomeRoute: AppWelcomeRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOnboardingGetStartedFindEstateIdRoute: AppOnboardingGetStartedFindEstateIdRoute,
+  AppOnboardingGetStartedNoEstateIdRoute: AppOnboardingGetStartedNoEstateIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)

@@ -17,7 +17,7 @@ export function HeroSection(): React.JSX.Element {
 
         {/* Heading */}
         <h1
-          className="font-cabinet text-actionDark animate-fade-in-up text-5xl font-bold tracking-tight sm:text-7xl"
+          className="font-dmsans text-actionDark animate-fade-in-up text-5xl font-bold tracking-tight sm:text-7xl"
           style={{ animationDelay: '200ms' }}
         >
           Your residence, <span className="text-actionYellow">reimagined.</span>
@@ -38,7 +38,7 @@ export function HeroSection(): React.JSX.Element {
           style={{ animationDelay: '400ms' }}
         >
           <Link to="/app/splash" className="w-full sm:w-auto">
-            <Button variant="default" className="h-[56px] w-full px-8 text-lg sm:w-auto">
+            <Button variant="primary" className="h-[56px] w-full px-8 text-lg sm:w-auto">
               Create Account
             </Button>
           </Link>

@@ -17,9 +17,9 @@ from unittest.mock import patch as _patch
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import event, select
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 _guard_patcher = _patch("guard.SecurityMiddleware", lambda app, **kw: app)
 _guard_patcher.start()
@@ -28,6 +28,7 @@ _guard_patcher.start()
 from sqlalchemy.ext.compiler import compiles
 
 from api.db.database import Base, get_db
+from api.utils.redis_client import get_redis_pool
 from main import app
 
 
@@ -37,13 +38,15 @@ def _compile_jsonb_sqlite(type_, compiler, **kw):
 
 
 # ── In-memory SQLite for tests ────────────────────────────────────────────────
-TEST_DATABASE_URL = "sqlite:///./test.db"
-test_engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+test_engine = create_async_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+TestSessionLocal = async_sessionmaker(
+    autocommit=False, autoflush=False, bind=test_engine, expire_on_commit=False
+)
 
 
 # SQLite doesn't support schemas — intercept schema creation
-@event.listens_for(test_engine, "connect")
+@event.listens_for(test_engine.sync_engine, "connect")
 def _set_sqlite_pragma(dbapi_conn, connection_record):
     cursor = dbapi_conn.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
@@ -51,15 +54,24 @@ def _set_sqlite_pragma(dbapi_conn, connection_record):
 
 
 @pytest.fixture(scope="function")
-def db_session():
+async def db_session():
     """Create a fresh database session for each test."""
-    Base.metadata.create_all(bind=test_engine)
-    session = TestSessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=test_engine)
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    async with TestSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+            async with test_engine.begin() as conn:
+                await conn.run_sync(Base.metadata.drop_all)
+
+
+def _make_mock_redis():
+    """Create a mock Redis pool that satisfies ping() and other awaited calls."""
+    mock = AsyncMock()
+    mock.ping = AsyncMock(return_value=True)
+    return mock
 
 
 @pytest.fixture(scope="function")
@@ -68,30 +80,58 @@ def mock_redis():
 
     Patches:
     - get_redis() → returns an AsyncMock that always resolves
-    - get_redis_pool() → returns None (disables JTI blacklist in get_current_user)
+    - get_redis_pool() → returns an AsyncMock with .ping()
     - blacklist_jti() → no-op
     - is_jti_blacklisted() → always False
+    - init_redis(), close_redis() in main
+    - init_arq_pool(), close_arq_pool() in main
+    - TenantService.create_tenant_schema → no-op (SQLite can't CREATE SCHEMA)
     """
+    mock_pool = _make_mock_redis()
+
     with (
-        patch("api.db.redis.get_redis", return_value=AsyncMock()) as mock_get,
-        patch("api.db.redis.get_redis_pool", return_value=None),
-        patch("api.db.redis.blacklist_jti", new_callable=AsyncMock),
-        patch("api.db.redis.is_jti_blacklisted", new_callable=AsyncMock, return_value=False),
+        patch("api.utils.redis_client.get_redis", return_value=AsyncMock()) as mock_get,
+        patch("api.utils.redis_client.get_redis_pool", return_value=mock_pool),
+        patch("api.utils.redis_client.blacklist_jti", new_callable=AsyncMock),
+        patch(
+            "api.utils.redis_client.is_jti_blacklisted", new_callable=AsyncMock, return_value=False
+        ),
+        patch("main.init_redis", new_callable=AsyncMock),
+        patch("main.close_redis", new_callable=AsyncMock),
+        patch("main.init_arq_pool", new_callable=AsyncMock),
+        patch("main.close_arq_pool", new_callable=AsyncMock),
+        # SQLite cannot CREATE SCHEMA — mock it out entirely for estate tests
+        patch(
+            "api.v1.services.tenant_service.TenantService.create_tenant_schema",
+            new_callable=AsyncMock,
+            return_value=True,
+        ),
+        # Arq pool — estate registration enqueues emails
+        patch(
+            "api.utils.arq_client.get_arq_pool",
+            return_value=AsyncMock(enqueue_job=AsyncMock()),
+        ),
+        # MinIO upload — estate registration may upload NIN files
+        patch("api.utils.minio_client.upload_file", new_callable=AsyncMock),
     ):
         yield mock_get
 
 
 @pytest.fixture(scope="function")
-def client(db_session, mock_redis):
+async def client(db_session, mock_redis):
     """Create a test client with overridden DB dependency and mocked Redis."""
 
-    def override_get_db():
+    async def override_get_db():
         try:
             yield db_session
         finally:
             pass
 
+    async def override_get_redis_pool():
+        return _make_mock_redis()
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_redis_pool] = override_get_redis_pool
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
@@ -110,7 +150,7 @@ def test_pin():
 
 
 @pytest.fixture
-def registered_user(client, db_session, test_phone, test_pin):
+async def registered_user(client, db_session, test_phone, test_pin):
     """Register a user through the full flow and return (user_data, tokens).
 
     Steps:
@@ -134,9 +174,12 @@ def registered_user(client, db_session, test_phone, test_pin):
     # Grab the OTP from DB (we stored the hash — we need to create a known one)
     # Instead, let's directly create a verified OTP state and register
     otp_record = (
-        db_session.query(OTP)
-        .filter(OTP.phone_number == test_phone)
-        .order_by(OTP.created_at.desc())
+        (
+            await db_session.execute(
+                select(OTP).filter(OTP.phone_number == test_phone).order_by(OTP.created_at.desc())
+            )
+        )
+        .scalars()
         .first()
     )
 
@@ -146,7 +189,7 @@ def registered_user(client, db_session, test_phone, test_pin):
     # by marking the OTP as used (simulating successful verification).
     if otp_record:
         otp_record.is_used = True
-        db_session.commit()
+        await db_session.commit()
 
     # Step 3: Set PIN (registration complete)
     resp = client.post(

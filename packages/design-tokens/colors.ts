@@ -4,10 +4,12 @@
 
 export const colors = {
   // ── Primary Luxury Cores ──
-  actionDark: "#1A1A1A",        // Warm Black
-  actionDarkHover: "#2A2A2A",
-  actionDarkPressed: "#000000",
-  actionYellow: "#FFE022",      // Accent Yellow / Prestige Yellow
+  actionDark: "#1A1A1A", // Warm Black
+  actionDarkHover: "#2E2E2E",
+  actionDarkPressed: "#050505",
+  actionDarkDisabled: "#D4D0C8",
+  actionDarkLoadingText: "#1A1A1A",
+  actionYellow: "#FFE022", // Accent Yellow / Prestige Yellow
   actionYellowHover: "#F0D010",
   actionYellowPressed: "#D4B800",
   offWhite: "#FAFAF5",
@@ -23,6 +25,7 @@ export const colors = {
   successGreen: "#2DB84E",
   errorRed: "#C92727",
   warningGold: "#D4A030",
+  cardwarning: "#FAF0D6",
 
   // ── UI surfaces ──
   chatArea: "#F2F0E8",

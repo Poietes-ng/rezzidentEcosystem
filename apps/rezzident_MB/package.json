@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "expo start",
     "android": "expo run:android",

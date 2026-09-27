@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouter } from '@tanstack/react-router'
 import type { Variants } from 'framer-motion'
 import type {
   NeighbourVouch,
@@ -84,6 +84,7 @@ export interface UseNeighbourVouchingFlowReturn {
 
 export function useNeighbourVouchingFlow(): UseNeighbourVouchingFlowReturn {
   const navigate = useNavigate()
+  const router = useRouter()
 
   // Direction tracker for transitions: 1 = forward, -1 = backward
   const [direction, setDirection] = useState(1)
@@ -133,7 +134,7 @@ export function useNeighbourVouchingFlow(): UseNeighbourVouchingFlowReturn {
   const handleBack = () => {
     switch (state.currentStep) {
       case 'INTRO':
-        navigate({ to: '/app/join' })
+        router.history.back()
         break
       case 'DETAILS':
         goToStep('INTRO', -1)

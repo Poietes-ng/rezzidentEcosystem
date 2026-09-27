@@ -28,3 +28,6 @@ logging.basicConfig(
 )
 
 app_logger = logging.getLogger("rezzident")
+
+# Suppress annoying passlib warnings about bcrypt __about__ attribute
+logging.getLogger("passlib").setLevel(logging.ERROR)

@@ -193,12 +193,12 @@ make up
 This starts all services in the correct order and runs database migrations +
 seeds automatically on first boot. Once healthy:
 
-| Service | URL |
-|---|---|
-| **Frontend** | `http://127.0.0.1:3000` |
-| **API** | `http://127.0.0.1:7001` |
-| **API docs** | `http://127.0.0.1:7001/docs` |
-| **MinIO console** | `http://127.0.0.1:9001` |
+| Service           | URL                          |
+| ----------------- | ---------------------------- |
+| **Frontend**      | `http://127.0.0.1:3000`      |
+| **API**           | `http://127.0.0.1:7001`      |
+| **API docs**      | `http://127.0.0.1:7001/docs` |
+| **MinIO console** | `http://127.0.0.1:9001`      |
 
 **3. Re-run migrations or seeds manually**
 
@@ -264,6 +264,7 @@ pnpm run dev:mobile
 ```
 
 For the mobile app, after starting press:
+
 - `i` → iOS Simulator
 - `a` → Android Emulator
 - `w` → Web browser
@@ -279,34 +280,34 @@ All common operations are available via `make`. Run `make help` to list everythi
 make help
 ```
 
-| Group | Target | Description |
-|---|---|---|
-| **Docker** | `make up` | Start all services detached |
-| | `make up/build` | Rebuild images then start |
-| | `make down` | Stop containers (volumes preserved) |
-| | `make down/v` | Stop + delete volumes ⚠ |
-| | `make ps` | Container status |
-| | `make logs` | Tail all logs |
-| | `make logs/api` | Tail API logs |
-| | `make rebuild/api` | Rebuild and restart API + worker |
-| | `make rebuild/web` | Rebuild and restart web |
-| **Database** | `make migrate` | Run Alembic migrations |
-| | `make seed` | Seed estate structure templates |
-| | `make migrate/seed` | Migrate then seed |
-| | `make shell/db` | Open psql in db container |
-| **Local dev** | `make dev/be` | Backend with hot-reload |
-| | `make dev/fe` | Frontend dev server |
-| | `make dev/mb` | Mobile dev server |
-| **Test** | `make test` | All tests (turbo) |
-| | `make test/be` | Backend pytest |
-| | `make test/fe` | Frontend Vitest |
-| | `make test/mb` | Mobile Jest |
-| **Lint** | `make lint` | All apps (turbo) |
-| | `make lint/be` | ruff + black --check |
-| **Format** | `make format` | All apps (turbo) |
-| | `make format/be` | ruff --fix + black |
-| **Build** | `make build` | All apps (turbo) |
-| | `make clean` | Remove build artefacts |
+| Group         | Target              | Description                         |
+| ------------- | ------------------- | ----------------------------------- |
+| **Docker**    | `make up`           | Start all services detached         |
+|               | `make up/build`     | Rebuild images then start           |
+|               | `make down`         | Stop containers (volumes preserved) |
+|               | `make down/v`       | Stop + delete volumes ⚠             |
+|               | `make ps`           | Container status                    |
+|               | `make logs`         | Tail all logs                       |
+|               | `make logs/api`     | Tail API logs                       |
+|               | `make rebuild/api`  | Rebuild and restart API + worker    |
+|               | `make rebuild/web`  | Rebuild and restart web             |
+| **Database**  | `make migrate`      | Run Alembic migrations              |
+|               | `make seed`         | Seed estate structure templates     |
+|               | `make migrate/seed` | Migrate then seed                   |
+|               | `make shell/db`     | Open psql in db container           |
+| **Local dev** | `make dev/be`       | Backend with hot-reload             |
+|               | `make dev/fe`       | Frontend dev server                 |
+|               | `make dev/mb`       | Mobile dev server                   |
+| **Test**      | `make test`         | All tests (turbo)                   |
+|               | `make test/be`      | Backend pytest                      |
+|               | `make test/fe`      | Frontend Vitest                     |
+|               | `make test/mb`      | Mobile Jest                         |
+| **Lint**      | `make lint`         | All apps (turbo)                    |
+|               | `make lint/be`      | ruff + black --check                |
+| **Format**    | `make format`       | All apps (turbo)                    |
+|               | `make format/be`    | ruff --fix + black                  |
+| **Build**     | `make build`        | All apps (turbo)                    |
+|               | `make clean`        | Remove build artefacts              |
 
 ---
 
@@ -532,13 +533,13 @@ Create structured issues directly from GitHub's **Issues → New Issue** page. A
 
 PRs use role-specific templates. Append the template name to the PR URL:
 
-| Template | URL Parameter           | Use For                               |
-| -------- | ----------------------- | ------------------------------------- |
-| Default  | _(auto-selected)_       | General PRs                           |
-| Backend  | `?template=backend.md`  | API/model changes                     |
-| Frontend | `?template=frontend.md` | Web UI changes                        |
-| Mobile   | `?template=mobile.md`   | Mobile app changes                    |
-| DevOps   | `?template=devops.md`   | Docker, CI/CD, infra, scripts         |
+| Template | URL Parameter           | Use For                       |
+| -------- | ----------------------- | ----------------------------- |
+| Default  | _(auto-selected)_       | General PRs                   |
+| Backend  | `?template=backend.md`  | API/model changes             |
+| Frontend | `?template=frontend.md` | Web UI changes                |
+| Mobile   | `?template=mobile.md`   | Mobile app changes            |
+| DevOps   | `?template=devops.md`   | Docker, CI/CD, infra, scripts |
 
 **How to use**: When creating a PR, add the template query parameter to the URL:
 
@@ -574,3 +575,12 @@ Check out the detailed guides in each component directory for deeper development
 - [Backend Development Guide](./apps/rezzident_BE/README.md)
 - [Frontend Web Guide](./apps/rezzident_FE/README.md)
 - [Mobile App Guide](./apps/rezzident_MB/README.md)
+
+### Frontend Route Generation
+
+Rezzident FE uses TanStack Router with file-based routing. The `routeTree.gen.ts` file is automatically generated.
+To generate or update the route tree after adding or modifying a route file:
+
+```bash
+pnpm --filter rezzident-fe run generate-routes
+```

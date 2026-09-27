@@ -3,7 +3,7 @@ import { PinInput, Button } from '@/components/ui'
 import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { verifyOtp, requestOtp } from '../api/authQueries'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export interface OtpStepProps {
   phone: string
@@ -25,16 +25,7 @@ export function OtpStep({
 }: OtpStepProps) {
   const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => {
-    if (form.otp.length === 6) {
-      const timer = setTimeout(() => {
-        handleVerify()
-      }, 300)
-      return () => clearTimeout(timer)
-    }
-  }, [form.otp])
-
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
     if (!form.validateOtp()) return
     setSubmitting(true)
     try {
@@ -50,7 +41,16 @@ export function OtpStep({
     } finally {
       setSubmitting(false)
     }
-  }
+  }, [form, phone, purpose, onVerified])
+
+  useEffect(() => {
+    if (form.otp.length === 6) {
+      const timer = setTimeout(() => {
+        handleVerify()
+      }, 300)
+      return () => clearTimeout(timer)
+    }
+  }, [form.otp, handleVerify])
 
   return (
     <AuthLayout

@@ -1,31 +1,30 @@
-import { View, Text } from 'react-native';
-import { Input, Button } from '@/components/ui';
-import { AuthLayout } from './AuthLayout';
-import { useAuthForm } from '../hooks/useAuthForm';
-import { requestOtp } from '../api/authQueries';
-import { useState } from 'react';
+import { Input, Button } from '@/components/ui'
+import { AuthLayout } from './AuthLayout'
+import { useAuthForm } from '../hooks/useAuthForm'
+import { requestOtp } from '../api/authQueries'
+import { useState } from 'react'
 
 export interface PhoneStepProps {
-  onSubmitted: (phone: string) => void;
-  form: ReturnType<typeof useAuthForm>;
+  onSubmitted: (phone: string) => void
+  form: ReturnType<typeof useAuthForm>
 }
 
 /** Step 1 of the mobile login flow — mirrors the login screen in FE application/components/login.tsx, adapted to phone entry. */
 export function PhoneStep({ onSubmitted, form }: PhoneStepProps) {
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false)
 
   const handleContinue = async () => {
-    if (!form.validatePhone()) return;
-    setSubmitting(true);
+    if (!form.validatePhone()) return
+    setSubmitting(true)
     try {
-      await requestOtp({ phone_number: form.phone.trim() });
-      onSubmitted(form.phone.trim());
+      await requestOtp({ phone_number: form.phone.trim() })
+      onSubmitted(form.phone.trim())
     } catch {
-      form.setField('phone', form.phone); // keep value; error surfaced via form.errors below in a real impl
+      form.setField('phone', form.phone) // keep value; error surfaced via form.errors below in a real impl
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <AuthLayout
@@ -48,5 +47,5 @@ export function PhoneStep({ onSubmitted, form }: PhoneStepProps) {
         errorText={form.errors.phone}
       />
     </AuthLayout>
-  );
+  )
 }
