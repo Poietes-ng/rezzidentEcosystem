@@ -22,6 +22,7 @@ import { Route as publicHomeRouteImport } from './routes/(public)/home'
 import { Route as AuthenticatedActivityLogsRouteImport } from './routes/_authenticated/activity-logs'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
+import { Route as AuthenticatedUserDashboardRouteImport } from './routes/_authenticated/user-dashboard'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppJoinRouteImport } from './routes/app/join'
 import { Route as AppLoginRouteImport } from './routes/app/login'
@@ -59,11 +60,12 @@ const authRegistrationRoute = authRegistrationRouteImport.update({
   path: '/registration',
   getParentRoute: () => authRouteRoute,
 } as any)
-const authRegistrationCriteriaRoute = authRegistrationCriteriaRouteImport.update({
-  id: '/registration-criteria',
-  path: '/registration-criteria',
-  getParentRoute: () => authRouteRoute,
-} as any)
+const authRegistrationCriteriaRoute =
+  authRegistrationCriteriaRouteImport.update({
+    id: '/registration-criteria',
+    path: '/registration-criteria',
+    getParentRoute: () => authRouteRoute,
+  } as any)
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,11 +81,12 @@ const publicHomeRoute = publicHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
-const AuthenticatedActivityLogsRoute = AuthenticatedActivityLogsRouteImport.update({
-  id: '/activity-logs',
-  path: '/activity-logs',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedActivityLogsRoute =
+  AuthenticatedActivityLogsRouteImport.update({
+    id: '/activity-logs',
+    path: '/activity-logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -94,6 +97,12 @@ const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUserDashboardRoute =
+  AuthenticatedUserDashboardRouteImport.update({
+    id: '/user-dashboard',
+    path: '/user-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -135,11 +144,12 @@ const AppOnboardingGetStartedFindEstateIdRoute =
     path: '/onboarding/get-started/find-estate-id',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppOnboardingGetStartedNoEstateIdRoute = AppOnboardingGetStartedNoEstateIdRouteImport.update({
-  id: '/onboarding/get-started/no-estate-id',
-  path: '/onboarding/get-started/no-estate-id',
-  getParentRoute: () => AppRouteRoute,
-} as any)
+const AppOnboardingGetStartedNoEstateIdRoute =
+  AppOnboardingGetStartedNoEstateIdRouteImport.update({
+    id: '/onboarding/get-started/no-estate-id',
+    path: '/onboarding/get-started/no-estate-id',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
@@ -152,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -172,6 +183,7 @@ export interface FileRoutesByTo {
   '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -196,6 +208,7 @@ export interface FileRoutesById {
   '/_authenticated/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/status': typeof AuthenticatedStatusRoute
+  '/_authenticated/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -220,6 +233,7 @@ export interface FileRouteTypes {
     | '/activity-logs'
     | '/profile'
     | '/status'
+    | '/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -240,6 +254,7 @@ export interface FileRouteTypes {
     | '/activity-logs'
     | '/profile'
     | '/status'
+    | '/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -263,6 +278,7 @@ export interface FileRouteTypes {
     | '/_authenticated/activity-logs'
     | '/_authenticated/profile'
     | '/_authenticated/status'
+    | '/_authenticated/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -375,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/user-dashboard': {
+      id: '/_authenticated/user-dashboard'
+      path: '/user-dashboard'
+      fullPath: '/user-dashboard'
+      preLoaderRoute: typeof AuthenticatedUserDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -453,7 +476,9 @@ const authRouteRouteChildren: authRouteRouteChildren = {
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(authRouteRouteChildren)
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
 
 interface publicRouteRouteChildren {
   publicAboutRoute: typeof publicAboutRoute
@@ -467,23 +492,26 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
 }
 
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
+  publicRouteRouteChildren,
+)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivityLogsRoute: typeof AuthenticatedActivityLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
+  AuthenticatedUserDashboardRoute: typeof AuthenticatedUserDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivityLogsRoute: AuthenticatedActivityLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedStatusRoute: AuthenticatedStatusRoute,
+  AuthenticatedUserDashboardRoute: AuthenticatedUserDashboardRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
-  AuthenticatedRouteRouteChildren,
-)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
@@ -505,11 +533,15 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppVouchRoute: AppVouchRoute,
   AppWelcomeRoute: AppWelcomeRoute,
   AppIndexRoute: AppIndexRoute,
-  AppOnboardingGetStartedFindEstateIdRoute: AppOnboardingGetStartedFindEstateIdRoute,
-  AppOnboardingGetStartedNoEstateIdRoute: AppOnboardingGetStartedNoEstateIdRoute,
+  AppOnboardingGetStartedFindEstateIdRoute:
+    AppOnboardingGetStartedFindEstateIdRoute,
+  AppOnboardingGetStartedNoEstateIdRoute:
+    AppOnboardingGetStartedNoEstateIdRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,
