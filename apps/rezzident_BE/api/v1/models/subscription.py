@@ -21,7 +21,8 @@ that explicitly wants to pay the subscription itself instead of billing
 residents. Default for every estate is "resident_billing".
 """
 
-from datetime import UTC
+from datetime import UTC, datetime
+from typing import cast
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
@@ -134,13 +135,11 @@ class Subscription(BaseTableModel):
     def is_expired(self) -> bool:
         if self.expires_at is None:
             return False
-        from datetime import datetime
-
-        return datetime.now(UTC) > self.expires_at
+        return bool(datetime.now(UTC) > self.expires_at)
 
     @property
     def is_resident_funded(self) -> bool:
-        return self.funding_source == "resident_billing"
+        return bool(self.funding_source == "resident_billing")
 
     @property
     def current_cycle_collection_pct(self) -> float:
@@ -150,10 +149,9 @@ class Subscription(BaseTableModel):
         """
         if not self.current_cycle_total_expected:
             return 0.0
-        return round(
-            (self.current_cycle_total_paid / self.current_cycle_total_expected) * 100,
-            2,
-        )
+        paid = cast(int, self.current_cycle_total_paid)
+        expected = cast(int, self.current_cycle_total_expected)
+        return round((paid / expected) * 100, 2)
 
     def refresh_cycle_status(self, now=None) -> str:
         """Recompute status from current-cycle collection progress.
@@ -161,18 +159,16 @@ class Subscription(BaseTableModel):
         Call this whenever the linked cycle Bill's totals change (e.g. after
         a ResidentBill payment webhook updates total_paid).
         """
-        from datetime import datetime
-
         now = now or datetime.now(UTC)
 
         if not self.is_resident_funded:
-            return self.status  # direct funding_source keeps its own status flow
+            return str(self.status)  # direct funding_source keeps its own status flow
 
         if self.current_cycle_total_expected and (
             self.current_cycle_total_paid >= self.current_cycle_total_expected
         ):
-            self.status = "active"
+            self.status = "active"  # type: ignore[assignment]
         elif self.current_cycle_due_date and now > self.current_cycle_due_date:
-            self.status = "past_due"
+            self.status = "past_due"  # type: ignore[assignment]
 
-        return self.status
+        return str(self.status)

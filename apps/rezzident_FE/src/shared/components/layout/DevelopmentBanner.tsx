@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 
-export function DevelopmentBanner() {
+export function DevelopmentBanner(): React.JSX.Element | null {
   const [isVisible, setIsVisible] = useState(true);
 
   const handleDismiss = () => {

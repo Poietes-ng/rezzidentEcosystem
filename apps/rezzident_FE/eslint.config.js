@@ -70,7 +70,16 @@ export default [
     },
     rules: {
       'import-x/no-cycle': 'warn',
-      'import-x/order': 'warn',
+      'import-x/order': [
+        'warn',
+        {
+          // Groups mirror what @tanstack/eslint-config's import/order enforces at error level:
+          // value imports first (externals → internals → locals), type imports last.
+          // This prevents the two rules from conflicting with each other.
+          // Do NOT add alphabetize here — it causes ordering warnings across the entire codebase.
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type'],
+        },
+      ],
       'sort-imports': 'off',
       '@typescript-eslint/array-type': 'off',
       '@typescript-eslint/require-await': 'off',

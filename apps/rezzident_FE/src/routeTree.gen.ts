@@ -13,25 +13,24 @@ import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as publicRouteRouteImport } from './routes/(public)/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as authAdminLoginRouteImport } from './routes/(auth)/admin-login'
 import { Route as authRegistrationRouteImport } from './routes/(auth)/registration'
 import { Route as authRegistrationCriteriaRouteImport } from './routes/(auth)/registration-criteria'
 import { Route as publicIndexRouteImport } from './routes/(public)/index'
 import { Route as publicAboutRouteImport } from './routes/(public)/about'
 import { Route as publicHomeRouteImport } from './routes/(public)/home'
+import { Route as AuthenticatedActivityLogsRouteImport } from './routes/_authenticated/activity-logs'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
 import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as AppAccountRecoveryRouteImport } from './routes/app/account-recovery'
-import { Route as AppContactSupportRouteImport } from './routes/app/contact-support'
 import { Route as AppJoinRouteImport } from './routes/app/join'
-import { Route as AppReportIssueRouteImport } from './routes/app/report-issue'
-import { Route as AppResetPinRouteImport } from './routes/app/reset-pin'
-import { Route as AppSignInRouteImport } from './routes/app/sign-in'
+import { Route as AppLoginRouteImport } from './routes/app/login'
 import { Route as AppSplashRouteImport } from './routes/app/splash'
 import { Route as AppSupportRouteImport } from './routes/app/support'
-import { Route as AppVerifyEmailRouteImport } from './routes/app/verify-email'
-import { Route as AppVerifyPhoneRouteImport } from './routes/app/verify-phone'
+import { Route as AppVouchRouteImport } from './routes/app/vouch'
 import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
-import { Route as AppWelcomeBackRouteImport } from './routes/app/welcome-back'
+import { Route as AppOnboardingGetStartedFindEstateIdRouteImport } from './routes/app/onboarding/get-started/find-estate-id'
+import { Route as AppOnboardingGetStartedNoEstateIdRouteImport } from './routes/app/onboarding/get-started/no-estate-id'
 
 const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
@@ -49,6 +48,11 @@ const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
   path: '/app',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authAdminLoginRoute = authAdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const authRegistrationRoute = authRegistrationRouteImport.update({
   id: '/registration',
@@ -75,9 +79,19 @@ const publicHomeRoute = publicHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
+const AuthenticatedActivityLogsRoute = AuthenticatedActivityLogsRouteImport.update({
+  id: '/activity-logs',
+  path: '/activity-logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -85,34 +99,14 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppAccountRecoveryRoute = AppAccountRecoveryRouteImport.update({
-  id: '/account-recovery',
-  path: '/account-recovery',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppContactSupportRoute = AppContactSupportRouteImport.update({
-  id: '/contact-support',
-  path: '/contact-support',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppJoinRoute = AppJoinRouteImport.update({
   id: '/join',
   path: '/join',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppReportIssueRoute = AppReportIssueRouteImport.update({
-  id: '/report-issue',
-  path: '/report-issue',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppResetPinRoute = AppResetPinRouteImport.update({
-  id: '/reset-pin',
-  path: '/reset-pin',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppSignInRoute = AppSignInRouteImport.update({
-  id: '/sign-in',
-  path: '/sign-in',
+const AppLoginRoute = AppLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppSplashRoute = AppSplashRouteImport.update({
@@ -125,14 +119,9 @@ const AppSupportRoute = AppSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppVerifyEmailRoute = AppVerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppVerifyPhoneRoute = AppVerifyPhoneRouteImport.update({
-  id: '/verify-phone',
-  path: '/verify-phone',
+const AppVouchRoute = AppVouchRouteImport.update({
+  id: '/vouch',
+  path: '/vouch',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppWelcomeRoute = AppWelcomeRouteImport.update({
@@ -140,54 +129,58 @@ const AppWelcomeRoute = AppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppWelcomeBackRoute = AppWelcomeBackRouteImport.update({
-  id: '/welcome-back',
-  path: '/welcome-back',
+const AppOnboardingGetStartedFindEstateIdRoute =
+  AppOnboardingGetStartedFindEstateIdRouteImport.update({
+    id: '/onboarding/get-started/find-estate-id',
+    path: '/onboarding/get-started/find-estate-id',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppOnboardingGetStartedNoEstateIdRoute = AppOnboardingGetStartedNoEstateIdRouteImport.update({
+  id: '/onboarding/get-started/no-estate-id',
+  path: '/onboarding/get-started/no-estate-id',
   getParentRoute: () => AppRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
   '/app': typeof AppRouteRouteWithChildren
+  '/admin-login': typeof authAdminLoginRoute
   '/registration': typeof authRegistrationRoute
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/app/account-recovery': typeof AppAccountRecoveryRoute
-  '/app/contact-support': typeof AppContactSupportRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
-  '/app/report-issue': typeof AppReportIssueRoute
-  '/app/reset-pin': typeof AppResetPinRoute
-  '/app/sign-in': typeof AppSignInRoute
+  '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
   '/app/support': typeof AppSupportRoute
-  '/app/verify-email': typeof AppVerifyEmailRoute
-  '/app/verify-phone': typeof AppVerifyPhoneRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
-  '/app/welcome-back': typeof AppWelcomeBackRoute
   '/app/': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof publicIndexRoute
+  '/admin-login': typeof authAdminLoginRoute
   '/registration': typeof authRegistrationRoute
   '/registration-criteria': typeof authRegistrationCriteriaRoute
   '/about': typeof publicAboutRoute
   '/home': typeof publicHomeRoute
+  '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/app/account-recovery': typeof AppAccountRecoveryRoute
-  '/app/contact-support': typeof AppContactSupportRoute
+  '/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
-  '/app/report-issue': typeof AppReportIssueRoute
-  '/app/reset-pin': typeof AppResetPinRoute
-  '/app/sign-in': typeof AppSignInRoute
+  '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
   '/app/support': typeof AppSupportRoute
-  '/app/verify-email': typeof AppVerifyEmailRoute
-  '/app/verify-phone': typeof AppVerifyPhoneRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
-  '/app/welcome-back': typeof AppWelcomeBackRoute
   '/app': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -195,95 +188,91 @@ export interface FileRoutesById {
   '/(public)': typeof publicRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/app': typeof AppRouteRouteWithChildren
+  '/(auth)/admin-login': typeof authAdminLoginRoute
   '/(auth)/registration': typeof authRegistrationRoute
   '/(auth)/registration-criteria': typeof authRegistrationCriteriaRoute
   '/(public)/about': typeof publicAboutRoute
   '/(public)/home': typeof publicHomeRoute
+  '/_authenticated/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/app/account-recovery': typeof AppAccountRecoveryRoute
-  '/app/contact-support': typeof AppContactSupportRoute
+  '/_authenticated/status': typeof AuthenticatedStatusRoute
   '/app/join': typeof AppJoinRoute
-  '/app/report-issue': typeof AppReportIssueRoute
-  '/app/reset-pin': typeof AppResetPinRoute
-  '/app/sign-in': typeof AppSignInRoute
+  '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
   '/app/support': typeof AppSupportRoute
-  '/app/verify-email': typeof AppVerifyEmailRoute
-  '/app/verify-phone': typeof AppVerifyPhoneRoute
+  '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
-  '/app/welcome-back': typeof AppWelcomeBackRoute
   '/(public)/': typeof publicIndexRoute
   '/app/': typeof AppIndexRoute
+  '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
+  '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/app'
+    | '/admin-login'
     | '/registration'
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
-    | '/app/account-recovery'
-    | '/app/contact-support'
+    | '/status'
     | '/app/join'
-    | '/app/report-issue'
-    | '/app/reset-pin'
-    | '/app/sign-in'
+    | '/app/login'
     | '/app/splash'
     | '/app/support'
-    | '/app/verify-email'
-    | '/app/verify-phone'
+    | '/app/vouch'
     | '/app/welcome'
-    | '/app/welcome-back'
     | '/app/'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-login'
     | '/registration'
     | '/registration-criteria'
     | '/about'
     | '/home'
+    | '/activity-logs'
     | '/profile'
-    | '/app/account-recovery'
-    | '/app/contact-support'
+    | '/status'
     | '/app/join'
-    | '/app/report-issue'
-    | '/app/reset-pin'
-    | '/app/sign-in'
+    | '/app/login'
     | '/app/splash'
     | '/app/support'
-    | '/app/verify-email'
-    | '/app/verify-phone'
+    | '/app/vouch'
     | '/app/welcome'
-    | '/app/welcome-back'
     | '/app'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   id:
     | '__root__'
     | '/(auth)'
     | '/(public)'
     | '/_authenticated'
     | '/app'
+    | '/(auth)/admin-login'
     | '/(auth)/registration'
     | '/(auth)/registration-criteria'
     | '/(public)/about'
     | '/(public)/home'
+    | '/_authenticated/activity-logs'
     | '/_authenticated/profile'
-    | '/app/account-recovery'
-    | '/app/contact-support'
+    | '/_authenticated/status'
     | '/app/join'
-    | '/app/report-issue'
-    | '/app/reset-pin'
-    | '/app/sign-in'
+    | '/app/login'
     | '/app/splash'
     | '/app/support'
-    | '/app/verify-email'
-    | '/app/verify-phone'
+    | '/app/vouch'
     | '/app/welcome'
-    | '/app/welcome-back'
     | '/(public)/'
     | '/app/'
+    | '/app/onboarding/get-started/find-estate-id'
+    | '/app/onboarding/get-started/no-estate-id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -323,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/admin-login': {
+      id: '/(auth)/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof authAdminLoginRouteImport
+      parentRoute: typeof authRouteRoute
+    }
     '/(auth)/registration': {
       id: '/(auth)/registration'
       path: '/registration'
@@ -358,11 +354,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof publicHomeRouteImport
       parentRoute: typeof publicRouteRoute
     }
+    '/_authenticated/activity-logs': {
+      id: '/_authenticated/activity-logs'
+      path: '/activity-logs'
+      fullPath: '/activity-logs'
+      preLoaderRoute: typeof AuthenticatedActivityLogsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/status': {
+      id: '/_authenticated/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/app/': {
@@ -372,20 +382,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/app/account-recovery': {
-      id: '/app/account-recovery'
-      path: '/account-recovery'
-      fullPath: '/app/account-recovery'
-      preLoaderRoute: typeof AppAccountRecoveryRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/contact-support': {
-      id: '/app/contact-support'
-      path: '/contact-support'
-      fullPath: '/app/contact-support'
-      preLoaderRoute: typeof AppContactSupportRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/app/join': {
       id: '/app/join'
       path: '/join'
@@ -393,25 +389,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppJoinRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/app/report-issue': {
-      id: '/app/report-issue'
-      path: '/report-issue'
-      fullPath: '/app/report-issue'
-      preLoaderRoute: typeof AppReportIssueRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/reset-pin': {
-      id: '/app/reset-pin'
-      path: '/reset-pin'
-      fullPath: '/app/reset-pin'
-      preLoaderRoute: typeof AppResetPinRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/sign-in': {
-      id: '/app/sign-in'
-      path: '/sign-in'
-      fullPath: '/app/sign-in'
-      preLoaderRoute: typeof AppSignInRouteImport
+    '/app/login': {
+      id: '/app/login'
+      path: '/login'
+      fullPath: '/app/login'
+      preLoaderRoute: typeof AppLoginRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/splash': {
@@ -428,18 +410,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSupportRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/app/verify-email': {
-      id: '/app/verify-email'
-      path: '/verify-email'
-      fullPath: '/app/verify-email'
-      preLoaderRoute: typeof AppVerifyEmailRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/app/verify-phone': {
-      id: '/app/verify-phone'
-      path: '/verify-phone'
-      fullPath: '/app/verify-phone'
-      preLoaderRoute: typeof AppVerifyPhoneRouteImport
+    '/app/vouch': {
+      id: '/app/vouch'
+      path: '/vouch'
+      fullPath: '/app/vouch'
+      preLoaderRoute: typeof AppVouchRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/welcome': {
@@ -449,22 +424,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWelcomeRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/app/welcome-back': {
-      id: '/app/welcome-back'
-      path: '/welcome-back'
-      fullPath: '/app/welcome-back'
-      preLoaderRoute: typeof AppWelcomeBackRouteImport
+    '/app/onboarding/get-started/find-estate-id': {
+      id: '/app/onboarding/get-started/find-estate-id'
+      path: '/onboarding/get-started/find-estate-id'
+      fullPath: '/app/onboarding/get-started/find-estate-id'
+      preLoaderRoute: typeof AppOnboardingGetStartedFindEstateIdRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/onboarding/get-started/no-estate-id': {
+      id: '/app/onboarding/get-started/no-estate-id'
+      path: '/onboarding/get-started/no-estate-id'
+      fullPath: '/app/onboarding/get-started/no-estate-id'
+      preLoaderRoute: typeof AppOnboardingGetStartedNoEstateIdRouteImport
       parentRoute: typeof AppRouteRoute
     }
   }
 }
 
 interface authRouteRouteChildren {
+  authAdminLoginRoute: typeof authAdminLoginRoute
   authRegistrationRoute: typeof authRegistrationRoute
   authRegistrationCriteriaRoute: typeof authRegistrationCriteriaRoute
 }
 
 const authRouteRouteChildren: authRouteRouteChildren = {
+  authAdminLoginRoute: authAdminLoginRoute,
   authRegistrationRoute: authRegistrationRoute,
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
@@ -486,11 +470,15 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
 const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityLogsRoute: typeof AuthenticatedActivityLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityLogsRoute: AuthenticatedActivityLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedStatusRoute: AuthenticatedStatusRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
@@ -498,35 +486,27 @@ const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChil
 )
 
 interface AppRouteRouteChildren {
-  AppAccountRecoveryRoute: typeof AppAccountRecoveryRoute
-  AppContactSupportRoute: typeof AppContactSupportRoute
   AppJoinRoute: typeof AppJoinRoute
-  AppReportIssueRoute: typeof AppReportIssueRoute
-  AppResetPinRoute: typeof AppResetPinRoute
-  AppSignInRoute: typeof AppSignInRoute
+  AppLoginRoute: typeof AppLoginRoute
   AppSplashRoute: typeof AppSplashRoute
   AppSupportRoute: typeof AppSupportRoute
-  AppVerifyEmailRoute: typeof AppVerifyEmailRoute
-  AppVerifyPhoneRoute: typeof AppVerifyPhoneRoute
+  AppVouchRoute: typeof AppVouchRoute
   AppWelcomeRoute: typeof AppWelcomeRoute
-  AppWelcomeBackRoute: typeof AppWelcomeBackRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppOnboardingGetStartedFindEstateIdRoute: typeof AppOnboardingGetStartedFindEstateIdRoute
+  AppOnboardingGetStartedNoEstateIdRoute: typeof AppOnboardingGetStartedNoEstateIdRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppAccountRecoveryRoute: AppAccountRecoveryRoute,
-  AppContactSupportRoute: AppContactSupportRoute,
   AppJoinRoute: AppJoinRoute,
-  AppReportIssueRoute: AppReportIssueRoute,
-  AppResetPinRoute: AppResetPinRoute,
-  AppSignInRoute: AppSignInRoute,
+  AppLoginRoute: AppLoginRoute,
   AppSplashRoute: AppSplashRoute,
   AppSupportRoute: AppSupportRoute,
-  AppVerifyEmailRoute: AppVerifyEmailRoute,
-  AppVerifyPhoneRoute: AppVerifyPhoneRoute,
+  AppVouchRoute: AppVouchRoute,
   AppWelcomeRoute: AppWelcomeRoute,
-  AppWelcomeBackRoute: AppWelcomeBackRoute,
   AppIndexRoute: AppIndexRoute,
+  AppOnboardingGetStartedFindEstateIdRoute: AppOnboardingGetStartedFindEstateIdRoute,
+  AppOnboardingGetStartedNoEstateIdRoute: AppOnboardingGetStartedNoEstateIdRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)

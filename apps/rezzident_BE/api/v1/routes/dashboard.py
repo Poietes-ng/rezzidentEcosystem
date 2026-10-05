@@ -1,20 +1,21 @@
-"""Dashboard routes — V2. Role-based dashboards.
+"""Dashboard routes — V2 (async).
 
 Endpoints:
-- GET  /dashboard/summary           — Generic summary (any authenticated user)
-- GET  /dashboard/resident          — Resident dashboard
-- GET  /dashboard/admin             — Admin dashboard (Admin + Super Admin)
-- GET  /dashboard/admin/security    — Security guard dashboard
-- GET  /dashboard/admin/treasurer   — Treasurer dashboard
-- GET  /dashboard/admin/transactions — Transaction volume chart data
-- GET  /dashboard/staff/reports     — Staff reports (all staff roles)
-- GET  /dashboard/profile           — User profile (any authenticated user)
+- GET /dashboard/summary           — Smart dashboard (role-based)
+- GET /dashboard/resident          — Resident dashboard
+- GET /dashboard/admin             — Admin dashboard
+- GET /dashboard/superadmin        — Super admin dashboard
+- GET /dashboard/admin/security    — Security dashboard
+- GET /dashboard/admin/treasurer   — Treasurer dashboard
+- GET /dashboard/admin/transactions — Transaction volume chart
+- GET /dashboard/staff/reports     — Staff reports metadata
+- GET /dashboard/profile           — Any authenticated user profile
 """
 
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
 from api.utils.auth_dependencies import (
@@ -42,11 +43,11 @@ dashboard = APIRouter(prefix="/dashboard", tags=["Dashboard"])
     summary="Get dashboard summary for authenticated user",
 )
 async def get_dashboard_summary(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Smart dashboard: returns the appropriate dashboard based on user role."""
-    result = dashboard_service.get_smart_dashboard(db, current_user)
+    result = await dashboard_service.get_smart_dashboard(db, current_user)
     return success_response(
         status_code=status.HTTP_200_OK,
         message=result["message"],
@@ -65,11 +66,11 @@ async def get_dashboard_summary(
     summary="Resident Dashboard",
 )
 async def get_resident_dashboard(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """Resident-specific dashboard: outstanding bills, visitor codes, stats."""
-    data = dashboard_service.get_resident_dashboard(db, current_user)
+    data = await dashboard_service.get_resident_dashboard(db, current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -89,11 +90,11 @@ async def get_resident_dashboard(
     summary="Admin Dashboard — All Admin Roles",
 )
 async def get_admin_dashboard(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
     """Admin dashboard: user distribution, revenue, activity logs."""
-    data = dashboard_service.get_admin_dashboard(db, current_user)
+    data = await dashboard_service.get_admin_dashboard(db, current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -108,11 +109,11 @@ async def get_admin_dashboard(
     summary="Super Admin Dashboard",
 )
 async def get_superadmin_dashboard(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_super_admin),
 ):
     """Super admin: same as admin + full system control."""
-    data = dashboard_service.get_admin_dashboard(db, current_user)
+    data = await dashboard_service.get_admin_dashboard(db, current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -132,11 +133,11 @@ async def get_superadmin_dashboard(
     summary="Security Dashboard",
 )
 async def get_security_dashboard(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_security_access),
 ):
     """Gate security: active codes, check-ins, overstayed, gate log."""
-    data = dashboard_service.get_security_dashboard(db, current_user)
+    data = await dashboard_service.get_security_dashboard(db, current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -156,11 +157,11 @@ async def get_security_dashboard(
     summary="Treasurer Dashboard",
 )
 async def get_treasurer_dashboard(
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_financial_access),
 ):
     """Treasurer: financials, monthly chart, recent payments."""
-    data = dashboard_service.get_treasurer_dashboard(db, current_user)
+    data = await dashboard_service.get_treasurer_dashboard(db, current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -176,14 +177,14 @@ async def get_treasurer_dashboard(
 )
 async def get_transaction_volume(
     year: int = Query(default=None, description="Year (defaults to current)"),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
     """Monthly transaction volume (bills, payments, expenses) for chart."""
     if year is None:
         year = datetime.now().year
 
-    data = dashboard_service.get_transaction_volume(db, year)
+    data = await dashboard_service.get_transaction_volume(db, year)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -202,15 +203,15 @@ async def get_transaction_volume(
     status_code=status.HTTP_200_OK,
     summary="Staff Reports — All Staff Members",
 )
-async def get_staff_reports(
+async def get_staff_reports_route(
     current_user: User = Depends(require_admin),
 ):
     """Reports accessible to all admin/staff roles."""
-    data = dashboard_service.get_staff_reports(current_user)
+    data = await dashboard_service.get_staff_reports(current_user)
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Staff reports retrieved",
-        data=data,
+        data=data.model_dump(),
     )
 
 
@@ -228,6 +229,7 @@ async def get_user_profile(
     current_user: User = Depends(get_current_user),
 ):
     """Current user profile for any authenticated role."""
+    # get_user_profile is synchronous (no DB) — no await needed
     data = dashboard_service.get_user_profile(current_user)
 
     return success_response(

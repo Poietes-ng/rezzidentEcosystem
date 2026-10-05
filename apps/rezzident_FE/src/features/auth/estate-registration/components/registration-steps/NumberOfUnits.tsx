@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion'
 import { pageVariants } from '../../hooks/animation'
 import type { UseRegistrationFormReturn } from '../../hooks/useRegistrationForm'
-import { Input } from '#/shared/components/ui/input'
-import { FieldError } from '#/shared/components/ui/field-error'
+import { FormField } from '#/shared/components/ui/form-field'
 import {
   Select,
   SelectTrigger,
@@ -15,6 +14,8 @@ interface Props {
   registration: UseRegistrationFormReturn
 }
 
+const UNIT_OPTIONS = ['200', '300', '400', '500', '600', '800', '900', '1000', 'Custom']
+
 export function NumberOfUnits({ registration }: Props) {
   const { form, errors, updateField } = registration
 
@@ -23,47 +24,59 @@ export function NumberOfUnits({ registration }: Props) {
       <h1 className="font-dmsans text-web-h3 font-web-bold text-actionDark mb-2">
         Number of units
       </h1>
-      <p className="mb-web-md font-dmsans text-web-sm leading-relaxed text-gray-500">
+      <p className="mb-web-md font-dmsans text-web-sm text-warmGray leading-relaxed">
         Specify the number of units available in your estate.
       </p>
 
-      <div>
-        <label className="font-dmsans text-web-sm mb-2 block text-gray-500">Number of Units</label>
-        <Select
-          value={form.numberOfUnits}
-          onValueChange={(val) => {
-            updateField('numberOfUnits', val)
-            if (val !== 'Custom') updateField('customNumberOfUnits', '')
-          }}
+      <div className="flex flex-col gap-5">
+        {/* Number of Units — children mode (Select) */}
+        <FormField
+          id="number-of-units"
+          label="Number of Units"
+          errorMessage={errors.numberOfUnits}
+          fieldState={errors.numberOfUnits ? 'error' : form.numberOfUnits ? 'filled' : 'default'}
+          filledMessage={
+            form.numberOfUnits === 'Custom' ? 'Enter the exact number of units below' : ''
+          }
+          helperText="Choose Custom if your estate's total isn't listed"
         >
-          <SelectTrigger error={!!errors.numberOfUnits}>
-            <SelectValue placeholder="Select number of units" />
-          </SelectTrigger>
-          <SelectContent>
-            {['200', '300', '400', '500', '600', '800', '900', '1000', 'Custom'].map((opt) => (
-              <SelectItem key={opt} value={opt}>
-                {opt}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <FieldError message={errors.numberOfUnits} />
-      </div>
+          <Select
+            value={form.numberOfUnits}
+            onValueChange={(val) => {
+              updateField('numberOfUnits', val)
+              if (val !== 'Custom') updateField('customNumberOfUnits', '')
+            }}
+          >
+            <SelectTrigger id="number-of-units" error={!!errors.numberOfUnits}>
+              <SelectValue placeholder="Select number of units" />
+            </SelectTrigger>
+            <SelectContent>
+              {UNIT_OPTIONS.map((opt) => (
+                <SelectItem key={opt} value={opt}>
+                  {opt}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
 
-      {form.numberOfUnits === 'Custom' && (
-        <div className="mt-5">
-          <label className="font-dmsans text-web-sm mb-2 block text-gray-500">Custom Units</label>
-          <Input
+        {/* Custom Units — Input mode */}
+        {form.numberOfUnits === 'Custom' && (
+          <FormField
+            id="custom-number-of-units"
+            label="Custom Units"
             type="number"
             min="1"
             placeholder="Enter custom units"
             value={form.customNumberOfUnits}
             onChange={(e) => updateField('customNumberOfUnits', e.target.value)}
-            error={!!errors.customNumberOfUnits}
+            errorMessage={errors.customNumberOfUnits}
+            activeMessage="Enter the exact number of units in your estate"
+            filledMessage=""
+            helperText="Whole number, at least 1"
           />
-          <FieldError message={errors.customNumberOfUnits} />
-        </div>
-      )}
+        )}
+      </div>
     </motion.div>
   )
 }

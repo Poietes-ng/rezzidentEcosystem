@@ -5,6 +5,7 @@ Reference: docs/architecture/22-payment-split-architecture.md
 
 import hashlib
 import hmac
+import json
 
 from fastapi import APIRouter, HTTPException, Request, status
 
@@ -49,9 +50,6 @@ async def paystack_webhook(request: Request):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid webhook signature.",
         )
-
-    # Parse event
-    import json
 
     try:
         event = json.loads(payload)

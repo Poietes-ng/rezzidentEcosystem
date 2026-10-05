@@ -4,7 +4,7 @@ import { AuthLayout } from './AuthLayout'
 import { useAuthForm } from '../hooks/useAuthForm'
 import { setPin } from '../api/authQueries'
 import { useAuthStore } from '../hooks/useAuth'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export interface PinStepProps {
   onComplete: () => void
@@ -33,14 +33,7 @@ export function PinStep({ onComplete, onBack, form, phone, onPinSubmit }: PinSte
     }
   }, [form.pin, stage])
 
-  useEffect(() => {
-    if (stage === 'confirm' && form.confirmPin.length === 4) {
-      const timer = setTimeout(() => handleNext(), 300)
-      return () => clearTimeout(timer)
-    }
-  }, [form.confirmPin, stage])
-
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (stage === 'create') {
       if (form.pin.length !== 4) {
         form.validatePin()
@@ -73,7 +66,14 @@ export function PinStep({ onComplete, onBack, form, phone, onPinSubmit }: PinSte
     } finally {
       setSubmitting(false)
     }
-  }
+  }, [stage, form, onPinSubmit, phone, setAuth, onComplete])
+
+  useEffect(() => {
+    if (stage === 'confirm' && form.confirmPin.length === 4) {
+      const timer = setTimeout(() => handleNext(), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [form.confirmPin, stage, handleNext])
 
   return (
     <AuthLayout

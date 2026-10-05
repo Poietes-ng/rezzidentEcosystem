@@ -6,77 +6,185 @@ export interface PinInputProps {
   value?: string
   onChange?: (value: string) => void
   className?: string
+  variant?: 'dot' | 'dash' | 'number'
+  error?: boolean
+  disabled?: boolean
+  autoFocus?: boolean
+  /**
+   * Show a visibility toggle button below the pin cells.
+   * When toggled, the digits are revealed in place of dots/dashes.
+   * Defaults to `false` — pass `showToggle` or `showToggle={true}` to enable.
+   */
+  showToggle?: boolean
 }
 
-export function PinInput({ length = 4, value = '', onChange, className }: PinInputProps) {
+export function PinInput({
+  length = 4,
+  value = '',
+  onChange,
+  className,
+  variant = 'dot',
+  error = false,
+  disabled = false,
+  autoFocus = false,
+  showToggle = false,
+}: PinInputProps): React.JSX.Element {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const [revealed, setRevealed] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  // When toggle is active, override variant so digits show
+  const activeVariant = showToggle && revealed ? 'number' : variant
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    if (disabled) return
     const inputValue = e.target.value
-    // Allow only numeric or alphanumeric, currently taking just 1 char
-    const char = inputValue.slice(-1)
+    // Extract only digits/alphanumerics
+    const cleanValue = inputValue.replace(/\D/g, '')
+    if (!cleanValue) {
+      const next = value.slice(0, index)
+      onChange?.(next)
+      return
+    }
 
-    const newValue = value.split('')
-    newValue[index] = char
-    const finalValue = newValue.join('')
-
-    onChange?.(finalValue)
+    const char = cleanValue.slice(-1)
+    const chars = value.split('')
+    chars[index] = char
+    const next = chars.join('').slice(0, length)
+    onChange?.(next)
 
     if (char && index < length - 1) {
       inputRefs.current[index + 1]?.focus()
     }
   }
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    if (disabled) return
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length)
+    if (pastedData) {
+      onChange?.(pastedData)
+      const nextIndex = Math.min(pastedData.length, length - 1)
+      inputRefs.current[nextIndex]?.focus()
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (disabled) return
     if (e.key === 'Backspace') {
-      if (!value[index] && index > 0) {
+      e.preventDefault()
+      if (value[index]) {
+        // If current slot has a digit, clear from this index
+        const next = value.slice(0, index)
+        onChange?.(next)
+      } else if (index > 0) {
+        // If current slot is empty, clear previous slot and focus it
+        const next = value.slice(0, index - 1)
+        onChange?.(next)
         inputRefs.current[index - 1]?.focus()
-      } else {
-        const newValue = value.split('')
-        newValue[index] = ''
-        onChange?.(newValue.join(''))
       }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      e.preventDefault()
+      inputRefs.current[index - 1]?.focus()
+    } else if (e.key === 'ArrowRight' && index < length - 1) {
+      e.preventDefault()
+      inputRefs.current[index + 1]?.focus()
     }
   }
 
   return (
-    <div className={cn('flex items-center gap-4', className)}>
-      {Array.from({ length }).map((_, index) => {
-        const char = value[index]
-        const isFocused = focusedIndex === index
-        const isFilled = Boolean(char)
+    <div className={cn('flex flex-col items-center gap-3', className)}>
+      {/* Pin cells row */}
+      <div className="flex items-center justify-center gap-6">
+        {Array.from({ length }).map((_, index) => {
+          const char = value[index]
+          const isFocused = focusedIndex === index
+          const isFilled = Boolean(char)
 
-        return (
-          <div key={index} className="relative flex h-[48px] w-[32px] items-center justify-center">
-            <input
-              ref={(el) => {
-                inputRefs.current[index] = el
-              }}
-              type="text"
-              maxLength={2}
-              value={char || ''}
-              onChange={(e) => handleChange(e, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              onFocus={() => setFocusedIndex(index)}
-              onBlur={() => setFocusedIndex(null)}
-              className="absolute inset-0 h-full w-full bg-transparent text-center text-transparent caret-transparent outline-none"
-              aria-label={`Digit ${index + 1} of ${length}`}
-            />
-            {/* Display Dot if filled */}
-            <div className="pointer-events-none flex h-full w-full items-center justify-center">
-              {isFilled ? <div className="size-[8px] rounded-full bg-[#1A1A1A]" /> : null}
-            </div>
-            {/* Bottom line */}
+          return (
             <div
-              className={cn(
-                'pointer-events-none absolute bottom-0 left-0 h-[2px] w-full transition-colors',
-                isFocused ? 'bg-[#FFE022]' : 'bg-[#E5E5E5]',
-              )}
-            />
-          </div>
-        )
-      })}
+              key={index}
+              className="relative flex h-[56px] w-[40px] items-center justify-center"
+            >
+              <input
+                ref={(el) => {
+                  inputRefs.current[index] = el
+                }}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoFocus={autoFocus && index === 0}
+                disabled={disabled}
+                maxLength={2}
+                value={char || ''}
+                onChange={(e) => handleChange(e, index)}
+                onPaste={handlePaste}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                onFocus={() => setFocusedIndex(index)}
+                onBlur={() => setFocusedIndex(null)}
+                className="absolute inset-0 h-full w-full bg-transparent text-center text-transparent caret-transparent outline-none disabled:cursor-not-allowed"
+                aria-label={`Digit ${index + 1}`}
+              />
+
+              {/* Display representation */}
+              <div className="pointer-events-none flex h-full w-full items-center justify-center">
+                {isFilled ? (
+                  activeVariant === 'dot' ? (
+                    <div
+                      className={cn(
+                        'h-[24px] w-[24px] rounded-full',
+                        error ? 'bg-errorRed' : 'bg-actionDark',
+                      )}
+                    />
+                  ) : (
+                    <span
+                      className={cn(
+                        'font-dmsans text-[22px] font-bold',
+                        error ? 'text-errorRed' : 'text-actionDark',
+                      )}
+                    >
+                      {char}
+                    </span>
+                  )
+                ) : (
+                  <span
+                    className={cn(
+                      'text-[20px] leading-none font-normal select-none',
+                      error ? 'text-errorRed' : 'text-mutedOlive',
+                    )}
+                  >
+                    —
+                  </span>
+                )}
+              </div>
+
+              {/* Bottom underline */}
+              <div
+                className={cn(
+                  'pointer-events-none absolute bottom-0 left-0 h-[1px] w-[40px] transition-colors',
+                  error ? 'bg-errorRed' : isFocused ? 'bg-actionYellow h-[2px]' : 'bg-actionDark',
+                )}
+              />
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Eye toggle */}
+      {showToggle && (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label={revealed ? 'Hide PIN' : 'Show PIN'}
+          onClick={() => setRevealed((r) => !r)}
+          className="hover:text-actionDark text-warmGray flex items-center gap-1 transition-colors focus-visible:outline-none"
+        >
+          <span className="material-symbols-outlined text-[18px] select-none">
+            {revealed ? 'visibility_off' : 'visibility'}
+          </span>
+          <span className="font-dmsans text-[12px]">{revealed ? 'Hide' : 'Show'}</span>
+        </button>
+      )}
     </div>
   )
 }

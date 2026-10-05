@@ -11,7 +11,7 @@ export function HomeIndicator({
   platform = "ios",
   className,
   theme = "light",
-}: HomeIndicatorProps) {
+}: HomeIndicatorProps): React.JSX.Element {
   const isDark = theme === "dark";
   
   if (platform === "android") {

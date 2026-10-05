@@ -29,31 +29,31 @@ export function StructureCard({
       onClick={onClick}
       className={cn(
         'flex flex-col rounded-[12px] border transition-colors',
-        isDeep ? 'gap-1.5 p-3' : 'gap-2 p-4',
-        isSelected ? 'border-activeYellow bg-white' : 'border-black/8 bg-transparent',
+        isDeep ? 'p-4' : 'p-4',
+        isSelected ? 'border-warmGray/50 bg-white' : 'border-warmGray/50 bg-transparent',
         className,
       )}
     >
       {/* Header */}
-      <div className="flex flex-col gap-0.5">
-        <span className="font-dmsans text-[10px] font-semibold tracking-wider text-gray-400 uppercase">
+      <div className="flex flex-col gap-3">
+        <span className="font-dmsans text-warmGray text-[10px] font-semibold tracking-wider uppercase">
           {sample.label}
         </span>
-        <span className="font-dmsans text-[11px] leading-tight text-gray-500">
+        <span className="font-dmsans text-warmGray text-[11px] leading-tight font-normal">
           {sample.hierarchy}
         </span>
       </div>
 
       {/* Level values */}
-      <div className="flex flex-col gap-0">
+      <div className="flex flex-col gap-0 pt-3">
         {sample.levels.map((level, i) => (
           <div
             key={i}
             className="flex items-baseline gap-1"
             style={{ paddingLeft: `${i * indent}px` }}
           >
-            {i > 0 && <span className="mr-0.5 text-[10px] text-gray-300">└</span>}
-            {i === 0 && <span className="font-dmsans text-[10px] text-gray-400">e.g</span>}
+            {i > 0 && <span className="text-warmGray mr-0.5 text-[10px]">└</span>}
+            {i === 0 && <span className="font-dmsans text-warmGray text-[10px]">e.g</span>}
             <span className="font-dmsans text-actionDark text-[11px] font-semibold">
               {level.value}
             </span>

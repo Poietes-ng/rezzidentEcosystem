@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { SupportChannelsScreen } from '#/features/auth/estate-registration'
+import { Support } from '#/features/application'
 
 export const Route = createFileRoute('/app/support')({
-  component: SupportChannelsScreen,
+  component: Support,
 })

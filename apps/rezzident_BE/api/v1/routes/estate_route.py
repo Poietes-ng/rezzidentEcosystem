@@ -14,10 +14,12 @@ validate input → call service → return response.
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-from fastapi import APIRouter, BackgroundTasks, Depends, status
-from sqlalchemy.orm import Session
+from arq import ArqRedis
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.database import get_db
+from api.utils.arq_client import get_arq_pool
 from api.utils.jwt_handler import get_current_user
 from api.utils.success_response import success_response
 from api.v1.models.users import User
@@ -35,18 +37,18 @@ estates = APIRouter(prefix="/estates", tags=["Estates"])
 @estates.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_estate(
     body: EstateRegisterSchema,
-    background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
+    arq_pool: ArqRedis = Depends(get_arq_pool),
 ):
     """Register a new estate.
 
     No auth required for initial registration (the registering admin
     becomes the first stakeholder). Auth is added after estate is created.
     """
-    estate = EstateService.register_estate(
+    estate = await EstateService.register_estate(
         db=db,
-        background_tasks=background_tasks,
         body=body,
+        arq_pool=arq_pool,
     )
 
     return success_response(
@@ -75,13 +77,13 @@ async def register_estate(
 @estates.get("/lookup/{estate_code}", status_code=status.HTTP_200_OK)
 async def lookup_estate(
     estate_code: str,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Look up an estate by its code — used by residents when joining.
 
     Returns public estate info (name, address) without sensitive data.
     """
-    estate = EstateService.get_estate_by_code(db=db, estate_code=estate_code)
+    estate = await EstateService.get_estate_by_code(db=db, estate_code=estate_code)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -105,10 +107,10 @@ async def lookup_estate(
 @estates.get("/me", status_code=status.HTTP_200_OK)
 async def get_my_estate(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     """Get the current user's estate details."""
-    estate = EstateService.get_estate_for_user(db=db, current_user=current_user)
+    estate = await EstateService.get_estate_for_user(db=db, current_user=current_user)
 
     return success_response(
         status_code=status.HTTP_200_OK,
@@ -135,12 +137,12 @@ async def get_my_estate(
 
 @estates.get("/structure-templates", status_code=status.HTTP_200_OK)
 async def list_structure_templates(
-    levels: int = None,  # Filter by level count
-    category: str = None,  # Filter by category
-    db: Session = Depends(get_db),
+    levels: int | None = None,  # Filter by level count
+    category: str | None = None,  # Filter by category
+    db: AsyncSession = Depends(get_db),
 ):
     """List available estate structure templates for registration form."""
-    templates = EstateService.list_structure_templates(
+    templates = await EstateService.list_structure_templates(
         db=db,
         levels=levels,
         category=category,

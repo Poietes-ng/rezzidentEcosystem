@@ -23,7 +23,7 @@ export function BottomNavigation({
 }: {
   className?: string;
   tabs?: NavTab[];
-}) {
+}): React.JSX.Element {
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
 

@@ -25,7 +25,18 @@ COPY apps/rezzident_FE/package.json       ./apps/rezzident_FE/
 
 RUN pnpm install --frozen-lockfile
 
-# ── Stage 3: Build ─────────────────────────────────────────
+# ── Stage 3: Dev (hot-reload) ──────────────────────────────
+# Used by docker-compose.override.yml for local development.
+# Source code is volume-mounted at runtime — node_modules come
+# from the deps layer above so the host's node_modules are NOT used.
+# Vite listens on 0.0.0.0 (--host) so it's reachable from the host.
+FROM deps AS dev
+WORKDIR /app
+EXPOSE 5173
+ENV CHOKIDAR_USEPOLLING=true
+CMD ["pnpm", "--filter", "rezzident-fe", "dev", "--host"]
+
+# ── Stage 4: Build ─────────────────────────────────────────
 FROM deps AS build
 WORKDIR /app
 
