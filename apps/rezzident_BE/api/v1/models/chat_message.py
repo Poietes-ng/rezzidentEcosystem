@@ -4,7 +4,7 @@ Community chat for estate residents.
 Reference: docs/architecture/13-database-schema.md
 """
 
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
 
 from api.v1.models.base_model import BaseTableModel
 

@@ -15,36 +15,62 @@ Lifespan:
 Reference: docs/architecture/10-security-architecture.md, 17-owasp-rate-limiting.md
 """
 
-import sys
-import uvicorn
 import os
+import secrets
+import sys
 import time
-from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, status
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from collections import defaultdict
+from contextlib import asynccontextmanager
+
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import IntegrityError
+from starlette.middleware.sessions import SessionMiddleware
+
+
+def ensure_secret_key() -> None:
+    """Validate SECRET_KEY is set to a real value at startup.
+
+    Writing to .env at runtime is unsafe in containerised environments
+    (read-only filesystems, non-root users).  Secrets must be injected
+    via environment variables or a secrets manager before the app starts.
+    """
+    placeholder = "CHANGE_ME_generate_64_byte_hex_key"
+    secret_key = os.environ.get("SECRET_KEY", placeholder)
+    if secret_key == placeholder or not secret_key:
+        # In development, auto-generate an in-memory key so the server
+        # can still start without manual .env setup.
+        if os.environ.get("PYTHON_ENV", "development") == "development":
+            os.environ["SECRET_KEY"] = secrets.token_hex(64)
+        else:
+            raise RuntimeError(
+                "SECRET_KEY is not set or is still the placeholder value. "
+                "Inject a real secret via environment variable before starting "
+                "the application in production."
+            )
+
+
+# Run before settings are imported
+ensure_secret_key()
+
 
 # fastapi-guard — top-level imports (v7.x API)
-from guard import SecurityMiddleware, SecurityConfig
+from guard import SecurityConfig, SecurityMiddleware
 
-from api.db.database import get_db
-from api.db.redis import init_redis, close_redis
+from api.db.redis import close_redis, init_redis
 from api.loggers.app_logger import app_logger
-from api.utils.success_response import success_response
-from api.v1.routes import api_version_one
-from api.utils.settings import settings
+from api.middleware.request_id import RequestIdMiddleware
 
 # V2 Middleware imports
 from api.middleware.security_headers import SecurityHeadersMiddleware
-from api.middleware.request_id import RequestIdMiddleware
 from api.middleware.tenant import TenantMiddleware
-
+from api.utils.settings import settings
+from api.utils.success_response import success_response
+from api.v1.routes import api_version_one
 
 # ══════════════════════════════════════════════════════
 # fastapi-guard SECURITY CONFIG (v7.x)
@@ -61,18 +87,16 @@ from api.middleware.tenant import TenantMiddleware
 
 _GUARD_CONFIG = SecurityConfig(
     # Rate limiting
-    rate_limit=100,                # requests per window per IP
-    rate_limit_window=60,          # window size in seconds
-
+    rate_limit=settings.GUARD_RATE_LIMIT,
+    rate_limit_window=settings.GUARD_RATE_LIMIT_WINDOW,
     # Auto-ban settings
-    auto_ban_threshold=25,         # suspicious requests before ban
-    auto_ban_duration=3600,        # ban duration: 1 hour
-
-    # Redis backend — distributed state across Uvicorn workers
-    enable_redis=True,
+    auto_ban_threshold=settings.GUARD_AUTO_BAN_THRESHOLD,
+    auto_ban_duration=settings.GUARD_AUTO_BAN_DURATION,
+    # Redis backend — required in production, optional in development.
+    # In dev mode without Redis, guard falls back to in-memory storage.
+    enable_redis=settings.PYTHON_ENV != "development",
     redis_url=settings.REDIS_URL,
-    redis_prefix="guard:",         # namespace guard keys separately from JWT blacklist
-
+    redis_prefix=settings.GUARD_REDIS_PREFIX,
     # Block known scanner / attack tool user-agents
     blocked_user_agents=[
         "sqlmap",
@@ -85,25 +109,20 @@ _GUARD_CONFIG = SecurityConfig(
         "nuclei",
         "hydra",
     ],
-
     # Trust X-Forwarded-For from these proxies (Cloudflare / local Nginx)
     trusted_proxies=["127.0.0.1", "::1"],
     trusted_proxy_depth=1,
-
     # Paths to never rate-limit (health checks, docs)
     exclude_paths=[
-        "/",
         "/docs",
         "/redoc",
         "/openapi.json",
         "/api/v1/healthz",
         "/api/v1/readyz",
     ],
-
     # IP banning enabled
     enable_ip_banning=True,
     enable_rate_limiting=True,
-
     # Log suspicious activity at WARNING level
     log_suspicious_level="WARNING",
 )
@@ -125,8 +144,9 @@ async def lifespan(app: FastAPI):
 
     # ── Auto-update interactive flowchart HTML (dev only) ──
     try:
-        from scripts.generate_model_flowchart import parse_all_models, update_html
-        models = parse_all_models()
+        from scripts.generate_model_flowchart import parse_database_schema, update_html
+
+        models = parse_database_schema()
         update_html(models)
         app_logger.info("✅ Automatically updated models_interactive_flowchart.html")
     except Exception as e:
@@ -143,9 +163,10 @@ app = FastAPI(
     lifespan=lifespan,
     title="Rezzident API",
     description="Estate Management SaaS Platform — API v1",
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    version="1.0.0",
+    docs_url="/docs" if settings.PYTHON_ENV != "production" else None,
+    redoc_url="/redoc" if settings.PYTHON_ENV != "production" else None,
+    openapi_url="/openapi.json" if settings.PYTHON_ENV != "production" else None,
 )
 
 
@@ -206,6 +227,7 @@ app.add_middleware(
 # REQUEST LOGGING
 # ══════════════════════════════════════════════════════
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """Log method, path, status, duration, and request ID after each request."""
@@ -241,9 +263,7 @@ app.include_router(api_version_one)
 
 @app.get("/", tags=["Home"])
 async def get_root(request: Request) -> dict:
-    return success_response(
-        message="Welcome to Rezzident API", status_code=status.HTTP_200_OK
-    )
+    return success_response(message="Welcome to Rezzident API", status_code=status.HTTP_200_OK)
 
 
 @app.get("/request-stats", tags=["Home"])
@@ -252,11 +272,7 @@ async def get_request_stats():
     return success_response(
         status_code=status.HTTP_200_OK,
         message="Endpoint request stats retrieved successfully",
-        data={
-            "request_counts": {
-                endpoint: dict(ips) for endpoint, ips in request_counter.items()
-            }
-        },
+        data={"request_counts": {endpoint: dict(ips) for endpoint, ips in request_counter.items()}},
     )
 
 
@@ -264,13 +280,12 @@ async def get_request_stats():
 # EXCEPTION HANDLERS
 # ══════════════════════════════════════════════════════
 
+
 @app.exception_handler(HTTPException)
 async def http_exception(request: Request, exc: HTTPException):
     """HTTP exception handler."""
     exc_type, exc_obj, exc_tb = sys.exc_info()
-    app_logger.info(
-        f"HTTPException: {request.url.path} | {exc.status_code} | {exc.detail}"
-    )
+    app_logger.info(f"HTTPException: {request.url.path} | {exc.status_code} | {exc.detail}")
     if exc_tb:
         app_logger.info(
             f"[ERROR] - An error occurred | {exc}, {exc_type} {exc_obj} line {exc_tb.tb_lineno}"
@@ -290,8 +305,7 @@ async def http_exception(request: Request, exc: HTTPException):
 async def validation_exception(request: Request, exc: RequestValidationError):
     """Validation exception handler."""
     errors = [
-        {"loc": error["loc"], "msg": error["msg"], "type": error["type"]}
-        for error in exc.errors()
+        {"loc": error["loc"], "msg": error["msg"], "type": error["type"]} for error in exc.errors()
     ]
 
     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -313,9 +327,7 @@ async def integrity_exception(request: Request, exc: IntegrityError):
     """Integrity error exception handler."""
     exc_type, exc_obj, exc_tb = sys.exc_info()
     app_logger.info(f"IntegrityError: {request.url.path} | 500")
-    app_logger.info(
-        f"[ERROR] - An error occurred | {exc}, {exc_type} {exc_obj}"
-    )
+    app_logger.info(f"[ERROR] - An error occurred | {exc}, {exc_type} {exc_obj}")
 
     return JSONResponse(
         status_code=500,
@@ -332,9 +344,7 @@ async def general_exception(request: Request, exc: Exception):
     """Catch-all exception handler — NEVER exposes stack traces in production."""
     exc_type, exc_obj, exc_tb = sys.exc_info()
     app_logger.info(f"Exception: {request.url.path} | 500")
-    app_logger.info(
-        f"[ERROR] - An error occurred | {exc}, {exc_type} {exc_obj}"
-    )
+    app_logger.info(f"[ERROR] - An error occurred | {exc}, {exc_type} {exc_obj}")
 
     message = "An unexpected error occurred."
     if settings.PYTHON_ENV == "development":

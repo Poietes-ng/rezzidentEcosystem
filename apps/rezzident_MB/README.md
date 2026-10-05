@@ -69,10 +69,32 @@ rezzident_MB/
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Expo dev server |
-| `npm run ios` | Run on iOS simulator |
-| `npm run android` | Run on Android emulator |
-| `npm run build:preview` | Build preview APK/IPA |
+| Command                    | Description              |
+| -------------------------- | ------------------------ |
+| `npm run dev`              | Start Expo dev server    |
+| `npm run ios`              | Run on iOS simulator     |
+| `npm run android`          | Run on Android emulator  |
+| `npm run build:preview`    | Build preview APK/IPA    |
 | `npm run build:production` | Build production release |
+
+## Linting & Formatting
+
+This project uses **ESLint** and **Prettier** for code quality.
+
+### Manual Linting & Auto-fixing
+
+To manually check and fix errors, use the following `pnpm` scripts:
+
+```bash
+# Check for lint errors
+pnpm run lint
+
+# Auto-fix linting errors
+pnpm run lint --fix
+
+# Format all files using Prettier
+pnpm run format
+
+# Check TypeScript types
+pnpm run check
+```

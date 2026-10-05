@@ -14,15 +14,16 @@ The Figma flow shows 3 registration paths:
 Reference: docs/architecture/13-database-schema.md, 08-pin-biometric-auth.md
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Enum
-from sqlalchemy.orm import relationship
-from datetime import datetime
 import enum
+from datetime import UTC, datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class UserRole(str, enum.Enum):
+class UserRole(enum.StrEnum):
     """User role types — V2 expanded roles."""
 
     RESIDENT = "resident"
@@ -35,20 +36,20 @@ class UserRole(str, enum.Enum):
     SUPER_ADMIN = "super_admin"
 
 
-class VerificationTier(str, enum.Enum):
+class VerificationTier(enum.StrEnum):
     """Resident verification tiers — from Figma flow.
 
     Figma Tier 1 (restricted): SELF_REGISTERED → can view, cannot pay bills/schedule visitors
     Figma Tier 2 (full access): PRE_VERIFIED, ADMIN_APPROVED, or VOUCHED
     """
 
-    PRE_VERIFIED = "pre_verified"       # CSV match → automatic Tier 2
-    ADMIN_APPROVED = "admin_approved"   # Admin manually approved → Tier 2
-    VOUCHED = "vouched"                 # 2 neighbors vouched → Tier 2
-    SELF_REGISTERED = "self_registered" # Unverified → Tier 1 (restricted)
+    PRE_VERIFIED = "pre_verified"  # CSV match → automatic Tier 2
+    ADMIN_APPROVED = "admin_approved"  # Admin manually approved → Tier 2
+    VOUCHED = "vouched"  # 2 neighbors vouched → Tier 2
+    SELF_REGISTERED = "self_registered"  # Unverified → Tier 1 (restricted)
 
 
-class ConnectionType(str, enum.Enum):
+class ConnectionType(enum.StrEnum):
     """Managed member connection types for family tree."""
 
     FAMILY = "family"
@@ -94,13 +95,17 @@ class User(BaseTableModel):
 
     # ── V2: Vouch Code (Figma: "My neighbors can vouch for me") ──
     vouch_code = Column(
-        String(20), unique=True, nullable=True, index=True,
+        String(20),
+        unique=True,
+        nullable=True,
+        index=True,
         comment="Unique code for sharing vouch links via WhatsApp/socials",
     )
 
     # ── V2: Registration Source (tracks which Figma path was used) ──
     registration_source = Column(
-        String(30), nullable=True,
+        String(30),
+        nullable=True,
         comment="estate_id | vouch | self | admin_invite | csv_import",
     )
 
@@ -115,18 +120,10 @@ class User(BaseTableModel):
 
     # Relationships
     resident = relationship("Resident", foreign_keys=[resident_id])
-    visitors = relationship(
-        "Visitor", back_populates="user", cascade="all, delete-orphan"
-    )
-    visitor_codes = relationship(
-        "VisitorCode", back_populates="user", cascade="all, delete-orphan"
-    )
-    bills = relationship(
-        "Bill", back_populates="user", cascade="all, delete-orphan"
-    )
-    payments = relationship(
-        "Payment", back_populates="user", cascade="all, delete-orphan"
-    )
+    visitors = relationship("Visitor", back_populates="user", cascade="all, delete-orphan")
+    visitor_codes = relationship("VisitorCode", back_populates="user", cascade="all, delete-orphan")
+    bills = relationship("Bill", back_populates="user", cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship(
         "Notification", back_populates="user", cascade="all, delete-orphan"
     )
@@ -182,8 +179,7 @@ class User(BaseTableModel):
     def is_pin_locked(self) -> bool:
         if self.pin_locked_until is None:
             return False
-        from datetime import timezone
-        return datetime.now(timezone.utc) < self.pin_locked_until
+        return datetime.now(UTC) < self.pin_locked_until
 
     @property
     def dashboard_tier(self) -> int:

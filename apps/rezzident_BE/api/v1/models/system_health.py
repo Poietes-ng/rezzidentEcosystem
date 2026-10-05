@@ -5,7 +5,7 @@ incident history, and daily uptime bar charts.
 Separate from status_history.py which tracks entity status changes.
 """
 
-from sqlalchemy import Column, String, Float, Boolean, Text, Index
+from sqlalchemy import Boolean, Column, Float, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
 from api.v1.models.base_model import BaseTableModel
@@ -46,9 +46,7 @@ class SystemHealthCheck(BaseTableModel):
     # Comma-separated names of non-operational services
     incident_services = Column(Text, nullable=True)
 
-    __table_args__ = (
-        Index("idx_health_incident_created", "has_incident", "created_at"),
-    )
+    __table_args__ = (Index("idx_health_incident_created", "has_incident", "created_at"),)
 
     def __repr__(self):
         return f"<SystemHealthCheck(id={self.id}, status={self.overall_status})>"

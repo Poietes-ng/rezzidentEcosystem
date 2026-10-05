@@ -41,9 +41,7 @@ async def send_otp_sms(ctx: dict, phone_number: str, otp_code: str) -> None:
     worker queue for better reliability and retry handling.
     """
     if settings.PYTHON_ENV == "development":
-        app_logger.info(
-            f"[DEV — OTP SMS] Phone: {phone_number} | Code: {otp_code}"
-        )
+        app_logger.info(f"[DEV — OTP SMS] Phone: {phone_number} | Code: {otp_code}")
         return
 
     # TODO: Termii SMS integration
@@ -80,6 +78,7 @@ async def migrate_all_tenants_job(ctx: dict) -> None:
 
     try:
         from scripts.migrate_all_tenants import migrate_all
+
         await migrate_all()
         app_logger.info("[Job] Tenant migration completed successfully.")
     except Exception as e:

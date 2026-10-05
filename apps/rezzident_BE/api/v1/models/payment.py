@@ -1,20 +1,21 @@
 """Payment model — tenant schema. Mirrors estate_management_BE + V2 payment ledger."""
 
-from sqlalchemy import Column, String, Float, Integer, DateTime, Boolean, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class PaymentStatus(str, enum.Enum):
+class PaymentStatus(enum.StrEnum):
     PENDING = "pending"
     SUCCESS = "success"
     FAILED = "failed"
     REFUNDED = "refunded"
 
 
-class PaymentChannel(str, enum.Enum):
+class PaymentChannel(enum.StrEnum):
     CARD = "card"
     BANK_TRANSFER = "bank_transfer"
     USSD = "ussd"

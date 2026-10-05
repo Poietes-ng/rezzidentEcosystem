@@ -1,8 +1,33 @@
+# Backend rules — enforced by the AI PR reviewer on all .py file diffs.
+# Keep rules actionable and specific so the LLM can flag concrete violations.
+
 fastapi:
   async_routes: true
   use_dependency_injection: true
   typed_function_signatures: true
   pydantic_for_request_response_models: true
+
+route_layer:
+  # Routes must be thin wrappers: validate input → call service → return response.
+  # Pattern: Route receives Pydantic schema + Depends(), delegates to a Service
+  # class/method in api/v1/services/, and wraps the result with success_response().
+  #
+  # Example of a CORRECT thin route:
+  #   @router.post("/register/set-pin")
+  #   async def register_set_pin(body: SetPINSchema, db: Session = Depends(get_db)):
+  #       user, tokens = AuthService.register_user(db=db, ...)
+  #       return success_response(status_code=201, message="...", data={...})
+  #
+  # What is FORBIDDEN in route files:
+  #   - Direct DB queries (db.query(...), db.execute(...))
+  #   - Conditional business logic (if user.is_active, if balance > 0, etc.)
+  #   - Data transformation / computation beyond simple dict construction
+  #   - Direct calls to external services (email, SMS, payment) — use service layer
+  no_business_logic_in_routes: true
+  routes_must_delegate_to_service_layer: true # api/v1/services/
+  no_direct_db_queries_in_routes: true # no db.query() or db.execute() in route files
+  no_external_service_calls_in_routes: true # no email/SMS/payment calls in route files
+  routes_must_use_success_response_helper: true # all returns via success_response()
 
 sqlalchemy:
   use_sqlalchemy_2_style: true

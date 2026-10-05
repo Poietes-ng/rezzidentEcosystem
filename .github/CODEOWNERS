@@ -6,15 +6,17 @@
 # ──────────────────────────────────────────────────────────
 
 # ── Apps ──
-/apps/rezzident_BE/                @CodewithSegNet @poietesltd
-/apps/rezzident_FE/                @valentine234-ui @alaminjibril @Chiboka
-/apps/rezzident_MB/                @Israel-dot-com @Shakur-Galla
+/apps/rezzident_BE/                @CodewithSegNet @poietesltd @valentine234-ui
+/apps/rezzident_FE/                @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Israel-dot-com 
+/apps/rezzident_MB/                @CodewithSegNet @poietesltd @valentine234-ui @Shakur-Galla
+
+ai-pr-reviewer/                    @CodewithSegNet @poietesltd @valentine234-ui
 
 # ── Shared packages (cross-team review) ──
-/packages/shared-types/            @CodewithSegNet @poietesltd @alaminjibril @Israel-dot-com
-/packages/api-client/              @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
-/packages/design-tokens/           @valentine234-ui @alaminjibril @Chiboka @Israel-dot-com @Shakur-Galla
-/packages/utils/                   @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
+/packages/shared-types/            @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
+/packages/api-client/              @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
+/packages/design-tokens/           @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
+/packages/utils/                   @CodewithSegNet @poietesltd @valentine234-ui @alaminjibril @Israel-dot-com @Shakur-Galla
 
 # ── Infrastructure & DevOps ──
 /infrastructure/                   @CodewithSegNet @poietesltd @Israel-dot-com

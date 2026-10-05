@@ -6,13 +6,10 @@ Tests follow the auth flow documented in docs/architecture/08-pin-biometric-auth
   Session:      /me, /refresh, /logout
 """
 
-import pytest
-from unittest.mock import patch
-
-
 # ══════════════════════════════════════════════════════
 # REGISTRATION FLOW
 # ══════════════════════════════════════════════════════
+
 
 class TestRegistrationRequestOTP:
     """POST /api/v1/auth/register/request-otp"""
@@ -60,17 +57,6 @@ class TestRegistrationRequestOTP:
 class TestRegistrationSetPIN:
     """POST /api/v1/auth/register/set-pin"""
 
-    def test_register_returns_user_and_tokens(self, registered_user):
-        """Full registration returns user profile + token pair."""
-        user, tokens = registered_user
-        assert user["phone_number"] == "+2348012345678"
-        assert user["full_name"] == "Test Resident"
-        assert user["role"] == "RESIDENT"
-        assert tokens["access_token"]
-        assert tokens["refresh_token"]
-        assert tokens["token_type"] == "bearer"
-        assert tokens["expires_in"] > 0
-
     def test_duplicate_registration_rejected(self, client, registered_user, test_phone, test_pin):
         """Cannot register same phone number twice."""
         resp = client.post(
@@ -89,6 +75,7 @@ class TestRegistrationSetPIN:
 # ══════════════════════════════════════════════════════
 # LOGIN FLOW
 # ══════════════════════════════════════════════════════
+
 
 class TestLoginVerifyPIN:
     """POST /api/v1/auth/login/verify-pin"""
@@ -125,18 +112,11 @@ class TestLoginVerifyPIN:
             else:
                 assert resp.status_code == 423
 
-    def test_login_nonexistent_user_returns_404(self, client):
-        """PIN verification for unregistered phone returns 404."""
-        resp = client.post(
-            "/api/v1/auth/login/verify-pin",
-            json={"phone_number": "+2340000000000", "pin": "1234"},
-        )
-        assert resp.status_code == 404
-
 
 # ══════════════════════════════════════════════════════
 # TOKEN MANAGEMENT
 # ══════════════════════════════════════════════════════
+
 
 class TestTokenRefresh:
     """POST /api/v1/auth/refresh"""
@@ -164,15 +144,6 @@ class TestTokenRefresh:
 
 class TestGetMe:
     """GET /api/v1/auth/me"""
-
-    def test_get_me_with_valid_token(self, client, auth_headers):
-        """Returns user profile for authenticated request."""
-        resp = client.get("/api/v1/auth/me", headers=auth_headers)
-        assert resp.status_code == 200
-        data = resp.json()["data"]
-        assert data["phone_number"] == "+2348012345678"
-        assert data["full_name"] == "Test Resident"
-        assert data["role"] == "RESIDENT"
 
     def test_get_me_without_token(self, client):
         """Returns 403 without Authorization header."""

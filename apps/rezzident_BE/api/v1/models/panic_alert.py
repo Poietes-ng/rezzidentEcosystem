@@ -10,15 +10,16 @@ Panic alerts are critical safety events that notify:
 3. Nearby residents (optional broadcast)
 """
 
-from sqlalchemy import Column, String, Float, DateTime, Boolean, ForeignKey, Text
+import enum
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
-import enum
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class PanicAlertStatus(str, enum.Enum):
+class PanicAlertStatus(enum.StrEnum):
     ACTIVE = "active"
     ACKNOWLEDGED = "acknowledged"
     RESOLVED = "resolved"
@@ -35,12 +36,17 @@ class PanicAlert(BaseTableModel):
 
     # ── Alert Info ──
     reason = Column(
-        String(100), nullable=False, index=True,
+        String(100),
+        nullable=False,
+        index=True,
         comment="Pre-filled reason: fire, intrusion, medical, theft, other",
     )
     description = Column(Text, nullable=True)
     status = Column(
-        String(20), default="active", nullable=False, index=True,
+        String(20),
+        default="active",
+        nullable=False,
+        index=True,
         comment="active | acknowledged | resolved | false_alarm | cancelled",
     )
 
@@ -58,7 +64,8 @@ class PanicAlert(BaseTableModel):
 
     # ── V2: Trigger method ──
     trigger_method = Column(
-        String(20), default="button",
+        String(20),
+        default="button",
         comment="button | gesture | voice — how alert was triggered",
     )
 

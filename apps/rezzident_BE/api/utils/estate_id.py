@@ -7,9 +7,8 @@ Generates unique estate codes in the format: PAR-7X3KM
 Reference: docs/architecture/13-database-schema.md
 """
 
-import secrets
 import re
-
+import secrets
 
 # Characters that won't be confused: no 0/O, 1/I/L
 SAFE_CHARS = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"

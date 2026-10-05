@@ -10,7 +10,7 @@ V2 update: Synced with estate_management_BE fields that the Figma flow requires:
 Reference: Figma "Home → Vouching" and "Enter resident vouche code"
 """
 
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel

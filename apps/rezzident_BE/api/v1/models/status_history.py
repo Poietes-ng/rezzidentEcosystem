@@ -1,6 +1,6 @@
 """Status history model — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String
 from sqlalchemy.dialects.postgresql import JSONB
 
 from api.v1.models.base_model import BaseTableModel

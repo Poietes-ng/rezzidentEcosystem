@@ -9,7 +9,7 @@ V2 update: Added fields from Figma estate registration form:
 - is_registered flag to track if resident has created an app account
 """
 
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Boolean, Column, String
 from sqlalchemy.dialects.postgresql import JSONB
 
 from api.v1.models.base_model import BaseTableModel
@@ -30,16 +30,19 @@ class Resident(BaseTableModel):
 
     # ── V2: House Entity Data (from Figma estate registration) ──
     house_entity_data = Column(
-        JSONB, nullable=True,
+        JSONB,
+        nullable=True,
         comment="Structure-specific data: block, street, floor, unit, etc.",
     )
 
     # ── V2: Registration Tracking ──
     is_registered = Column(
-        Boolean, default=False,
+        Boolean,
+        default=False,
         comment="True when this resident has created an app account",
     )
     registered_user_id = Column(
-        String, nullable=True,
+        String,
+        nullable=True,
         comment="user.id of the app account linked to this pre-loaded record",
     )

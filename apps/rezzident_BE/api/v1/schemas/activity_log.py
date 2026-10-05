@@ -9,13 +9,13 @@ V2 enhancements over V1:
 Reference: docs/architecture/15-audit-and-activity.md
 """
 
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
+
+from pydantic import BaseModel, Field, field_validator
 
 
-class ActivityTypeEnum(str, Enum):
+class ActivityTypeEnum(StrEnum):
     """Activity types — includes V1 types + future feature types."""
 
     # ── Auth (V1) ──
@@ -87,8 +87,9 @@ class ActivityTypeEnum(str, Enum):
     OTHER = "other"
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """Severity for filtering — V2 addition."""
+
     INFO = "info"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -98,17 +99,19 @@ class SeverityLevel(str, Enum):
 # Request Schemas
 # ══════════════════════════════════════════════════════
 
+
 class CreateActivityLogRequest(BaseModel):
     """Request to manually create an activity log."""
-    user_id: Optional[str] = None
+
+    user_id: str | None = None
     activity_type: str = Field(..., max_length=50)
     action: str = Field(..., max_length=100)
     description: str = Field(..., min_length=1)
-    target_type: Optional[str] = Field(None, max_length=50)
-    target_id: Optional[str] = None
-    ip_address: Optional[str] = Field(None, max_length=45)
-    user_agent: Optional[str] = Field(None, max_length=500)
-    metadata: Optional[str] = None  # JSON string
+    target_type: str | None = Field(None, max_length=50)
+    target_id: str | None = None
+    ip_address: str | None = Field(None, max_length=45)
+    user_agent: str | None = Field(None, max_length=500)
+    metadata: str | None = None  # JSON string
     severity: SeverityLevel = SeverityLevel.INFO
 
     @field_validator("activity_type")
@@ -129,11 +132,13 @@ class CreateActivityLogRequest(BaseModel):
 # Response Schemas
 # ══════════════════════════════════════════════════════
 
+
 class UserBasicInfo(BaseModel):
     """Basic user info embedded in activity log."""
+
     id: str
-    full_name: Optional[str] = None
-    phone_number: Optional[str] = None
+    full_name: str | None = None
+    phone_number: str | None = None
     role: str
 
     model_config = {"from_attributes": True}
@@ -141,15 +146,16 @@ class UserBasicInfo(BaseModel):
 
 class ActivityLogItem(BaseModel):
     """Single activity in list view."""
+
     id: str
     timestamp: datetime = Field(..., description="When the activity occurred")
     user_name: str = Field(..., description="Display name of actor")
-    user_role: Optional[str] = Field(None, description="Role of actor")
+    user_role: str | None = Field(None, description="Role of actor")
     activity_type: str
     action: str
     description: str
-    target_type: Optional[str] = None
-    target_id: Optional[str] = None
+    target_type: str | None = None
+    target_id: str | None = None
     severity: str = "info"
 
     model_config = {"from_attributes": True}
@@ -157,17 +163,18 @@ class ActivityLogItem(BaseModel):
 
 class ActivityLogDetail(BaseModel):
     """Full activity detail view."""
+
     id: str
     timestamp: datetime
-    user: Optional[UserBasicInfo] = None
+    user: UserBasicInfo | None = None
     activity_type: str
     action: str
     description: str
-    target_type: Optional[str] = None
-    target_id: Optional[str] = None
-    ip_address: Optional[str] = None
-    user_agent: Optional[str] = None
-    metadata: Optional[str] = None
+    target_type: str | None = None
+    target_id: str | None = None
+    ip_address: str | None = None
+    user_agent: str | None = None
+    metadata: str | None = None
     severity: str = "info"
     created_at: datetime
 
@@ -176,26 +183,29 @@ class ActivityLogDetail(BaseModel):
 
 class PaginatedActivityLogsResponse(BaseModel):
     """Paginated activity logs."""
+
     total: int
     pages: int
     current_page: int
     limit: int
     skip: int
-    items: List[ActivityLogItem]
+    items: list[ActivityLogItem]
 
 
 class ActivitySummaryStats(BaseModel):
     """Activity summary statistics."""
+
     total_activities: int = 0
     activities_today: int = 0
     activities_this_week: int = 0
     activities_this_month: int = 0
-    top_activity_types: List[dict] = []
-    most_active_users: List[dict] = []
+    top_activity_types: list[dict] = []
+    most_active_users: list[dict] = []
 
 
 class ActivityLogResponse(BaseModel):
     """Response after creating an activity log."""
+
     success: bool
     message: str
     activity_log: ActivityLogDetail

@@ -1,13 +1,14 @@
 """Notification model — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, Boolean, ForeignKey, Enum
-from sqlalchemy.orm import relationship
 import enum
+
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, String
+from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel
 
 
-class NotificationType(str, enum.Enum):
+class NotificationType(enum.StrEnum):
     BILL = "bill"
     PAYMENT = "payment"
     VISITOR = "visitor"

@@ -5,11 +5,11 @@ Reference: docs/architecture/22-payment-split-architecture.md
 
 import hashlib
 import hmac
-from fastapi import APIRouter, Request, HTTPException, status
 
-from api.utils.settings import settings
+from fastapi import APIRouter, HTTPException, Request, status
+
 from api.loggers.app_logger import app_logger
-
+from api.utils.settings import settings
 
 webhooks = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 
@@ -52,6 +52,7 @@ async def paystack_webhook(request: Request):
 
     # Parse event
     import json
+
     try:
         event = json.loads(payload)
     except json.JSONDecodeError:
@@ -69,8 +70,7 @@ async def paystack_webhook(request: Request):
     if event_type == "charge.success":
         # TODO: Update payment status, record in payment_ledger
         app_logger.info(
-            f"Payment success: ref={data.get('reference')}, "
-            f"amount={data.get('amount')}"
+            f"Payment success: ref={data.get('reference')}, " f"amount={data.get('amount')}"
         )
 
     elif event_type == "transfer.success":

@@ -5,12 +5,13 @@ Usage: python scripts/migrate_all_tenants.py
 Reference: docs/architecture/03-multi-tenant-architecture.md
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import text
+
 from api.db.database import engine
 from api.loggers.app_logger import app_logger
 
@@ -18,16 +19,14 @@ from api.loggers.app_logger import app_logger
 def get_all_tenant_schemas():
     """Get all estate schemas from the database."""
     with engine.connect() as conn:
-        result = conn.execute(
-            text("SELECT schema_name FROM estates WHERE status = 'active'")
-        )
+        result = conn.execute(text("SELECT schema_name FROM estates WHERE status = 'active'"))
         return [row[0] for row in result if row[0]]
 
 
 def migrate_schema(schema_name: str):
     """Run alembic upgrade head on a specific schema."""
-    from alembic.config import Config
     from alembic import command
+    from alembic.config import Config
 
     alembic_cfg = Config("alembic.ini")
     alembic_cfg.set_main_option("schema_name", schema_name)
@@ -47,8 +46,8 @@ def main():
 
     # 1. Migrate public schema first
     app_logger.info("Migrating public schema...")
-    from alembic.config import Config
     from alembic import command
+    from alembic.config import Config
 
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")

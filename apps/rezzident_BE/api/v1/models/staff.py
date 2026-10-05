@@ -1,6 +1,7 @@
 """Staff model — tenant schema. Mirrors estate_management_BE."""
 
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Boolean, Column, String
+
 from api.v1.models.base_model import BaseTableModel
 
 

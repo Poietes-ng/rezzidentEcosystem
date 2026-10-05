@@ -6,11 +6,10 @@ for multi-tenant roles and managed member permissions.
 Reference: docs/architecture/05-roles-permissions.md
 """
 
-from enum import Enum
-from typing import List
+from enum import StrEnum
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     """User role types — V2 expanded with estate admin role."""
 
     RESIDENT = "resident"

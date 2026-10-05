@@ -4,7 +4,7 @@ V2 update: Added V1 compatibility fields that the dashboard and security
 flow require: time_of_visit, actual_arrival, actual_departure, reason_for_visit.
 """
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import relationship
 
 from api.v1.models.base_model import BaseTableModel

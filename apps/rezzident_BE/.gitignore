@@ -51,3 +51,7 @@ docker-compose.override.yml
 
 # Node (if any JS tooling)
 node_modules/
+
+# test database
+test.db
+*.db

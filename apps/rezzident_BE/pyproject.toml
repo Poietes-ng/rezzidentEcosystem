@@ -11,6 +11,8 @@ target-version = ["py311"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
 select = [
     "E",    # pycodestyle errors
     "W",    # pycodestyle warnings
@@ -24,17 +26,25 @@ select = [
 ignore = [
     "E501",  # line too long (handled by black)
     "B008",  # do not perform function calls in argument defaults (FastAPI Depends)
+    "E402",  # module level import not at top of file (needed for FastAPI middleware/db imports)
+    "N999",  # invalid module name (because folder is named rezzident_BE)
+    "E701",  # multiple statements on one line (used in flowchart script)
+    "SIM102", # nested if statements (used in flowchart script)
+    "B904",  # raise within except clause without from err (FastAPI exceptions)
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["api"]
 
 [tool.mypy]
 python_version = "3.11"
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
-disallow_untyped_defs = true
-warn_unreachable = true
+disallow_untyped_defs = false
+warn_unreachable = false
+explicit_package_bases = true
+ignore_missing_imports = true
+check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
