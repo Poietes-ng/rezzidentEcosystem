@@ -2,6 +2,7 @@ import { Outlet, useLocation } from '@tanstack/react-router'
 import { AppFrame } from './AppFrame'
 import { HomeIndicator } from './HomeIndicator'
 import type React from 'react'
+import { AuthFlowProvider } from '#/features/auth/estate-registration'
 
 export function AppLayout(): React.JSX.Element {
   const location = useLocation()
@@ -12,10 +13,12 @@ export function AppLayout(): React.JSX.Element {
   }
 
   return (
-    <AppFrame>
-      {/* The actual mobile screens will render here */}
-      <Outlet />
-      <HomeIndicator />
-    </AppFrame>
+    <AuthFlowProvider>
+      <AppFrame>
+        {/* The actual mobile screens will render here */}
+        <Outlet />
+        <HomeIndicator />
+      </AppFrame>
+    </AuthFlowProvider>
   )
 }

@@ -56,7 +56,7 @@ export function WelcomeScreen() {
                   Create Account
                 </Button>
               </Link>
-              <Link to="/app/login" className="w-full">
+              <Link to="/app/sign-in" className="w-full">
                 <Button variant="secondary" className="w-full">
                   I already have an account
                 </Button>

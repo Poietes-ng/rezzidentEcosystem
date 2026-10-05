@@ -7,7 +7,7 @@
 ## Table of Contents
 
 | #   | Section                                               | What You'll Learn                                             |
-| -----| -------------------------------------------------------| ---------------------------------------------------------------|
+| --- | ----------------------------------------------------- | ------------------------------------------------------------- |
 | 1   | [General Principles](#1-general-principles)           | Core philosophy and rules                                     |
 | 2   | [Getting Started](#2-getting-started)                 | Scripts, setup, directory layout, and File Naming Conventions |
 | 3   | [Architecture Rules](#3-architecture-rules)           | Import rules, barrel exports, thin routes                     |
@@ -41,16 +41,16 @@
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server on port 3000 |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview the production build |
-| `npm run test` | Run tests with Vitest |
-| `npm run lint` | Check for lint errors |
-| `npm run format` | Format code with Prettier + ESLint auto-fix |
-| `npm run check` | Check formatting without modifying files |
-| `npm run generate-routes` | Regenerate TanStack Router route tree |
+| Command                   | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| `npm run dev`             | Start development server on port 3000       |
+| `npm run build`           | Build for production                        |
+| `npm run preview`         | Preview the production build                |
+| `npm run test`            | Run tests with Vitest                       |
+| `npm run lint`            | Check for lint errors                       |
+| `npm run format`          | Format code with Prettier + ESLint auto-fix |
+| `npm run check`           | Check formatting without modifying files    |
+| `npm run generate-routes` | Regenerate TanStack Router route tree       |
 
 ### Directory Structure
 
@@ -82,17 +82,17 @@ src/
 
 ### File Naming Conventions
 
-| Type | Convention | Example |
-|------|-----------|---------|
-| Components | `PascalCase.tsx` | `HeroSection.tsx` |
-| Hooks | `camelCase.ts` (starts with `use`) | `useAuth.ts` |
-| Context | `PascalCase.tsx` (ends with `Context`) | `ThemeContext.tsx` |
-| Utils | `camelCase.ts` | `cn.ts`, `formatDate.ts` |
-| Type files | `kebab-case.types.ts` | `auth.types.ts` |
-| Constants | `camelCase.ts` (SCREAMING_SNAKE inside) | `config.ts` |
-| Assets | `kebab-case` | `poiotes-logo.svg` |
-| Route files | `kebab-case.tsx` | `sign-in.tsx` |
-| Barrel exports | `index.ts` | Always `index.ts`, never `index.tsx` |
+| Type           | Convention                              | Example                              |
+| -------------- | --------------------------------------- | ------------------------------------ |
+| Components     | `PascalCase.tsx`                        | `HeroSection.tsx`                    |
+| Hooks          | `camelCase.ts` (starts with `use`)      | `useAuth.ts`                         |
+| Context        | `PascalCase.tsx` (ends with `Context`)  | `ThemeContext.tsx`                   |
+| Utils          | `camelCase.ts`                          | `cn.ts`, `formatDate.ts`             |
+| Type files     | `kebab-case.types.ts`                   | `auth.types.ts`                      |
+| Constants      | `camelCase.ts` (SCREAMING_SNAKE inside) | `config.ts`                          |
+| Assets         | `kebab-case`                            | `poiotes-logo.svg`                   |
+| Route files    | `kebab-case.tsx`                        | `sign-in.tsx`                        |
+| Barrel exports | `index.ts`                              | Always `index.ts`, never `index.tsx` |
 
 ---
 
@@ -131,7 +131,7 @@ Route files should be **under 20 lines**. They contain only a `loader` and a `co
 ```tsx
 // ✅ Good route file (~10 lines)
 import { createFileRoute } from '@tanstack/react-router'
-import { AuthLayout } from '#/features/auth'
+import { AuthLayout } from '#/features/auth/estate-registration'
 
 export const Route = createFileRoute('/(auth)')({
   component: AuthLayout,
@@ -147,7 +147,7 @@ Always use the `#/` alias. Never use relative paths like `../../../shared/`:
 ```tsx
 // ✅ Correct
 import { Button } from '#/shared/components/ui/button'
-import { RegistrationForm } from '#/features/auth'
+import { RegistrationForm } from '#/features/auth/estate-registration'
 
 // ❌ Wrong
 import { Button } from '../../../shared/components/ui/button'
@@ -158,6 +158,7 @@ import { Button } from '../../../shared/components/ui/button'
 ## 4. Design System Tokens
 
 We maintain **two token sets** in `tailwind.config.js`:
+
 - **App tokens** — for mobile/tablet views (`features/application/`, `features/home/`)
 - **Web tokens** — for desktop views (`features/auth/`, `routes/(public)/`)
 
@@ -165,33 +166,33 @@ We maintain **two token sets** in `tailwind.config.js`:
 
 ### Typography — App (mobile/tablet)
 
-| Class | Size | Weight | Use |
-|-------|------|--------|-----|
-| `text-display` | 32px/34px | 700 | App hero headlines |
-| `text-heading-1` | 28px/32px | 600 | Page titles |
-| `text-heading-2` | 24px/28px | 600 | Section headings |
-| `text-heading-3` | 20px/24px | 500 | Sub-headings |
-| `text-body-large` | 18px/24px | 400 | Large body |
-| `text-body-base` | 16px/20px | 400 | Default body |
-| `text-body-small` | 14px/18px | 400 | Small text |
-| `text-caption` | 14px/16px | 400 | Captions |
-| `text-label` | 14px/16px | 500 | Form labels |
+| Class             | Size      | Weight | Use                |
+| ----------------- | --------- | ------ | ------------------ |
+| `text-display`    | 32px/34px | 700    | App hero headlines |
+| `text-heading-1`  | 28px/32px | 600    | Page titles        |
+| `text-heading-2`  | 24px/28px | 600    | Section headings   |
+| `text-heading-3`  | 20px/24px | 500    | Sub-headings       |
+| `text-body-large` | 18px/24px | 400    | Large body         |
+| `text-body-base`  | 16px/20px | 400    | Default body       |
+| `text-body-small` | 14px/18px | 400    | Small text         |
+| `text-caption`    | 14px/16px | 400    | Captions           |
+| `text-label`      | 14px/16px | 500    | Form labels        |
 
 ### Typography — Web (desktop)
 
-| Class | Size | Weight | Use |
-|-------|------|--------|-----|
-| `text-web-display` | 56px/62px | 700 | Hero headlines (landing pages) |
-| `text-web-h1` | 40px/48px | 700 | Page titles |
-| `text-web-h2` | 32px/40px | 600 | Section headings |
-| `text-web-h3` | 24px/32px | 600 | Sub-headings |
-| `text-web-h4` | 20px/28px | 500 | Card titles |
-| `text-web-lg` | 18px/28px | 400 | Large body text |
-| `text-web-base` | 16px/26px | 400 | Body text |
-| `text-web-sm` | 14px/22px | 400 | Small text, descriptions |
-| `text-web-xs` | 12px/18px | 400 | Captions, fine print |
-| `text-web-label` | 14px/20px | 500 | Form labels |
-| `text-web-overline` | 11px/16px | 600 | "STEP 1 OF 3", badges |
+| Class               | Size      | Weight | Use                            |
+| ------------------- | --------- | ------ | ------------------------------ |
+| `text-web-display`  | 56px/62px | 700    | Hero headlines (landing pages) |
+| `text-web-h1`       | 40px/48px | 700    | Page titles                    |
+| `text-web-h2`       | 32px/40px | 600    | Section headings               |
+| `text-web-h3`       | 24px/32px | 600    | Sub-headings                   |
+| `text-web-h4`       | 20px/28px | 500    | Card titles                    |
+| `text-web-lg`       | 18px/28px | 400    | Large body text                |
+| `text-web-base`     | 16px/26px | 400    | Body text                      |
+| `text-web-sm`       | 14px/22px | 400    | Small text, descriptions       |
+| `text-web-xs`       | 12px/18px | 400    | Captions, fine print           |
+| `text-web-label`    | 14px/20px | 500    | Form labels                    |
+| `text-web-overline` | 11px/16px | 600    | "STEP 1 OF 3", badges          |
 
 ### When to use which?
 
@@ -209,27 +210,27 @@ We maintain **two token sets** in `tailwind.config.js`:
 
 ### Font Weights
 
-| App Class | Web Class | Value |
-|-----------|-----------|-------|
-| `font-normal` | `font-web-regular` | 400 |
-| `font-medium` | `font-web-medium` | 500 |
-| `font-semibold` | `font-web-semibold` | 600 |
-| `font-bold` | `font-web-bold` | 700 |
+| App Class       | Web Class           | Value |
+| --------------- | ------------------- | ----- |
+| `font-normal`   | `font-web-regular`  | 400   |
+| `font-medium`   | `font-web-medium`   | 500   |
+| `font-semibold` | `font-web-semibold` | 600   |
+| `font-bold`     | `font-web-bold`     | 700   |
 
 ### Spacing
 
-| App | Value | Web | Value |
-|-----|-------|-----|-------|
-| `p-2xs` | 4px | — | — |
-| `p-xs` | 8px | `p-web-xs` | 8px |
-| `p-sm` | 12px | `p-web-sm` | 16px |
-| `p-md` | 16px | `p-web-md` | 24px |
-| `p-lg` | 20px | `p-web-lg` | 32px |
-| `p-xl` | 24px | `p-web-xl` | 48px |
-| `p-2xl` | 32px | `p-web-2xl` | 64px |
-| `p-3xl` | 40px | `p-web-3xl` | 80px |
-| `p-4xl` | 48px | `p-web-4xl` | 96px |
-| `p-5xl` | 64px | `p-web-5xl` | 120px |
+| App     | Value | Web         | Value |
+| ------- | ----- | ----------- | ----- |
+| `p-2xs` | 4px   | —           | —     |
+| `p-xs`  | 8px   | `p-web-xs`  | 8px   |
+| `p-sm`  | 12px  | `p-web-sm`  | 16px  |
+| `p-md`  | 16px  | `p-web-md`  | 24px  |
+| `p-lg`  | 20px  | `p-web-lg`  | 32px  |
+| `p-xl`  | 24px  | `p-web-xl`  | 48px  |
+| `p-2xl` | 32px  | `p-web-2xl` | 64px  |
+| `p-3xl` | 40px  | `p-web-3xl` | 80px  |
+| `p-4xl` | 48px  | `p-web-4xl` | 96px  |
+| `p-5xl` | 64px  | `p-web-5xl` | 120px |
 
 > Web spacing is more generous — desktop screens have more room. These work with all spacing utilities: `p-`, `m-`, `gap-`, `space-x-`, etc.
 
@@ -237,16 +238,16 @@ We maintain **two token sets** in `tailwind.config.js`:
 
 We have a custom `web:` breakpoint for desktop auth/public pages. Use it alongside the standard Tailwind breakpoints:
 
-| Prefix | Min Width | Target |
-|--------|-----------|--------|
-| (none) | 0px | Mobile (default) |
-| `sm:` | 640px | Small tablets |
-| `md:` | 768px | Tablets |
-| `web:` | 1024px | **Desktop — auth, public pages** |
-| `lg:` | 1024px | Desktop (legacy, same as `web:`) |
-| `xl:` | 1280px | Large desktop |
-| `1xl:` | 1280px | Extra large |
-| `2xl:` | 1440px | Wide screens |
+| Prefix | Min Width | Target                           |
+| ------ | --------- | -------------------------------- |
+| (none) | 0px       | Mobile (default)                 |
+| `sm:`  | 640px     | Small tablets                    |
+| `md:`  | 768px     | Tablets                          |
+| `web:` | 1024px    | **Desktop — auth, public pages** |
+| `lg:`  | 1024px    | Desktop (legacy, same as `web:`) |
+| `xl:`  | 1280px    | Large desktop                    |
+| `1xl:` | 1280px    | Extra large                      |
+| `2xl:` | 1440px    | Wide screens                     |
 
 #### Usage — Mobile-first with web override
 
@@ -293,25 +294,25 @@ The `text-web-sm` class includes `fontWeight: 400` which overrides the Button's 
 
 ### Colors
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `actionYellow` | `#FFE022` | Primary CTAs, highlights, branding |
-| `actionYellowHover` | `#F0D010` | Hover state for yellow buttons |
-| `actionDark` | `#1A1A1A` | Dark text, dark buttons, overlays |
-| `actionDarkHover` | `#2A2A2A` | Hover for dark buttons |
-| `chatArea` | `#F2F0E8` | Chat background |
-| `receiverBubble` | `#F2F1ED` | Received message bubbles |
-| `deletedBubble` | `#F5F4F0` | Deleted message placeholder |
-| `menuHover` | `#FAFAF5` | Menu item hover, auth page backgrounds |
-| `inputBg` | `#FFF9CC` | Powered badge background, input focus |
+| Token               | Hex       | Usage                                  |
+| ------------------- | --------- | -------------------------------------- |
+| `actionYellow`      | `#FFE022` | Primary CTAs, highlights, branding     |
+| `actionYellowHover` | `#F0D010` | Hover state for yellow buttons         |
+| `actionDark`        | `#1A1A1A` | Dark text, dark buttons, overlays      |
+| `actionDarkHover`   | `#2A2A2A` | Hover for dark buttons                 |
+| `chatArea`          | `#F2F0E8` | Chat background                        |
+| `receiverBubble`    | `#F2F1ED` | Received message bubbles               |
+| `deletedBubble`     | `#F5F4F0` | Deleted message placeholder            |
+| `menuHover`         | `#FAFAF5` | Menu item hover, auth page backgrounds |
+| `inputBg`           | `#FFF9CC` | Powered badge background, input focus  |
 
 ### Font Families
 
-| Class | Font | Usage |
-|-------|------|-------|
-| `font-dmsans` | DM Sans | Primary — all body text, labels, buttons |
-| `font-cabinet` | Cabinet Grotesk | Brand — logo text, special headings |
-| `font-satoshi` | Satoshi | Feature — AboutPage section titles |
+| Class          | Font            | Usage                                    |
+| -------------- | --------------- | ---------------------------------------- |
+| `font-dmsans`  | DM Sans         | Primary — all body text, labels, buttons |
+| `font-cabinet` | Cabinet Grotesk | Brand — logo text, special headings      |
+| `font-satoshi` | Satoshi         | Feature — AboutPage section titles       |
 
 ---
 
@@ -326,17 +327,17 @@ import { Input } from '#/shared/components/ui/input'
 
 ### Component Reference
 
-| Component | File | Description |
-|-----------|------|-------------|
-| [Button](#button) | `button.tsx` | Primary action button with variants |
-| [Input](#input) | `input.tsx` | Text input with flushed bottom-border |
-| [Select](#select) | `select.tsx` | Radix-based custom dropdown |
-| [StepProgress](#stepprogress) | `step-progress.tsx` | Full-width progress bar with label |
-| [FileUpload](#fileupload) | `file-upload.tsx` | File picker with preview |
-| [PinInput](#pininput) | `pin-input.tsx` | Verification code input |
-| [Switch](#switch) | `switch.tsx` | Toggle switch |
-| [AlertCard / ModalAlert](#alertcard--modalalert) | `alert-card.tsx` | Inline and modal alerts |
-| [InternetStatus](#internetstatus) | `internet-status.tsx` | Connectivity banner |
+| Component                                        | File                  | Description                           |
+| ------------------------------------------------ | --------------------- | ------------------------------------- |
+| [Button](#button)                                | `button.tsx`          | Primary action button with variants   |
+| [Input](#input)                                  | `input.tsx`           | Text input with flushed bottom-border |
+| [Select](#select)                                | `select.tsx`          | Radix-based custom dropdown           |
+| [StepProgress](#stepprogress)                    | `step-progress.tsx`   | Full-width progress bar with label    |
+| [FileUpload](#fileupload)                        | `file-upload.tsx`     | File picker with preview              |
+| [PinInput](#pininput)                            | `pin-input.tsx`       | Verification code input               |
+| [Switch](#switch)                                | `switch.tsx`          | Toggle switch                         |
+| [AlertCard / ModalAlert](#alertcard--modalalert) | `alert-card.tsx`      | Inline and modal alerts               |
+| [InternetStatus](#internetstatus)                | `internet-status.tsx` | Connectivity banner                   |
 
 ---
 
@@ -384,10 +385,14 @@ Uses `@radix-ui/react-select`. Renders a **custom dropdown** (not the native bro
 
 ```tsx
 import {
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
 } from '#/shared/components/ui/select'
 
-<Select value={state} onValueChange={setState}>
+;<Select value={state} onValueChange={setState}>
   <SelectTrigger>
     <SelectValue placeholder="Select state" />
   </SelectTrigger>
@@ -420,7 +425,7 @@ File picker with icon, title, description, and upload/remove actions.
 ```tsx
 import { FileUpload } from '#/shared/components/ui/file-upload'
 
-<FileUpload
+;<FileUpload
   label="Upload NIN"
   title="National Identification Number (NIN)"
   description="Upload a clear image. PDF, JPG & PNG · Max 5MB"
@@ -438,7 +443,7 @@ import { FileUpload } from '#/shared/components/ui/file-upload'
 ```tsx
 import { PinInput } from '#/shared/components/ui/pin-input'
 
-<PinInput length={4} onComplete={(code) => verifyCode(code)} />
+;<PinInput length={4} onComplete={(code) => verifyCode(code)} />
 ```
 
 ### Switch
@@ -448,7 +453,7 @@ Toggle switch for settings.
 ```tsx
 import { Switch } from '#/shared/components/ui/switch'
 
-<Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
+;<Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
 ```
 
 ### AlertCard / ModalAlert
@@ -479,7 +484,7 @@ Connectivity banner (offline/reconnected).
 ```tsx
 import { InternetStatus } from '#/shared/components/ui/internet-status'
 
-<InternetStatus status="offline" onReconnect={() => window.location.reload()} />
+;<InternetStatus status="offline" onReconnect={() => window.location.reload()} />
 ```
 
 ---
@@ -509,13 +514,13 @@ const totalLogicalSteps = 3
 
 // Map sub-steps → logical steps (what the user sees)
 function subStepToLogical(sub: number): number {
-  if (sub === 1) return 1              // Step 1 of 3
+  if (sub === 1) return 1 // Step 1 of 3
   if (sub === 2 || sub === 3) return 2 // Step 2 of 3 (has sub-steps)
-  return 3                             // Step 3 of 3
+  return 3 // Step 3 of 3
 }
 
 // In JSX
-<StepProgress currentStep={subStepToLogical(subStep)} totalSteps={totalLogicalSteps} />
+;<StepProgress currentStep={subStepToLogical(subStep)} totalSteps={totalLogicalSteps} />
 ```
 
 ### Step transitions with Framer Motion
@@ -556,9 +561,9 @@ function handleBack() {
   }
 }
 
-<button
+;<button
   onClick={handleBack}
-  className="mb-8 inline-flex items-center gap-1 self-start font-dmsans text-web-sm font-web-medium text-actionDark"
+  className="font-dmsans text-web-sm font-web-medium text-actionDark mb-8 inline-flex items-center gap-1 self-start"
 >
   <span className="material-symbols-outlined text-[18px]">chevron_left</span>
   Go Back
@@ -605,10 +610,10 @@ export function formatPrice(cents: number): string {
 
 ```tsx
 // ✅ Correct — makes it clear this is erased at runtime
-import type { User } from '#/features/auth'
+import type { User } from '#/features/auth/estate-registration'
 
 // ❌ Avoid — import looks like a runtime dependency
-import { User } from '#/features/auth'
+import { User } from '#/features/auth/estate-registration'
 ```
 
 #### No `any` — use `unknown` and narrow
@@ -623,7 +628,9 @@ function parseResponse(data: unknown): User {
 }
 
 // ❌ Dangerous
-function parseResponse(data: any): User { return data }
+function parseResponse(data: any): User {
+  return data
+}
 ```
 
 ### React Components
@@ -637,7 +644,9 @@ export function HeroSection() {
 }
 
 // ❌ Avoid for top-level components
-const HeroSection = () => { return <section>...</section> }
+const HeroSection = () => {
+  return <section>...</section>
+}
 ```
 
 Arrow functions are fine for: inline callbacks, array methods, small internal helpers.
@@ -700,7 +709,7 @@ export function useTheme(): ThemeContextValue {
 ### Use Tailwind utility classes directly
 
 ```tsx
-<button className="rounded-full bg-actionYellow px-6 py-3 text-sm font-semibold text-actionDark transition-all hover:bg-actionYellowHover">
+<button className="bg-actionYellow text-actionDark hover:bg-actionYellowHover rounded-full px-6 py-3 text-sm font-semibold transition-all">
   Submit
 </button>
 ```
@@ -710,12 +719,14 @@ export function useTheme(): ThemeContextValue {
 ```tsx
 import { cn } from '#/shared/utils/cn'
 
-<button className={cn(
-  "rounded-full px-6 py-3 text-sm font-semibold transition-all",
-  variant === 'primary' && "bg-actionDark text-white hover:bg-actionDarkHover",
-  variant === 'secondary' && "border border-gray-200 text-gray-900 hover:bg-gray-50",
-  disabled && "opacity-50 cursor-not-allowed"
-)}>
+;<button
+  className={cn(
+    'rounded-full px-6 py-3 text-sm font-semibold transition-all',
+    variant === 'primary' && 'bg-actionDark hover:bg-actionDarkHover text-white',
+    variant === 'secondary' && 'border border-gray-200 text-gray-900 hover:bg-gray-50',
+    disabled && 'cursor-not-allowed opacity-50',
+  )}
+>
   {children}
 </button>
 ```
@@ -817,7 +828,9 @@ import type { PricingPlan } from '../types/pricing.types'
 export function PricingPage({ plans }: { plans: PricingPlan[] }) {
   return (
     <section>
-      {plans.map((plan) => <PricingCard key={plan.id} plan={plan} />)}
+      {plans.map((plan) => (
+        <PricingCard key={plan.id} plan={plan} />
+      ))}
     </section>
   )
 }
@@ -906,16 +919,16 @@ After creating a new route file, TanStack Router auto-regenerates `routeTree.gen
 
 ### Types
 
-| Type | When to use |
-|------|------------|
-| `feat` | A new feature |
-| `fix` | A bug fix |
+| Type       | When to use                         |
+| ---------- | ----------------------------------- |
+| `feat`     | A new feature                       |
+| `fix`      | A bug fix                           |
 | `refactor` | Code change (no bug fix or feature) |
-| `style` | CSS/formatting changes (no logic) |
-| `docs` | Documentation changes |
-| `test` | Adding or updating tests |
-| `chore` | Build tooling, deps, config |
-| `perf` | Performance improvement |
+| `style`    | CSS/formatting changes (no logic)   |
+| `docs`     | Documentation changes               |
+| `test`     | Adding or updating tests            |
+| `chore`    | Build tooling, deps, config         |
+| `perf`     | Performance improvement             |
 
 ### Scope
 
@@ -1028,7 +1041,7 @@ Route files should be thin. If your route file is more than ~20 lines, move logi
 import { useAuth } from '#/features/auth/hooks/useAuth'
 
 // ✅ Import from barrel
-import { useAuth } from '#/features/auth'
+import { useAuth } from '#/features/auth/estate-registration'
 ```
 
 ### ❌ Putting business logic in `shared/`
@@ -1071,20 +1084,20 @@ import { useAuth } from '#/features/auth'
 
 ## 15. Quick Tips
 
-| Tip | Details |
-|-----|---------|
-| 🎨 **Material Icons** | We use Material Symbols Outlined. Browse at [fonts.google.com/icons](https://fonts.google.com/icons). Usage: `<span className="material-symbols-outlined text-[20px]">icon_name</span>` |
-| 🔧 **cn() utility** | Always use `cn()` from `#/shared/utils/cn` for conditional class merging. It handles conflicting Tailwind classes correctly. |
-| 📦 **Named exports** | Every component: `export function X()`. Never `export default`. Barrel: `export { X } from './X'`. |
-| 📱 **App vs Web tokens** | `features/application/` → `text-body-base`, `text-heading-1`. Desktop auth/public → `text-web-base`, `text-web-h1`. |
-| 📏 **Thin routes** | Route files must be under 20 lines. All UI/state/logic goes in the feature component. |
-| 🎯 **Design tokens** | `text-actionDark` not `text-[#1A1A1A]`. Only use hex for unlisted colors. |
-| 📝 **Form inputs** | Use `Input` and `Select` components. Never raw `<input>` or `<select>`. |
-| 🎬 **Framer Motion** | Import from `framer-motion` for page transitions and carousels. |
-| 📁 **File uploads** | Use `FileUpload` from `shared/components/ui/file-upload.tsx`. Don't build custom file inputs. |
-| 🔗 **Import paths** | Always `#/shared/...` or `#/features/auth`. Never relative `../../../`. |
-| 🚫 **No default exports** | `export function Component()` not `export default function Component()`. |
-| 📂 **One component per file** | Each `.tsx` exports one main component. Internal helpers stay unexported. |
+| Tip                           | Details                                                                                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🎨 **Material Icons**         | We use Material Symbols Outlined. Browse at [fonts.google.com/icons](https://fonts.google.com/icons). Usage: `<span className="material-symbols-outlined text-[20px]">icon_name</span>` |
+| 🔧 **cn() utility**           | Always use `cn()` from `#/shared/utils/cn` for conditional class merging. It handles conflicting Tailwind classes correctly.                                                            |
+| 📦 **Named exports**          | Every component: `export function X()`. Never `export default`. Barrel: `export { X } from './X'`.                                                                                      |
+| 📱 **App vs Web tokens**      | `features/application/` → `text-body-base`, `text-heading-1`. Desktop auth/public → `text-web-base`, `text-web-h1`.                                                                     |
+| 📏 **Thin routes**            | Route files must be under 20 lines. All UI/state/logic goes in the feature component.                                                                                                   |
+| 🎯 **Design tokens**          | `text-actionDark` not `text-[#1A1A1A]`. Only use hex for unlisted colors.                                                                                                               |
+| 📝 **Form inputs**            | Use `Input` and `Select` components. Never raw `<input>` or `<select>`.                                                                                                                 |
+| 🎬 **Framer Motion**          | Import from `framer-motion` for page transitions and carousels.                                                                                                                         |
+| 📁 **File uploads**           | Use `FileUpload` from `shared/components/ui/file-upload.tsx`. Don't build custom file inputs.                                                                                           |
+| 🔗 **Import paths**           | Always `#/shared/...` or `#/features/auth`. Never relative `../../../`.                                                                                                                 |
+| 🚫 **No default exports**     | `export function Component()` not `export default function Component()`.                                                                                                                |
+| 📂 **One component per file** | Each `.tsx` exports one main component. Internal helpers stay unexported.                                                                                                               |
 
 ---
 
@@ -1094,4 +1107,4 @@ If something in this guide is unclear or you're unsure where code should go, ope
 
 ---
 
-*Last updated: August 2026*
+_Last updated: August 2026_
