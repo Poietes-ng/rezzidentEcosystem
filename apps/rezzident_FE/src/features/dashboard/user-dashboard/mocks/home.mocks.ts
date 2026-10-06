@@ -2,6 +2,7 @@ import type {
   AccountStatus,
   Activity,
   DashboardAds,
+  HowItWorksSlide,
   PanicResult,
   Resident,
   VerificationState,
@@ -24,6 +25,34 @@ export const ACTIVE_ACCOUNT_STATUS: AccountStatus = 'active'
  * empty vs populated states of Recent Activities.
  */
 export const ACTIVE_ACTIVITIES_STATE: 'empty' | 'populated' = 'populated'
+
+/**
+ * Change this value to true to preview the
+ * "See how Rezzident works" modal open on load.
+ */
+export const MOCK_HOW_IT_WORKS_OPEN = false as boolean
+
+/**
+ * Change this value to true to preview the
+ * "New Update Available" modal open on load.
+ */
+export const MOCK_UPDATE_OPEN = false as boolean
+
+/**
+ * Change this value to true to preview the
+ * "User Feedback" modal open on load.
+ */
+export const MOCK_FEEDBACK_OPEN = false as boolean
+
+/**
+ * Change this value to true to simulate feedback submission failure.
+ */
+export const MOCK_FEEDBACK_ERROR = false as boolean
+
+/**
+ * Change this value to true to simulate update installation failure.
+ */
+export const MOCK_UPDATE_ERROR = false as boolean
 
 export const mockResident: Resident = {
   id: 'res-001',
@@ -78,5 +107,48 @@ export const mockRecentActivities: Activity[] = [
     id: 'act-004',
     title: 'Payment for estate security fee',
     timestamp: '2026-07-27T14:34:00.000Z',
+  },
+]
+
+export const mockHowItWorksSlides: HowItWorksSlide[] = [
+  {
+    id: 'visitor-code',
+    title: 'Visitor Code',
+    description: 'Generate secure visitor codes for your visitors.',
+  },
+  {
+    id: 'bills',
+    title: 'Bills',
+    description: 'View and pay your estate bills securely from one place.',
+  },
+  {
+    id: 'alias',
+    title: 'Alias',
+    description: 'Create and manage trusted accounts for members of your household.',
+  },
+  {
+    id: 'panic',
+    title: 'Panic',
+    description: 'Alert estate security instantly during emergencies.',
+  },
+  {
+    id: 'vouch',
+    title: 'Vouch',
+    description: 'Help trusted neighbors join your estate community securely.',
+  },
+  {
+    id: 'vote',
+    title: 'Vote',
+    description: 'Participate in secure and transparent estate voting.',
+  },
+  {
+    id: 'id',
+    title: 'ID',
+    description: 'Verify your identity and confirm your residency within the estate.',
+  },
+  {
+    id: 'forum',
+    title: 'Forum',
+    description: 'Join community discussions and stay connected with fellow residents.',
   },
 ]

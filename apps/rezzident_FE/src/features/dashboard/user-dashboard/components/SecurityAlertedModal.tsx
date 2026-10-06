@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { PanicResult } from '#/features/dashboard/user-dashboard/types/home.types'
+import { Modal } from '#/shared/components/ui/modal'
 
 export interface SecurityAlertedModalProps {
   open: boolean
@@ -14,51 +15,11 @@ export function SecurityAlertedModal({
   onClose,
 }: SecurityAlertedModalProps): ReactNode {
   const [copied, setCopied] = useState<boolean>(false)
-  const previousActiveElementRef = useRef<HTMLElement | null>(null)
-  const modalRef = useRef<HTMLDivElement | null>(null)
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (open) {
-      previousActiveElementRef.current = document.activeElement as HTMLElement | null
-
-      // Trap initial focus inside the modal
-      requestAnimationFrame(() => {
-        closeButtonRef.current?.focus()
-      })
-
-      // Lock background scroll
-      const originalOverflow = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
-
-      function handleKeyDown(event: KeyboardEvent): void {
-        if (event.key === 'Escape') {
-          event.preventDefault()
-          onClose()
-        }
-      }
-
-      window.addEventListener('keydown', handleKeyDown)
-
-      return () => {
-        document.body.style.overflow = originalOverflow
-        window.removeEventListener('keydown', handleKeyDown)
-        // Return focus to previously active element (Panic tile)
-        if (previousActiveElementRef.current) {
-          previousActiveElementRef.current.focus()
-        }
-        if (copyTimeoutRef.current) {
-          clearTimeout(copyTimeoutRef.current)
-        }
-      }
-    }
-  }, [open, onClose])
 
   if (!open || !data) return null
 
   const telHref = `tel:${data.securityContact.replace(/\s+/g, '')}`
-
   const contact = data.securityContact
 
   async function handleCopy(): Promise<void> {
@@ -92,19 +53,14 @@ export function SecurityAlertedModal({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="security-alerted-title"
-      ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-5 backdrop-blur-[2px]"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose()
-        }
-      }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      titleId="security-alerted-title"
+      className="max-w-[342px]"
+      closeOnOverlayClick={true}
     >
-      <div className="shadow-alert-modal w-full max-w-[342px] rounded-[24px] bg-white p-6">
+      <div className="shadow-alert-modal w-full rounded-[24px] bg-white p-6">
         {/* Header: Title + Close Icon */}
         <div className="flex items-start justify-between gap-2">
           <h2
@@ -114,7 +70,6 @@ export function SecurityAlertedModal({
             Security Alerted !
           </h2>
           <button
-            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close security alert modal"
@@ -178,6 +133,6 @@ export function SecurityAlertedModal({
           This will open your phone's dial pad.
         </p>
       </div>
-    </div>
+    </Modal>
   )
 }

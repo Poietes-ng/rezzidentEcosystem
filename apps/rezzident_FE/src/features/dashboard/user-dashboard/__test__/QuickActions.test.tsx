@@ -1,7 +1,10 @@
-// @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { QuickActions } from '#/features/dashboard/user-dashboard/components/QuickActions'
+
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => vi.fn(),
+}))
 
 describe('QuickActions', () => {
   it('renders all four tiles in active state', () => {

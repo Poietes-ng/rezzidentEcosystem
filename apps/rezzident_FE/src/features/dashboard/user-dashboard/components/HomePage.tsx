@@ -1,17 +1,29 @@
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import type { NavTab } from '#/shared/components/layout/BottomNavigation'
+import type { HomeModalType } from '#/features/dashboard/user-dashboard/hooks/useHomeModals'
+import { FeedbackModal } from '#/features/dashboard/user-dashboard/components/FeedbackModal'
 import { HomeHeader } from '#/features/dashboard/user-dashboard/components/HomeHeader'
+import { HowItWorksModal } from '#/features/dashboard/user-dashboard/components/HowItWorksModal'
 import { PromoBanner } from '#/features/dashboard/user-dashboard/components/PromoBanner'
 import { QuickActions } from '#/features/dashboard/user-dashboard/components/QuickActions'
 import { RecentActivities } from '#/features/dashboard/user-dashboard/components/RecentActivities'
 import { SecurityAlertedModal } from '#/features/dashboard/user-dashboard/components/SecurityAlertedModal'
+import { UpdateAvailableModal } from '#/features/dashboard/user-dashboard/components/UpdateAvailableModal'
 import { VerificationBanner } from '#/features/dashboard/user-dashboard/components/VerificationBanner'
 import { VisitorCodeCard } from '#/features/dashboard/user-dashboard/components/VisitorCodeCard'
+import { useHomeModals } from '#/features/dashboard/user-dashboard/hooks/useHomeModals'
+import { useHowItWorks } from '#/features/dashboard/user-dashboard/hooks/useHowItWorks'
 import { usePanic } from '#/features/dashboard/user-dashboard/hooks/usePanic'
 import { useRecentActivities } from '#/features/dashboard/user-dashboard/hooks/useRecentActivities'
 import { useResident } from '#/features/dashboard/user-dashboard/hooks/useResident'
+import {
+  MOCK_FEEDBACK_OPEN,
+  MOCK_HOW_IT_WORKS_OPEN,
+  MOCK_UPDATE_OPEN,
+} from '#/features/dashboard/user-dashboard/mocks/home.mocks'
 import { BottomNavigation } from '#/shared/components/layout/BottomNavigation'
-import { AlertCard } from '#/shared/components/ui'
+import { AlertCard, Toast } from '#/shared/components/ui'
 
 export function HomePage(): ReactNode {
   const { data: resident, ads, isLoading, isError, refetch } = useResident()
@@ -27,6 +39,24 @@ export function HomePage(): ReactNode {
     trigger: handlePanicTrigger,
     dismiss: handlePanicDismiss,
   } = usePanic()
+  const {
+    currentIndex: howItWorksIndex,
+    slides: howItWorksSlides,
+    next: handleHowItWorksNext,
+    close: handleHowItWorksHookClose,
+  } = useHowItWorks()
+
+  const initialModal: HomeModalType = MOCK_HOW_IT_WORKS_OPEN
+    ? 'how-it-works'
+    : MOCK_UPDATE_OPEN
+      ? 'update'
+      : MOCK_FEEDBACK_OPEN
+        ? 'feedback'
+        : null
+
+  const { closeModal, isModalOpen } = useHomeModals(initialModal)
+
+  const [isToastOpen, setIsToastOpen] = useState(false)
 
   const isDeactivated = resident?.accountStatus === 'deactivated'
 
@@ -120,6 +150,37 @@ export function HomePage(): ReactNode {
           open={panicState === 'success'}
           data={panicData}
           onClose={handlePanicDismiss}
+        />
+
+        {/* How Rezzident Works Modal */}
+        <HowItWorksModal
+          open={isModalOpen('how-it-works')}
+          currentIndex={howItWorksIndex}
+          slides={howItWorksSlides}
+          onNext={handleHowItWorksNext}
+          onClose={() => {
+            handleHowItWorksHookClose()
+            closeModal()
+          }}
+        />
+
+        {/* New Update Available Modal */}
+        <UpdateAvailableModal open={isModalOpen('update')} onClose={closeModal} />
+
+        {/* User Feedback Modal */}
+        <FeedbackModal
+          open={isModalOpen('feedback')}
+          onClose={closeModal}
+          onFeedbackSubmitted={() => {
+            setIsToastOpen(true)
+          }}
+        />
+
+        {/* Success Toast */}
+        <Toast
+          open={isToastOpen}
+          message="Feedback Submitted"
+          onClose={() => setIsToastOpen(false)}
         />
       </main>
     </div>

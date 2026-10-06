@@ -1,8 +1,10 @@
+import { useNavigate } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import type {
   AccountStatus,
   QuickActionId,
 } from '#/features/dashboard/user-dashboard/types/home.types'
+import { QUICK_ACTION_ROUTES } from '#/features/dashboard/user-dashboard/types/home.types'
 import { QuickActionTile } from '#/features/dashboard/user-dashboard/components/QuickActionTile'
 
 export interface QuickActionsProps {
@@ -50,13 +52,19 @@ export function QuickActions({
   onPanicClick,
   isPanicLoading = false,
 }: QuickActionsProps): ReactNode {
+  const navigate = useNavigate()
   const isDeactivated = accountStatus === 'deactivated'
 
   function handleTileClick(id: QuickActionId): void {
     if (id === 'panic') {
       onPanicClick?.()
+    } else if (onActionClick) {
+      onActionClick(id)
     } else {
-      onActionClick?.(id)
+      const route = QUICK_ACTION_ROUTES[id]
+      if (route) {
+        navigate({ to: route })
+      }
     }
   }
 

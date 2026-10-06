@@ -46,3 +46,51 @@ export interface Activity {
   description?: string
   timestamp: string
 }
+
+export interface HowItWorksSlide {
+  id: string
+  title: string
+  description: string
+  illustration?: string
+}
+
+export type FeedbackRating =
+  'very-dissatisfied' | 'dissatisfied' | 'neutral' | 'satisfied' | 'very-satisfied'
+
+export type SubmitStatus = 'idle' | 'loading' | 'success' | 'error'
+
+export type AppUpdateStatus = 'idle' | 'loading' | 'success' | 'error'
+
+export interface FeedbackRatingOption {
+  id: FeedbackRating
+  label: string
+  imageSrc: string
+}
+
+export const FEEDBACK_RATING_OPTIONS: FeedbackRatingOption[] = [
+  {
+    id: 'very-dissatisfied',
+    label: 'Very Dissatisfied',
+    imageSrc: '/assets/Very_Dissatisfied.png',
+  },
+  {
+    id: 'dissatisfied',
+    label: 'Dissatisfied',
+    imageSrc: '/assets/Dissatisfied.png',
+  },
+  {
+    id: 'neutral',
+    label: 'Neutral',
+    imageSrc: '/assets/Neutral.png',
+  },
+  {
+    id: 'satisfied',
+    label: 'Satisfied',
+    imageSrc: '/assets/Satisfied.png',
+  },
+  {
+    id: 'very-satisfied',
+    label: 'Very Satisfied',
+    imageSrc: '/assets/Very_Satisfied.png',
+  },
+]

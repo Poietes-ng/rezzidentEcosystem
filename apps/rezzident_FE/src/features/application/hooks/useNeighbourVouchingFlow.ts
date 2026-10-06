@@ -92,6 +92,8 @@ export function useNeighbourVouchingFlow(): UseNeighbourVouchingFlowReturn {
   // Complete persistent client-side state
   const [state, setState] = useState<VouchingState>({
     currentStep: 'INTRO',
+    firstName: '',
+    lastName: '',
     fullName: '',
     phoneNumber: '',
     otp: '',

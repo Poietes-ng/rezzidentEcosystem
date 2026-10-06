@@ -42,7 +42,7 @@ export function QuickActionTile({
         className={[
           'group relative flex h-[72px] w-full max-w-[76px] items-center justify-center rounded-[12px] transition-all duration-150',
           isDanger
-            ? 'text-errorRed bg-red-50 hover:bg-red-100 active:bg-red-200'
+            ? 'bg-receiverBubble text-errorRed hover:bg-chatArea active:bg-stoneEdge/40'
             : 'bg-receiverBubble text-actionDark hover:bg-chatArea active:bg-stoneEdge/40',
           disabled
             ? 'cursor-not-allowed opacity-35 active:scale-100'
