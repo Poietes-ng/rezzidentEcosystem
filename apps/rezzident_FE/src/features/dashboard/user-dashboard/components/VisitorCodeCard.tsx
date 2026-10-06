@@ -3,19 +3,22 @@ import type { AccountStatus } from '#/features/dashboard/user-dashboard/types/ho
 
 export interface VisitorCodeCardProps {
   accountStatus?: AccountStatus
+  isLoading?: boolean
   onGenerateCode?: () => void
   onViewHistory?: () => void
 }
 
 export function VisitorCodeCard({
   accountStatus = 'active',
+  isLoading = false,
   onGenerateCode,
   onViewHistory,
 }: VisitorCodeCardProps): ReactNode {
-  const isDeactivated = accountStatus === 'deactivated'
+  const isDeactivated = !isLoading && accountStatus === 'deactivated'
+  const isPending = isLoading
 
   function handleGenerateCode(): void {
-    if (isDeactivated) return
+    if (isPending || isDeactivated) return
     onGenerateCode?.()
   }
 
@@ -63,14 +66,16 @@ export function VisitorCodeCard({
       <button
         type="button"
         disabled={isDeactivated}
-        aria-disabled={isDeactivated}
+        aria-disabled={isPending || isDeactivated}
         onClick={handleGenerateCode}
         className={[
           'font-dmsans relative z-10 mt-5 flex h-[52px] w-full items-center justify-center rounded-[14px] text-[16px] font-semibold transition-all duration-150',
           'bg-actionYellow text-actionDark hover:bg-actionYellowHover active:bg-actionYellowPressed',
           isDeactivated
             ? 'hover:bg-actionYellow cursor-not-allowed opacity-40 active:scale-100'
-            : 'cursor-pointer active:scale-[0.98]',
+            : isPending
+              ? 'cursor-default active:scale-100'
+              : 'cursor-pointer active:scale-[0.98]',
         ].join(' ')}
       >
         Generate Visitor Code

@@ -18,11 +18,12 @@ describe('RecentActivities', () => {
     },
   ]
 
-  it('renders loading state without activity rows', () => {
+  it('renders loading state with real static header title and accessible skeleton rows', () => {
     const { container } = render(<RecentActivities isLoading={true} />)
 
     expect(screen.getByText('Recent activities')).toBeDefined()
-    expect(container.querySelectorAll('.animate-pulse').length).toBeGreaterThan(0)
+    expect(screen.getByText('Loading recent activities')).toBeDefined()
+    expect(container.querySelectorAll('.motion-safe\\:animate-pulse').length).toBeGreaterThan(0)
     expect(screen.queryByText('No activity yet.')).toBeNull()
   })
 

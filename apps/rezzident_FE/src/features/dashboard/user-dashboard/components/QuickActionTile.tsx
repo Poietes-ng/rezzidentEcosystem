@@ -10,6 +10,7 @@ export interface QuickActionTileProps {
   icon: ReactNode
   onClick?: () => void
   disabled?: boolean
+  ariaDisabled?: boolean
   loading?: boolean
   tone?: QuickActionTone
 }
@@ -20,13 +21,15 @@ export function QuickActionTile({
   icon,
   onClick,
   disabled = false,
+  ariaDisabled = false,
   loading = false,
   tone = 'default',
 }: QuickActionTileProps): ReactNode {
   const isDanger = tone === 'danger'
+  const isInteractive = !disabled && !ariaDisabled && !loading
 
   function handleClick(): void {
-    if (disabled || loading) return
+    if (!isInteractive) return
     onClick?.()
   }
 
@@ -36,6 +39,7 @@ export function QuickActionTile({
         type="button"
         id={`quick-action-${id}`}
         disabled={disabled || loading}
+        aria-disabled={disabled || ariaDisabled || loading}
         aria-busy={loading}
         onClick={handleClick}
         aria-label={label}
@@ -46,7 +50,9 @@ export function QuickActionTile({
             : 'bg-receiverBubble text-actionDark hover:bg-chatArea active:bg-stoneEdge/40',
           disabled
             ? 'cursor-not-allowed opacity-35 active:scale-100'
-            : 'cursor-pointer active:scale-95',
+            : ariaDisabled
+              ? 'cursor-default active:scale-100'
+              : 'cursor-pointer active:scale-95',
           loading ? 'cursor-wait opacity-75' : '',
         ].join(' ')}
       >

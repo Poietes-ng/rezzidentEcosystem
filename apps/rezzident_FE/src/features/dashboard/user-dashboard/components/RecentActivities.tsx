@@ -41,17 +41,26 @@ export function RecentActivities({
 
       {/* Loading skeleton state */}
       {isLoading && !isError && (
-        <div className="mt-3 divide-y divide-black/5">
+        <div
+          aria-busy="true"
+          className="mt-2 divide-y divide-black/5"
+          aria-label="Loading recent activities"
+        >
+          <span className="sr-only">Loading recent activities</span>
           {[1, 2, 3, 4].map((index) => (
-            <div key={index} className="flex items-center justify-between gap-3 px-1 py-3">
+            <div
+              key={index}
+              aria-hidden="true"
+              className="flex items-center justify-between gap-3 px-1 py-3"
+            >
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                <div className="bg-stoneEdge/40 h-5 w-5 shrink-0 animate-pulse rounded-full" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="bg-stoneEdge/40 h-4 w-3/4 animate-pulse rounded" />
-                  <div className="bg-stoneEdge/30 h-3 w-1/3 animate-pulse rounded" />
+                <div className="bg-stoneEdge/30 h-5 w-5 shrink-0 rounded-full motion-safe:animate-pulse" />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="bg-stoneEdge/30 h-[18px] w-3/4 rounded motion-safe:animate-pulse" />
+                  <div className="bg-stoneEdge/20 h-[12px] w-1/3 rounded motion-safe:animate-pulse" />
                 </div>
               </div>
-              <div className="bg-stoneEdge/30 h-4 w-4 shrink-0 animate-pulse rounded" />
+              <div className="bg-stoneEdge/20 h-5 w-5 shrink-0 rounded motion-safe:animate-pulse" />
             </div>
           ))}
         </div>

@@ -12,6 +12,7 @@ import { SecurityAlertedModal } from '#/features/dashboard/user-dashboard/compon
 import { UpdateAvailableModal } from '#/features/dashboard/user-dashboard/components/UpdateAvailableModal'
 import { VerificationBanner } from '#/features/dashboard/user-dashboard/components/VerificationBanner'
 import { VisitorCodeCard } from '#/features/dashboard/user-dashboard/components/VisitorCodeCard'
+import { useDashboardAds } from '#/features/dashboard/user-dashboard/hooks/useDashboardAds'
 import { useHomeModals } from '#/features/dashboard/user-dashboard/hooks/useHomeModals'
 import { useHowItWorks } from '#/features/dashboard/user-dashboard/hooks/useHowItWorks'
 import { usePanic } from '#/features/dashboard/user-dashboard/hooks/usePanic'
@@ -26,7 +27,8 @@ import { BottomNavigation } from '#/shared/components/layout/BottomNavigation'
 import { AlertCard, Toast } from '#/shared/components/ui'
 
 export function HomePage(): ReactNode {
-  const { data: resident, ads, isLoading, isError, refetch } = useResident()
+  const { data: resident, isLoading: isResidentLoading, isError, refetch } = useResident()
+  const { ads, isLoading: isAdsLoading } = useDashboardAds()
   const {
     activities,
     isLoading: isActivitiesLoading,
@@ -99,7 +101,7 @@ export function HomePage(): ReactNode {
     <div className="bg-lightCream flex min-h-screen w-full items-start justify-center">
       <main className="relative flex min-h-screen w-full max-w-[768px] flex-col overflow-hidden bg-white pb-20 shadow-xs">
         {/* 1. Top Promo Strip */}
-        <PromoBanner variant="top-strip" ad={ads?.topStrip} />
+        <PromoBanner variant="top-strip" ad={ads?.topStrip} isLoading={isAdsLoading} />
 
         {/* 2. Verification Banner */}
         {resident && <VerificationBanner verificationState={resident.verificationState} />}
@@ -107,7 +109,7 @@ export function HomePage(): ReactNode {
         {/* 3. Main Dashboard Body */}
         <div className="px-md flex flex-1 flex-col gap-6 pt-5 pb-6">
           {/* Header Greeting & Action Buttons */}
-          <HomeHeader resident={resident} isLoading={isLoading} />
+          <HomeHeader resident={resident} isLoading={isResidentLoading} />
 
           {/* Panic Error Alert */}
           {panicState === 'error' && (
@@ -123,15 +125,16 @@ export function HomePage(): ReactNode {
           {/* Quick Actions (ID, Alias, Vouch, Panic) */}
           <QuickActions
             accountStatus={resident?.accountStatus}
+            isLoading={isResidentLoading}
             onPanicClick={handlePanicTrigger}
             isPanicLoading={panicState === 'loading'}
           />
 
           {/* Middle Promotional Banner */}
-          <PromoBanner variant="mid-promo" ad={ads?.midBanner} />
+          <PromoBanner variant="mid-promo" ad={ads?.midBanner} isLoading={isAdsLoading} />
 
           {/* Visitor CTA Card */}
-          <VisitorCodeCard accountStatus={resident?.accountStatus} />
+          <VisitorCodeCard accountStatus={resident?.accountStatus} isLoading={isResidentLoading} />
 
           {/* Recent Activities Section */}
           <RecentActivities

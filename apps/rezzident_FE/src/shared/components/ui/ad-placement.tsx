@@ -13,6 +13,7 @@ export interface AdPlacementProps {
   showAdBadge?: boolean
   width?: number
   height?: number
+  isLoading?: boolean
 }
 
 export function AdPlacement({
@@ -26,6 +27,7 @@ export function AdPlacement({
   showAdBadge = false,
   width,
   height,
+  isLoading = false,
 }: AdPlacementProps): ReactNode {
   const [hasError, setHasError] = useState<boolean>(false)
 
@@ -35,12 +37,24 @@ export function AdPlacement({
   const containerClasses = cn(
     'relative overflow-hidden w-full select-none',
     isTopStrip
-      ? 'aspect-[393/60] rounded-none bg-gray-100'
+      ? 'aspect-[393/60] rounded-none bg-stoneEdge/30'
       : isTop
-        ? 'h-[60px] rounded-[12px] bg-gray-100'
-        : 'aspect-[345/100] rounded-[16px] bg-gray-100',
+        ? 'h-[60px] rounded-[12px] bg-stoneEdge/30'
+        : 'aspect-[345/100] rounded-[16px] bg-stoneEdge/30',
     className,
   )
+
+  if (isLoading) {
+    return (
+      <div aria-busy="true" className={containerClasses}>
+        <span className="sr-only">Loading advertisement</span>
+        <div
+          aria-hidden="true"
+          className="bg-stoneEdge/30 h-full w-full motion-safe:animate-pulse"
+        />
+      </div>
+    )
+  }
 
   const hasImage = Boolean(imageUrl) && !hasError
 

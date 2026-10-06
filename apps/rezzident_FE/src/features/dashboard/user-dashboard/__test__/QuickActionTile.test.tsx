@@ -32,6 +32,27 @@ describe('QuickActionTile', () => {
     expect(handleClick).not.toHaveBeenCalled()
   })
 
+  it('is non-interactive but not visually dimmed when ariaDisabled is true', () => {
+    const handleClick = vi.fn()
+    render(
+      <QuickActionTile
+        id="id"
+        label="ID"
+        icon={<span>icon</span>}
+        ariaDisabled={true}
+        onClick={handleClick}
+      />,
+    )
+
+    const button = screen.getByRole('button', { name: 'ID' })
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    expect(button.className).not.toContain('opacity-35')
+    expect(button.className).toContain('cursor-default')
+
+    fireEvent.click(button)
+    expect(handleClick).not.toHaveBeenCalled()
+  })
+
   it('shows loading spinner and ignores clicks when loading', () => {
     const handleClick = vi.fn()
     render(

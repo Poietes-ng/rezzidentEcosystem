@@ -14,38 +14,41 @@ export function HomeHeader({
   onSupportClick,
   onNotificationsClick,
 }: HomeHeaderProps): ReactNode {
-  if (isLoading || !resident) {
-    return (
-      <header className="flex items-start justify-between gap-4">
-        <div className="flex-1 animate-pulse space-y-2">
-          <div className="h-7 w-36 rounded-md bg-gray-200" />
-          <div className="h-7 w-52 rounded-md bg-gray-200" />
-        </div>
-        <div className="flex shrink-0 items-center gap-1 pt-1">
-          <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
-          <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
-        </div>
-      </header>
-    )
-  }
+  const isGreetingLoading = isLoading || !resident
 
   // Extract the remaining name after firstName for the clean two-line wrap
-  const remainingName = resident.fullName.startsWith(resident.firstName)
-    ? resident.fullName.slice(resident.firstName.length).trim()
-    : resident.fullName
+  const remainingName =
+    resident && resident.fullName.startsWith(resident.firstName)
+      ? resident.fullName.slice(resident.firstName.length).trim()
+      : resident?.fullName
 
   return (
     <header className="flex items-start justify-between gap-4">
-      <h1 className="font-dmsans text-heading-2 text-actionDark leading-[28px] font-semibold tracking-tight">
-        <span>Hello, {resident.firstName}</span>
-        {remainingName ? (
-          <>
-            <br />
-            <span>{remainingName}</span>
-          </>
-        ) : null}
-      </h1>
+      {isGreetingLoading ? (
+        <div aria-busy="true" className="flex-1 space-y-1.5" aria-label="Loading greeting">
+          <span className="sr-only">Loading resident profile</span>
+          <div
+            aria-hidden="true"
+            className="bg-stoneEdge/30 h-[28px] w-36 rounded-md motion-safe:animate-pulse"
+          />
+          <div
+            aria-hidden="true"
+            className="bg-stoneEdge/30 h-[28px] w-52 rounded-md motion-safe:animate-pulse"
+          />
+        </div>
+      ) : (
+        <h1 className="font-dmsans text-heading-2 text-actionDark leading-[28px] font-semibold tracking-tight">
+          <span>Hello, {resident.firstName}</span>
+          {remainingName ? (
+            <>
+              <br />
+              <span>{remainingName}</span>
+            </>
+          ) : null}
+        </h1>
+      )}
 
+      {/* Static Header Action Icons (Real interactive icons render immediately) */}
       <div className="flex shrink-0 items-center gap-1">
         <button
           type="button"

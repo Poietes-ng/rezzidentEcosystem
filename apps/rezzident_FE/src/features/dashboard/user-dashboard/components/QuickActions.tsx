@@ -9,6 +9,7 @@ import { QuickActionTile } from '#/features/dashboard/user-dashboard/components/
 
 export interface QuickActionsProps {
   accountStatus?: AccountStatus
+  isLoading?: boolean
   onActionClick?: (id: QuickActionId) => void
   onPanicClick?: () => void
   isPanicLoading?: boolean
@@ -48,16 +49,20 @@ function PanicIcon(): ReactNode {
 
 export function QuickActions({
   accountStatus = 'active',
+  isLoading = false,
   onActionClick,
   onPanicClick,
   isPanicLoading = false,
 }: QuickActionsProps): ReactNode {
   const navigate = useNavigate()
-  const isDeactivated = accountStatus === 'deactivated'
+  const isDeactivated = !isLoading && accountStatus === 'deactivated'
+  const isPending = isLoading
 
   function handleTileClick(id: QuickActionId): void {
     if (id === 'panic') {
       onPanicClick?.()
+    } else if (isPending || isDeactivated) {
+      return
     } else if (onActionClick) {
       onActionClick(id)
     } else {
@@ -76,6 +81,7 @@ export function QuickActions({
           label="ID"
           icon={<IdIcon />}
           disabled={isDeactivated}
+          ariaDisabled={isPending}
           onClick={() => handleTileClick('id')}
         />
 
@@ -84,6 +90,7 @@ export function QuickActions({
           label="Alias"
           icon={<AliasIcon />}
           disabled={isDeactivated}
+          ariaDisabled={isPending}
           onClick={() => handleTileClick('alias')}
         />
 
@@ -92,6 +99,7 @@ export function QuickActions({
           label="Vouch"
           icon={<VouchIcon />}
           disabled={isDeactivated}
+          ariaDisabled={isPending}
           onClick={() => handleTileClick('vouch')}
         />
 
@@ -101,6 +109,7 @@ export function QuickActions({
           icon={<PanicIcon />}
           tone="danger"
           disabled={false}
+          ariaDisabled={false}
           loading={isPanicLoading}
           onClick={() => handleTileClick('panic')}
         />
