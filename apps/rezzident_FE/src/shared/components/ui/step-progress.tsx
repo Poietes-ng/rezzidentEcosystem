@@ -1,8 +1,10 @@
-import { cn } from '../../utils/cn'
+import type { ReactNode } from 'react'
+import { cn } from '#/shared/utils/cn'
 
 export interface StepProgressProps {
   currentStep: number
   totalSteps: number
+  variant?: 'bar' | 'segmented'
   className?: string
   showLabel?: boolean
 }
@@ -10,9 +12,42 @@ export interface StepProgressProps {
 export function StepProgress({
   currentStep,
   totalSteps,
+  variant = 'bar',
   className,
   showLabel = true,
-}: StepProgressProps) {
+}: StepProgressProps): ReactNode {
+  if (variant === 'segmented') {
+    return (
+      <div
+        role="progressbar"
+        aria-valuenow={currentStep}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label={`Step ${currentStep} of ${totalSteps}`}
+        className={cn('flex items-center justify-center gap-1', className)}
+      >
+        <span className="sr-only">
+          Step {currentStep} of {totalSteps}
+        </span>
+        {Array.from({ length: totalSteps }, (_, index) => {
+          const stepNumber = index + 1
+          const isActive = stepNumber === currentStep
+
+          return (
+            <div
+              key={stepNumber}
+              className={cn(
+                'h-[3px] shrink-0 rounded-full transition-all duration-150 motion-reduce:transition-none',
+                isActive ? 'bg-actionDark w-[26px]' : 'bg-stoneEdge w-[15px]',
+              )}
+              aria-hidden="true"
+            />
+          )
+        })}
+      </div>
+    )
+  }
+
   const percentage = Math.min(100, Math.max(0, Math.round((currentStep / totalSteps) * 100)))
 
   return (

@@ -28,39 +28,48 @@ describe('Neighbour Vouching Steps', () => {
   describe('PersonalDetailsStep', () => {
     it('renders form inputs and validates inputs before advancing', () => {
       const onNext = vi.fn()
-      const onFullNameChange = vi.fn()
+      const onFirstNameChange = vi.fn()
+      const onLastNameChange = vi.fn()
       const onPhoneNumberChange = vi.fn()
 
       render(
         <PersonalDetailsStep
           currentStep={1}
           totalSteps={5}
-          fullName=""
+          firstName=""
+          lastName=""
           phoneNumber=""
-          onFullNameChange={onFullNameChange}
+          onFirstNameChange={onFirstNameChange}
+          onLastNameChange={onLastNameChange}
           onPhoneNumberChange={onPhoneNumberChange}
           onNext={onNext}
         />,
       )
 
       expect(screen.getByText(/Your details/i)).toBeDefined()
+      expect(screen.getByLabelText(/First Name/i)).toBeDefined()
+      expect(screen.getByLabelText(/Last Name/i)).toBeDefined()
+      expect(screen.getByLabelText(/Phone Number/i)).toBeDefined()
+
       const continueBtn = screen.getByRole('button', { name: /Continue/i })
 
       // Attempt submit with empty fields
       fireEvent.click(continueBtn)
       expect(onNext).not.toHaveBeenCalled()
-      expect(screen.getByText(/Please enter your full name/i)).toBeDefined()
+      expect(screen.getByText(/Please enter your first name/i)).toBeDefined()
     })
 
-    it('triggers onNext when name and phone are valid', () => {
+    it('triggers onNext when names and phone are valid', () => {
       const onNext = vi.fn()
       render(
         <PersonalDetailsStep
           currentStep={1}
           totalSteps={5}
-          fullName="Amara Obi"
+          firstName="Amara"
+          lastName="Obi"
           phoneNumber="8012345678"
-          onFullNameChange={() => {}}
+          onFirstNameChange={() => {}}
+          onLastNameChange={() => {}}
           onPhoneNumberChange={() => {}}
           onNext={onNext}
         />,

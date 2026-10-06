@@ -84,9 +84,23 @@ export function NeighbourVouchingFlow(): React.JSX.Element {
               <PersonalDetailsStep
                 currentStep={1}
                 totalSteps={TOTAL_STEPS}
-                fullName={state.fullName}
+                firstName={state.firstName}
+                lastName={state.lastName}
                 phoneNumber={state.phoneNumber}
-                onFullNameChange={(val) => setState((prev) => ({ ...prev, fullName: val }))}
+                onFirstNameChange={(val) =>
+                  setState((prev) => ({
+                    ...prev,
+                    firstName: val,
+                    fullName: `${val} ${prev.lastName}`.trim(),
+                  }))
+                }
+                onLastNameChange={(val) =>
+                  setState((prev) => ({
+                    ...prev,
+                    lastName: val,
+                    fullName: `${prev.firstName} ${val}`.trim(),
+                  }))
+                }
                 onPhoneNumberChange={(val) => setState((prev) => ({ ...prev, phoneNumber: val }))}
                 onNext={() => goToStep('OTP', 1)}
               />
