@@ -71,26 +71,26 @@ export const FEEDBACK_RATING_OPTIONS: FeedbackRatingOption[] = [
   {
     id: 'very-dissatisfied',
     label: 'Very Dissatisfied',
-    imageSrc: '/assets/Very_Dissatisfied.png',
+    imageSrc: '/assets/very-dissatisfied.png',
   },
   {
     id: 'dissatisfied',
     label: 'Dissatisfied',
-    imageSrc: '/assets/Dissatisfied.png',
+    imageSrc: '/assets/dissatisfied.png',
   },
   {
     id: 'neutral',
     label: 'Neutral',
-    imageSrc: '/assets/Neutral.png',
+    imageSrc: '/assets/neutral.png',
   },
   {
     id: 'satisfied',
     label: 'Satisfied',
-    imageSrc: '/assets/Satisfied.png',
+    imageSrc: '/assets/satisfied.png',
   },
   {
     id: 'very-satisfied',
     label: 'Very Satisfied',
-    imageSrc: '/assets/Very_Satisfied.png',
+    imageSrc: '/assets/very-satisfied.png',
   },
 ]

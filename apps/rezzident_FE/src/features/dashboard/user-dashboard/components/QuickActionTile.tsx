@@ -3,6 +3,7 @@ import type {
   QuickActionId,
   QuickActionTone,
 } from '#/features/dashboard/user-dashboard/types/home.types'
+import { cn } from '#/shared/utils/cn'
 
 export interface QuickActionTileProps {
   id: QuickActionId
@@ -43,7 +44,7 @@ export function QuickActionTile({
         aria-busy={loading}
         onClick={handleClick}
         aria-label={label}
-        className={[
+        className={cn(
           'group relative flex h-[72px] w-full max-w-[76px] items-center justify-center rounded-[12px] transition-all duration-150',
           isDanger
             ? 'bg-receiverBubble text-errorRed hover:bg-chatArea active:bg-stoneEdge/40'
@@ -54,7 +55,7 @@ export function QuickActionTile({
               ? 'cursor-default active:scale-100'
               : 'cursor-pointer active:scale-95',
           loading ? 'cursor-wait opacity-75' : '',
-        ].join(' ')}
+        )}
       >
         {loading ? (
           <span
@@ -68,10 +69,10 @@ export function QuickActionTile({
       </button>
 
       <span
-        className={[
+        className={cn(
           'font-dmsans text-center text-[14px] leading-tight font-medium select-none',
           disabled ? 'text-warmGray/50' : 'text-actionDark',
-        ].join(' ')}
+        )}
       >
         {label}
       </span>

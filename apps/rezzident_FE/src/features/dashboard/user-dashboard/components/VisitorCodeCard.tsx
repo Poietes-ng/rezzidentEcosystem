@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { AccountStatus } from '#/features/dashboard/user-dashboard/types/home.types'
+import { cn } from '#/shared/utils/cn'
 
 export interface VisitorCodeCardProps {
   accountStatus?: AccountStatus
@@ -68,7 +69,7 @@ export function VisitorCodeCard({
         disabled={isDeactivated}
         aria-disabled={isPending || isDeactivated}
         onClick={handleGenerateCode}
-        className={[
+        className={cn(
           'font-dmsans relative z-10 mt-5 flex h-[52px] w-full items-center justify-center rounded-[14px] text-[16px] font-semibold transition-all duration-150',
           'bg-actionYellow text-actionDark hover:bg-actionYellowHover active:bg-actionYellowPressed',
           isDeactivated
@@ -76,7 +77,7 @@ export function VisitorCodeCard({
             : isPending
               ? 'cursor-default active:scale-100'
               : 'cursor-pointer active:scale-[0.98]',
-        ].join(' ')}
+        )}
       >
         Generate Visitor Code
       </button>
