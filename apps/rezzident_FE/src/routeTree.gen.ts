@@ -22,6 +22,7 @@ import { Route as publicHomeRouteImport } from './routes/(public)/home'
 import { Route as AuthenticatedActivityLogsRouteImport } from './routes/_authenticated/activity-logs'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedStatusRouteImport } from './routes/_authenticated/status'
+import { Route as AuthenticatedUserDashboardRouteImport } from './routes/_authenticated/user-dashboard'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppJoinRouteImport } from './routes/app/join'
 import { Route as AppLoginRouteImport } from './routes/app/login'
@@ -29,6 +30,10 @@ import { Route as AppSplashRouteImport } from './routes/app/splash'
 import { Route as AppSupportRouteImport } from './routes/app/support'
 import { Route as AppVouchRouteImport } from './routes/app/vouch'
 import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
+import { Route as AuthenticatedAliasIndexRouteImport } from './routes/_authenticated/alias/index'
+import { Route as AuthenticatedAliasAliasIdRouteImport } from './routes/_authenticated/alias/$aliasId'
+import { Route as AuthenticatedAliasAllRouteImport } from './routes/_authenticated/alias/all'
+import { Route as AuthenticatedAliasCreateRouteImport } from './routes/_authenticated/alias/create'
 import { Route as AppOnboardingGetStartedFindEstateIdRouteImport } from './routes/app/onboarding/get-started/find-estate-id'
 import { Route as AppOnboardingGetStartedNoEstateIdRouteImport } from './routes/app/onboarding/get-started/no-estate-id'
 
@@ -59,11 +64,12 @@ const authRegistrationRoute = authRegistrationRouteImport.update({
   path: '/registration',
   getParentRoute: () => authRouteRoute,
 } as any)
-const authRegistrationCriteriaRoute = authRegistrationCriteriaRouteImport.update({
-  id: '/registration-criteria',
-  path: '/registration-criteria',
-  getParentRoute: () => authRouteRoute,
-} as any)
+const authRegistrationCriteriaRoute =
+  authRegistrationCriteriaRouteImport.update({
+    id: '/registration-criteria',
+    path: '/registration-criteria',
+    getParentRoute: () => authRouteRoute,
+  } as any)
 const publicIndexRoute = publicIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,11 +85,12 @@ const publicHomeRoute = publicHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => publicRouteRoute,
 } as any)
-const AuthenticatedActivityLogsRoute = AuthenticatedActivityLogsRouteImport.update({
-  id: '/activity-logs',
-  path: '/activity-logs',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedActivityLogsRoute =
+  AuthenticatedActivityLogsRouteImport.update({
+    id: '/activity-logs',
+    path: '/activity-logs',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -94,6 +101,12 @@ const AuthenticatedStatusRoute = AuthenticatedStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUserDashboardRoute =
+  AuthenticatedUserDashboardRouteImport.update({
+    id: '/user-dashboard',
+    path: '/user-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -129,17 +142,40 @@ const AppWelcomeRoute = AppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AuthenticatedAliasIndexRoute = AuthenticatedAliasIndexRouteImport.update({
+  id: '/alias/',
+  path: '/alias/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAliasAliasIdRoute =
+  AuthenticatedAliasAliasIdRouteImport.update({
+    id: '/alias/$aliasId',
+    path: '/alias/$aliasId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAliasAllRoute = AuthenticatedAliasAllRouteImport.update({
+  id: '/alias/all',
+  path: '/alias/all',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAliasCreateRoute =
+  AuthenticatedAliasCreateRouteImport.update({
+    id: '/alias/create',
+    path: '/alias/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AppOnboardingGetStartedFindEstateIdRoute =
   AppOnboardingGetStartedFindEstateIdRouteImport.update({
     id: '/onboarding/get-started/find-estate-id',
     path: '/onboarding/get-started/find-estate-id',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppOnboardingGetStartedNoEstateIdRoute = AppOnboardingGetStartedNoEstateIdRouteImport.update({
-  id: '/onboarding/get-started/no-estate-id',
-  path: '/onboarding/get-started/no-estate-id',
-  getParentRoute: () => AppRouteRoute,
-} as any)
+const AppOnboardingGetStartedNoEstateIdRoute =
+  AppOnboardingGetStartedNoEstateIdRouteImport.update({
+    id: '/onboarding/get-started/no-estate-id',
+    path: '/onboarding/get-started/no-estate-id',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof publicIndexRoute
@@ -152,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -159,6 +196,10 @@ export interface FileRoutesByFullPath {
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app/': typeof AppIndexRoute
+  '/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/alias/all': typeof AuthenticatedAliasAllRoute
+  '/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/alias/': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -172,6 +213,7 @@ export interface FileRoutesByTo {
   '/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/status': typeof AuthenticatedStatusRoute
+  '/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -179,6 +221,10 @@ export interface FileRoutesByTo {
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app': typeof AppIndexRoute
+  '/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/alias/all': typeof AuthenticatedAliasAllRoute
+  '/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/alias': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -196,6 +242,7 @@ export interface FileRoutesById {
   '/_authenticated/activity-logs': typeof AuthenticatedActivityLogsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/status': typeof AuthenticatedStatusRoute
+  '/_authenticated/user-dashboard': typeof AuthenticatedUserDashboardRoute
   '/app/join': typeof AppJoinRoute
   '/app/login': typeof AppLoginRoute
   '/app/splash': typeof AppSplashRoute
@@ -204,6 +251,10 @@ export interface FileRoutesById {
   '/app/welcome': typeof AppWelcomeRoute
   '/(public)/': typeof publicIndexRoute
   '/app/': typeof AppIndexRoute
+  '/_authenticated/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/_authenticated/alias/all': typeof AuthenticatedAliasAllRoute
+  '/_authenticated/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/_authenticated/alias/': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -220,6 +271,7 @@ export interface FileRouteTypes {
     | '/activity-logs'
     | '/profile'
     | '/status'
+    | '/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -227,6 +279,10 @@ export interface FileRouteTypes {
     | '/app/vouch'
     | '/app/welcome'
     | '/app/'
+    | '/alias/$aliasId'
+    | '/alias/all'
+    | '/alias/create'
+    | '/alias/'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   fileRoutesByTo: FileRoutesByTo
@@ -240,6 +296,7 @@ export interface FileRouteTypes {
     | '/activity-logs'
     | '/profile'
     | '/status'
+    | '/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -247,6 +304,10 @@ export interface FileRouteTypes {
     | '/app/vouch'
     | '/app/welcome'
     | '/app'
+    | '/alias/$aliasId'
+    | '/alias/all'
+    | '/alias/create'
+    | '/alias'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   id:
@@ -263,6 +324,7 @@ export interface FileRouteTypes {
     | '/_authenticated/activity-logs'
     | '/_authenticated/profile'
     | '/_authenticated/status'
+    | '/_authenticated/user-dashboard'
     | '/app/join'
     | '/app/login'
     | '/app/splash'
@@ -271,6 +333,10 @@ export interface FileRouteTypes {
     | '/app/welcome'
     | '/(public)/'
     | '/app/'
+    | '/_authenticated/alias/$aliasId'
+    | '/_authenticated/alias/all'
+    | '/_authenticated/alias/create'
+    | '/_authenticated/alias/'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   fileRoutesById: FileRoutesById
@@ -375,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/user-dashboard': {
+      id: '/_authenticated/user-dashboard'
+      path: '/user-dashboard'
+      fullPath: '/user-dashboard'
+      preLoaderRoute: typeof AuthenticatedUserDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/app/': {
       id: '/app/'
       path: '/'
@@ -424,6 +497,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWelcomeRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_authenticated/alias/': {
+      id: '/_authenticated/alias/'
+      path: '/alias'
+      fullPath: '/alias/'
+      preLoaderRoute: typeof AuthenticatedAliasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/$aliasId': {
+      id: '/_authenticated/alias/$aliasId'
+      path: '/alias/$aliasId'
+      fullPath: '/alias/$aliasId'
+      preLoaderRoute: typeof AuthenticatedAliasAliasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/all': {
+      id: '/_authenticated/alias/all'
+      path: '/alias/all'
+      fullPath: '/alias/all'
+      preLoaderRoute: typeof AuthenticatedAliasAllRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/create': {
+      id: '/_authenticated/alias/create'
+      path: '/alias/create'
+      fullPath: '/alias/create'
+      preLoaderRoute: typeof AuthenticatedAliasCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/app/onboarding/get-started/find-estate-id': {
       id: '/app/onboarding/get-started/find-estate-id'
       path: '/onboarding/get-started/find-estate-id'
@@ -453,7 +554,9 @@ const authRouteRouteChildren: authRouteRouteChildren = {
   authRegistrationCriteriaRoute: authRegistrationCriteriaRoute,
 }
 
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(authRouteRouteChildren)
+const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
+  authRouteRouteChildren,
+)
 
 interface publicRouteRouteChildren {
   publicAboutRoute: typeof publicAboutRoute
@@ -467,23 +570,34 @@ const publicRouteRouteChildren: publicRouteRouteChildren = {
   publicIndexRoute: publicIndexRoute,
 }
 
-const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(publicRouteRouteChildren)
+const publicRouteRouteWithChildren = publicRouteRoute._addFileChildren(
+  publicRouteRouteChildren,
+)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActivityLogsRoute: typeof AuthenticatedActivityLogsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
+  AuthenticatedUserDashboardRoute: typeof AuthenticatedUserDashboardRoute
+  AuthenticatedAliasAliasIdRoute: typeof AuthenticatedAliasAliasIdRoute
+  AuthenticatedAliasAllRoute: typeof AuthenticatedAliasAllRoute
+  AuthenticatedAliasCreateRoute: typeof AuthenticatedAliasCreateRoute
+  AuthenticatedAliasIndexRoute: typeof AuthenticatedAliasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActivityLogsRoute: AuthenticatedActivityLogsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedStatusRoute: AuthenticatedStatusRoute,
+  AuthenticatedUserDashboardRoute: AuthenticatedUserDashboardRoute,
+  AuthenticatedAliasAliasIdRoute: AuthenticatedAliasAliasIdRoute,
+  AuthenticatedAliasAllRoute: AuthenticatedAliasAllRoute,
+  AuthenticatedAliasCreateRoute: AuthenticatedAliasCreateRoute,
+  AuthenticatedAliasIndexRoute: AuthenticatedAliasIndexRoute,
 }
 
-const AuthenticatedRouteRouteWithChildren = AuthenticatedRouteRoute._addFileChildren(
-  AuthenticatedRouteRouteChildren,
-)
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 interface AppRouteRouteChildren {
   AppJoinRoute: typeof AppJoinRoute
@@ -505,11 +619,15 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppVouchRoute: AppVouchRoute,
   AppWelcomeRoute: AppWelcomeRoute,
   AppIndexRoute: AppIndexRoute,
-  AppOnboardingGetStartedFindEstateIdRoute: AppOnboardingGetStartedFindEstateIdRoute,
-  AppOnboardingGetStartedNoEstateIdRoute: AppOnboardingGetStartedNoEstateIdRoute,
+  AppOnboardingGetStartedFindEstateIdRoute:
+    AppOnboardingGetStartedFindEstateIdRoute,
+  AppOnboardingGetStartedNoEstateIdRoute:
+    AppOnboardingGetStartedNoEstateIdRoute,
 }
 
-const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(AppRouteRouteChildren)
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   authRouteRoute: authRouteRouteWithChildren,

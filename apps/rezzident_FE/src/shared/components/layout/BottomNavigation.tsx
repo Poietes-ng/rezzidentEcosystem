@@ -1,77 +1,121 @@
-import React from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { cn } from "../../utils/cn";
+import { Link, useRouterState } from '@tanstack/react-router'
+import type { LinkProps } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
+import { cn } from '#/shared/utils/cn'
 
-export type NavTab = {
-  id: string;
-  label: string;
-  icon: string; // Material Symbol name
-  to: string;
-};
+export interface NavTab {
+  id: string
+  label: string
+  icon: string
+  to?: LinkProps['to'] | (string & {})
+  disabled?: boolean
+}
+
+export interface BottomNavigationProps {
+  className?: string
+  tabs?: NavTab[]
+  onTabClick?: (tabId: string) => void
+}
 
 export const DEFAULT_TABS: NavTab[] = [
-  { id: "home", label: "Home", icon: "home", to: "/" },
-  { id: "bills", label: "Bills", icon: "payments", to: "/bills" },
-  { id: "forum", label: "Forum", icon: "forum", to: "/forum" },
-  { id: "vote", label: "Vote", icon: "how_to_vote", to: "/vote" },
-  { id: "settings", label: "Settings", icon: "settings", to: "/settings" },
-];
+  { id: 'home', label: 'Home', icon: 'home', to: '/user-dashboard' },
+  { id: 'bills', label: 'Bills', icon: 'payments', to: '/bills' },
+  { id: 'forum', label: 'Forum', icon: 'group_work', to: '/forum' },
+  { id: 'vote', label: 'Vote', icon: 'how_to_vote', to: '/vote' },
+  { id: 'settings', label: 'Settings', icon: 'settings', to: '/settings' },
+]
 
 export function BottomNavigation({
   className,
   tabs = DEFAULT_TABS,
-}: {
-  className?: string;
-  tabs?: NavTab[];
-}): React.JSX.Element {
-  const routerState = useRouterState();
-  const currentPath = routerState.location.pathname;
+  onTabClick,
+}: BottomNavigationProps): ReactNode {
+  const routerState = useRouterState()
+  const currentPath = routerState.location.pathname
 
   return (
-    <div
+    <nav
+      aria-label="Bottom Navigation"
       className={cn(
-        "flex h-[56px] w-full items-center justify-around bg-white px-2",
-        className
+        'border-t border-black/5 bg-white/95 backdrop-blur-md',
+        'fixed bottom-0 left-1/2 z-40 -translate-x-1/2',
+        'min-h-[64px] w-full max-w-[768px]',
+        'pb-[env(safe-area-inset-bottom,0px)]',
+        'flex items-center justify-around px-2',
+        className,
       )}
     >
       {tabs.map((tab) => {
-        // Simple active check. In reality, might need more robust path matching.
-        const isActive = currentPath === tab.to || (currentPath.startsWith(tab.to) && tab.to !== "/");
+        const isTabDisabled = Boolean(tab.disabled)
 
-        return (
-          <Link
-            key={tab.id}
-            to={tab.to}
-            className="flex flex-1 flex-col items-center justify-center gap-[4px] outline-none"
-          >
-            <div
-              className={cn(
-                "flex size-[32px] items-center justify-center rounded-[8px] transition-colors",
-                isActive ? "bg-[#FFE022] text-[#1A1A1A]" : "bg-transparent text-[#8A8478]"
-              )}
-            >
-              <span
-                className={cn(
-                  "material-symbols-outlined text-[24px]",
-                  // When active, some icons in Material Symbols look better filled, 
-                  // but the spec specifically asked for Outline Style.
-                  isActive && "font-variation-settings-'FILL'-1" 
-                )}
-              >
-                {tab.icon}
-              </span>
-            </div>
+        // Single active rule: tab's `to` matches current router path
+        const isActive = !isTabDisabled && Boolean(tab.to) && currentPath === tab.to
+
+        const content = (
+          <>
             <span
               className={cn(
-                "font-dmsans text-[10px] font-medium transition-colors",
-                isActive ? "text-[#1A1A1A]" : "text-[#8A8478]"
+                'material-symbols-outlined text-[24px] leading-none transition-colors duration-150',
+                isActive
+                  ? "text-actionDark [font-variation-settings:'FILL'_1]"
+                  : "text-warmGray [font-variation-settings:'FILL'_0]",
+              )}
+              aria-hidden="true"
+            >
+              {tab.icon}
+            </span>
+            <span
+              className={cn(
+                'font-dmsans text-[12px] leading-tight tracking-tight transition-colors duration-150 select-none',
+                isActive ? 'text-actionDark font-bold' : 'text-warmGray font-medium',
               )}
             >
               {tab.label}
             </span>
-          </Link>
-        );
+          </>
+        )
+
+        const itemClasses = cn(
+          'group flex flex-1 flex-col items-center justify-center gap-1 py-1 outline-none',
+          'transition-all duration-150',
+          isTabDisabled
+            ? 'cursor-not-allowed opacity-40 active:scale-100'
+            : 'cursor-pointer active:scale-90',
+        )
+
+        if (tab.to && !isTabDisabled) {
+          return (
+            <Link
+              key={tab.id}
+              to={tab.to}
+              aria-label={tab.label}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={() => onTabClick?.(tab.id)}
+              className={itemClasses}
+            >
+              {content}
+            </Link>
+          )
+        }
+
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            disabled={isTabDisabled}
+            aria-disabled={isTabDisabled}
+            aria-label={tab.label}
+            aria-current={isActive ? 'page' : undefined}
+            onClick={() => {
+              if (isTabDisabled) return
+              onTabClick?.(tab.id)
+            }}
+            className={itemClasses}
+          >
+            {content}
+          </button>
+        )
       })}
-    </div>
-  );
+    </nav>
+  )
 }

@@ -22,6 +22,8 @@ export interface NeighbourVouch {
 
 export interface VouchingState {
   currentStep: VouchingFlowStep
+  firstName: string
+  lastName: string
   fullName: string
   phoneNumber: string
   otp: string
