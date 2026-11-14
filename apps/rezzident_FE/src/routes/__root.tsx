@@ -1,6 +1,7 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { ErrorStateComponent } from '#/shared/components/ui/ErrorStateComponent'
 
@@ -234,25 +235,36 @@ export const Route = createRootRoute({
   component: RootComponent,
 })
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    },
+  },
+})
+
 function RootComponent(): React.JSX.Element {
   return (
-    <div className="font-sans [overflow-wrap:anywhere] antialiased selection:bg-[rgba(79,184,178,0.24)]">
-      <ThemeProvider>
-        <AuthProvider>
-          <Outlet />
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
-        </AuthProvider>
-      </ThemeProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="font-sans [overflow-wrap:anywhere] antialiased selection:bg-[rgba(79,184,178,0.24)]">
+        <ThemeProvider>
+          <AuthProvider>
+            <Outlet />
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+          </AuthProvider>
+        </ThemeProvider>
+      </div>
+    </QueryClientProvider>
   )
 }

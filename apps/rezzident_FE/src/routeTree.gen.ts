@@ -30,6 +30,10 @@ import { Route as AppSplashRouteImport } from './routes/app/splash'
 import { Route as AppSupportRouteImport } from './routes/app/support'
 import { Route as AppVouchRouteImport } from './routes/app/vouch'
 import { Route as AppWelcomeRouteImport } from './routes/app/welcome'
+import { Route as AuthenticatedAliasIndexRouteImport } from './routes/_authenticated/alias/index'
+import { Route as AuthenticatedAliasAliasIdRouteImport } from './routes/_authenticated/alias/$aliasId'
+import { Route as AuthenticatedAliasAllRouteImport } from './routes/_authenticated/alias/all'
+import { Route as AuthenticatedAliasCreateRouteImport } from './routes/_authenticated/alias/create'
 import { Route as AppOnboardingGetStartedFindEstateIdRouteImport } from './routes/app/onboarding/get-started/find-estate-id'
 import { Route as AppOnboardingGetStartedNoEstateIdRouteImport } from './routes/app/onboarding/get-started/no-estate-id'
 
@@ -138,6 +142,28 @@ const AppWelcomeRoute = AppWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AuthenticatedAliasIndexRoute = AuthenticatedAliasIndexRouteImport.update({
+  id: '/alias/',
+  path: '/alias/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAliasAliasIdRoute =
+  AuthenticatedAliasAliasIdRouteImport.update({
+    id: '/alias/$aliasId',
+    path: '/alias/$aliasId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAliasAllRoute = AuthenticatedAliasAllRouteImport.update({
+  id: '/alias/all',
+  path: '/alias/all',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAliasCreateRoute =
+  AuthenticatedAliasCreateRouteImport.update({
+    id: '/alias/create',
+    path: '/alias/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AppOnboardingGetStartedFindEstateIdRoute =
   AppOnboardingGetStartedFindEstateIdRouteImport.update({
     id: '/onboarding/get-started/find-estate-id',
@@ -170,6 +196,10 @@ export interface FileRoutesByFullPath {
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app/': typeof AppIndexRoute
+  '/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/alias/all': typeof AuthenticatedAliasAllRoute
+  '/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/alias/': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -191,6 +221,10 @@ export interface FileRoutesByTo {
   '/app/vouch': typeof AppVouchRoute
   '/app/welcome': typeof AppWelcomeRoute
   '/app': typeof AppIndexRoute
+  '/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/alias/all': typeof AuthenticatedAliasAllRoute
+  '/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/alias': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -217,6 +251,10 @@ export interface FileRoutesById {
   '/app/welcome': typeof AppWelcomeRoute
   '/(public)/': typeof publicIndexRoute
   '/app/': typeof AppIndexRoute
+  '/_authenticated/alias/$aliasId': typeof AuthenticatedAliasAliasIdRoute
+  '/_authenticated/alias/all': typeof AuthenticatedAliasAllRoute
+  '/_authenticated/alias/create': typeof AuthenticatedAliasCreateRoute
+  '/_authenticated/alias/': typeof AuthenticatedAliasIndexRoute
   '/app/onboarding/get-started/find-estate-id': typeof AppOnboardingGetStartedFindEstateIdRoute
   '/app/onboarding/get-started/no-estate-id': typeof AppOnboardingGetStartedNoEstateIdRoute
 }
@@ -241,6 +279,10 @@ export interface FileRouteTypes {
     | '/app/vouch'
     | '/app/welcome'
     | '/app/'
+    | '/alias/$aliasId'
+    | '/alias/all'
+    | '/alias/create'
+    | '/alias/'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   fileRoutesByTo: FileRoutesByTo
@@ -262,6 +304,10 @@ export interface FileRouteTypes {
     | '/app/vouch'
     | '/app/welcome'
     | '/app'
+    | '/alias/$aliasId'
+    | '/alias/all'
+    | '/alias/create'
+    | '/alias'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   id:
@@ -287,6 +333,10 @@ export interface FileRouteTypes {
     | '/app/welcome'
     | '/(public)/'
     | '/app/'
+    | '/_authenticated/alias/$aliasId'
+    | '/_authenticated/alias/all'
+    | '/_authenticated/alias/create'
+    | '/_authenticated/alias/'
     | '/app/onboarding/get-started/find-estate-id'
     | '/app/onboarding/get-started/no-estate-id'
   fileRoutesById: FileRoutesById
@@ -447,6 +497,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWelcomeRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_authenticated/alias/': {
+      id: '/_authenticated/alias/'
+      path: '/alias'
+      fullPath: '/alias/'
+      preLoaderRoute: typeof AuthenticatedAliasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/$aliasId': {
+      id: '/_authenticated/alias/$aliasId'
+      path: '/alias/$aliasId'
+      fullPath: '/alias/$aliasId'
+      preLoaderRoute: typeof AuthenticatedAliasAliasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/all': {
+      id: '/_authenticated/alias/all'
+      path: '/alias/all'
+      fullPath: '/alias/all'
+      preLoaderRoute: typeof AuthenticatedAliasAllRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/alias/create': {
+      id: '/_authenticated/alias/create'
+      path: '/alias/create'
+      fullPath: '/alias/create'
+      preLoaderRoute: typeof AuthenticatedAliasCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/app/onboarding/get-started/find-estate-id': {
       id: '/app/onboarding/get-started/find-estate-id'
       path: '/onboarding/get-started/find-estate-id'
@@ -501,6 +579,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedStatusRoute: typeof AuthenticatedStatusRoute
   AuthenticatedUserDashboardRoute: typeof AuthenticatedUserDashboardRoute
+  AuthenticatedAliasAliasIdRoute: typeof AuthenticatedAliasAliasIdRoute
+  AuthenticatedAliasAllRoute: typeof AuthenticatedAliasAllRoute
+  AuthenticatedAliasCreateRoute: typeof AuthenticatedAliasCreateRoute
+  AuthenticatedAliasIndexRoute: typeof AuthenticatedAliasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -508,6 +590,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedStatusRoute: AuthenticatedStatusRoute,
   AuthenticatedUserDashboardRoute: AuthenticatedUserDashboardRoute,
+  AuthenticatedAliasAliasIdRoute: AuthenticatedAliasAliasIdRoute,
+  AuthenticatedAliasAllRoute: AuthenticatedAliasAllRoute,
+  AuthenticatedAliasCreateRoute: AuthenticatedAliasCreateRoute,
+  AuthenticatedAliasIndexRoute: AuthenticatedAliasIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

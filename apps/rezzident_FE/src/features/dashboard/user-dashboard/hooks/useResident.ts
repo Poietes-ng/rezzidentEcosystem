@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { Resident } from '#/features/dashboard/user-dashboard/types/home.types'
 import { getResident } from '#/features/dashboard/user-dashboard/api/homeQueries'
 
@@ -10,31 +10,17 @@ export interface UseResidentResult {
 }
 
 export function useResident(): UseResidentResult {
-  const [data, setData] = useState<Resident | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isError, setIsError] = useState<boolean>(false)
-
-  const fetchResident = useCallback(async () => {
-    setIsLoading(true)
-    setIsError(false)
-    try {
-      const residentData = await getResident()
-      setData(residentData)
-    } catch {
-      setIsError(true)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    void fetchResident()
-  }, [fetchResident])
+  const { data, isLoading, isError, refetch } = useQuery<Resident>({
+    queryKey: ['resident'],
+    queryFn: getResident,
+  })
 
   return {
-    data,
+    data: data ?? null,
     isLoading,
     isError,
-    refetch: fetchResident,
+    refetch: () => {
+      void refetch()
+    },
   }
 }

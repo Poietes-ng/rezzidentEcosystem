@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { Activity } from '#/features/dashboard/user-dashboard/types/home.types'
 import { getRecentActivities } from '#/features/dashboard/user-dashboard/api/homeQueries'
 
@@ -10,31 +10,22 @@ export interface UseRecentActivitiesResult {
 }
 
 export function useRecentActivities(): UseRecentActivitiesResult {
-  const [activities, setActivities] = useState<Activity[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isError, setIsError] = useState<boolean>(false)
-
-  const fetchActivities = useCallback(async () => {
-    setIsLoading(true)
-    setIsError(false)
-    try {
-      const data = await getRecentActivities()
-      setActivities(data)
-    } catch {
-      setIsError(true)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    void fetchActivities()
-  }, [fetchActivities])
-
-  return {
-    activities,
+  const {
+    data = [],
     isLoading,
     isError,
-    refetch: fetchActivities,
+    refetch,
+  } = useQuery<Activity[]>({
+    queryKey: ['recentActivities'],
+    queryFn: getRecentActivities,
+  })
+
+  return {
+    activities: data,
+    isLoading,
+    isError,
+    refetch: () => {
+      void refetch()
+    },
   }
 }

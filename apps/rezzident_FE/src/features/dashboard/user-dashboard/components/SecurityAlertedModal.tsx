@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { PanicResult } from '#/features/dashboard/user-dashboard/types/home.types'
-import { Modal } from '#/shared/components/ui/modal'
+import { Modal } from '#/shared/components/ui'
 
 export interface SecurityAlertedModalProps {
   open: boolean

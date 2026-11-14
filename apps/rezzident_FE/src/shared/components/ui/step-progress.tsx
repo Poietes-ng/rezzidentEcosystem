@@ -53,7 +53,14 @@ export function StepProgress({
   return (
     <div className={cn('gap-web-lg flex w-full flex-col', className)}>
       {/* Full-width progress bar */}
-      <div className="bg-stoneEdge/40 relative h-[4px] w-full overflow-hidden rounded-full">
+      <div
+        role="progressbar"
+        aria-valuenow={currentStep}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label={`Step ${currentStep} of ${totalSteps}`}
+        className="bg-stoneEdge/40 relative h-[4px] w-full overflow-hidden rounded-full"
+      >
         <div
           className="bg-actionDark absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-out"
           style={{ width: `${percentage}%` }}

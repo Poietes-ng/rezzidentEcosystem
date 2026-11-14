@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
+import { colors } from '@rezzident/design-tokens'
 import { cn } from '../../utils/cn'
 
 /*
@@ -13,7 +14,10 @@ import { cn } from '../../utils/cn'
  * (className is for extra Tailwind classes; see report.md for the full story.)
  */
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outlined'
+export type ButtonVariant =
+  'primary' | 'secondary' | 'ghost' | 'outlined' | 'destructive' | 'success'
+
+export type ButtonSize = 'default' | 'sm'
 
 export interface ButtonStyle {
   /** Optional Tailwind classes. The typed fields below are stronger and win over this. */
@@ -102,34 +106,44 @@ const solidShape: ButtonStyle = {
   fontWeight: '600',
 }
 
+const smSolidShape: ButtonStyle = {
+  height: '32px',
+  minHeight: '32px',
+  padding: '4px 12px',
+  radius: '8px',
+  fontWeight: '600',
+  fontSize: '14px',
+  lineHeight: '18px',
+}
+
 // Per-variant defaults, using the same keys as the override prop
 const variantDefaults: Record<ButtonVariant, ButtonStyle> = {
   primary: {
     ...solidShape,
-    bgColor: '#1A1A1A', // actionDark
+    bgColor: colors.actionDark,
     textColor: '#FFFFFF',
     borderColor: 'transparent',
-    hoverBgColor: '#2E2E2E', // actionDarkHover
-    pressedBgColor: '#050505', // actionDarkPressed
-    disabledBgColor: '#D4D0C8', // actionDarkDisabled
+    hoverBgColor: colors.actionDarkHover,
+    pressedBgColor: colors.actionDarkPressed,
+    disabledBgColor: colors.actionDarkDisabled,
     disabledTextColor: '#FFFFFF',
   },
   secondary: {
     ...solidShape,
-    bgColor: '#FAFAF5', // actionDisabled
-    textColor: '#1A1A1A', // actionDark
+    bgColor: colors.offWhite,
+    textColor: colors.actionDark,
     borderColor: '#E5E7EB',
     hoverBgColor: '#EBEBE4',
-    pressedBgColor: '#9A9488',
+    pressedBgColor: colors.slateGray,
     disabledOpacity: '0.5',
     disabledBgColor: '#E8E5DF',
-    disabledTextColor: '#C0BAB0',
+    disabledTextColor: colors.mutedOlive,
   },
   outlined: {
     ...solidShape,
     bgColor: '#FFFFFF',
-    textColor: '#FFE022', // actionYellow
-    borderColor: '#FFE022', // actionYellow
+    textColor: colors.actionYellow,
+    borderColor: colors.actionYellow,
     hoverBgColor: '#FFFDE7',
     pressedBgColor: '#FFF9C4',
     disabledOpacity: '0.5',
@@ -139,15 +153,35 @@ const variantDefaults: Record<ButtonVariant, ButtonStyle> = {
     radius: '8px',
     fontWeight: '600',
     bgColor: 'transparent',
-    textColor: '#1A1A1A', // actionDark
-    hoverTextColor: '#FFE022',
-    disabledTextColor: '#D4D0C8',
+    textColor: colors.actionDark,
+    hoverTextColor: colors.actionYellow,
+    disabledTextColor: colors.actionDarkDisabled,
     borderColor: 'transparent',
     textBorderBottomWidth: '1px',
-    textBorderBottomColor: '#1A1A1A',
-    hoverTextBorderBottomColor: '#FFE022',
-    disabledTextBorderBottomColor: '#D4D0C8',
+    textBorderBottomColor: colors.actionDark,
+    hoverTextBorderBottomColor: colors.actionYellow,
+    disabledTextBorderBottomColor: colors.actionDarkDisabled,
     disabledOpacity: '0.5',
+  },
+  destructive: {
+    ...solidShape,
+    bgColor: colors.errorRed,
+    textColor: '#FFFFFF',
+    borderColor: 'transparent',
+    hoverBgColor: '#A83232',
+    pressedBgColor: '#8E2525',
+    disabledBgColor: colors.actionDarkDisabled,
+    disabledTextColor: '#FFFFFF',
+  },
+  success: {
+    ...solidShape,
+    bgColor: colors.successGreen,
+    textColor: '#FFFFFF',
+    borderColor: 'transparent',
+    hoverBgColor: '#1D8242',
+    pressedBgColor: '#176B36',
+    disabledBgColor: colors.actionDarkDisabled,
+    disabledTextColor: '#FFFFFF',
   },
 }
 
@@ -286,6 +320,7 @@ const styles = {
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
   variant?: ButtonVariant
+  size?: ButtonSize
   loading?: boolean
   loadingText?: string
   buttonStyle?: ButtonStyle
@@ -297,6 +332,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       style,
       variant = 'primary',
+      size = 'default',
       asChild = false,
       loading = false,
       loadingText = 'Please wait...',
@@ -311,8 +347,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // disabled wins over loading
     const stateClasses = disabled ? styles.disabled : loading ? styles.loading : styles.interactive
 
-    // One merged config: variant defaults + this button's overrides
-    const config = mergeStyles(variantDefaults[variant], buttonStyle)
+    // One merged config: variant defaults + size overrides + this button's overrides
+    const baseConfig =
+      size === 'sm' ? mergeStyles(variantDefaults[variant], smSolidShape) : variantDefaults[variant]
+    const config = mergeStyles(baseConfig, buttonStyle)
 
     const classes = cn(styles.base, styles.structure, config.shapeClass, stateClasses, className)
 

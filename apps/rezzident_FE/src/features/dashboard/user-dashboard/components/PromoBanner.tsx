@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { PromoAd } from '#/features/dashboard/user-dashboard/types/home.types'
-import { AdPlacement } from '#/shared/components/ui/ad-placement'
+import { AdPlacement } from '#/shared/components/ui'
 
 export interface PromoBannerProps {
   variant?: 'top-strip' | 'mid-promo'

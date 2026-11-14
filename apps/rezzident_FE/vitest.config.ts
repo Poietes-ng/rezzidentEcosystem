@@ -18,11 +18,17 @@ export default defineConfig({
     alias: {
       '#': new URL('./src', import.meta.url).pathname,
     },
+    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
   },
   test: {
     globals: true,
     environment: 'jsdom',
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: [],
+    server: {
+      deps: {
+        inline: ['@tanstack/react-query'],
+      },
+    },
   },
 })

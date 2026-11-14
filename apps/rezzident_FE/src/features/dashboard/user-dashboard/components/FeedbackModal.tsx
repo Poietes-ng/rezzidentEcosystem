@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react'
-import { Modal } from '#/shared/components/ui/modal'
-import { Button } from '#/shared/components/ui/button'
-import { AlertCard } from '#/shared/components/ui/alert-card'
+import { AlertCard, Button, Modal } from '#/shared/components/ui'
 import { FeedbackRatingGroup } from '#/features/dashboard/user-dashboard/components/FeedbackRatingGroup'
 import { useFeedback } from '#/features/dashboard/user-dashboard/hooks/useFeedback'
 

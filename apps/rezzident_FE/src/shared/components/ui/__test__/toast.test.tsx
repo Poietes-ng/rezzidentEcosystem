@@ -53,4 +53,14 @@ describe('Toast Component', () => {
 
     expect(handleClose).not.toHaveBeenCalled()
   })
+
+  it('renders error variant with role alert and error styling', () => {
+    render(<Toast open={true} onClose={vi.fn()} message="Update failed" variant="error" />)
+
+    const alertToast = screen.getByRole('alert')
+    expect(alertToast).toBeDefined()
+    expect(alertToast.textContent).toContain('Update failed')
+    expect(alertToast.textContent).toContain('cancel')
+    expect(alertToast.className).toContain('bg-errorRed')
+  })
 })

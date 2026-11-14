@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
-import { Modal } from '#/shared/components/ui/modal'
-import { Button } from '#/shared/components/ui/button'
+import { Button, Modal } from '#/shared/components/ui'
 import { useAppUpdate } from '#/features/dashboard/user-dashboard/hooks/useAppUpdate'
 
 export interface UpdateAvailableModalProps {
